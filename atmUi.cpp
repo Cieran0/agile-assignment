@@ -2,6 +2,9 @@
 #include <string>
 #include "raylib.h"
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
 class ATM {
 private:
     std::string cardNumber;      
@@ -82,24 +85,59 @@ public:
     }
 };
 
-int main() {
-    ATM transaction1;
 
-    const int screen_width = 1400;
-    const int screen_height = 1400;
-    InitWindow(screen_width, screen_height, "I dunno what this game is yet");
+int main()
+{
+    InitWindow(1920, 1080, "raygui - controls test suite");
     ToggleFullscreen();
     SetTargetFPS(60);
 
+    bool showMessageBox = false;
+
+    std::string keyPad[4][4] = {{"1", "2", "3", "cancel"},
+                                {"4", "5", "6", "clear"},
+                                {"7", "8", "9", "enter"},
+                                {" ", "0", " ", " "}};
+
+ 
+
     while (!WindowShouldClose())
     {
-        BeginDrawing();
-        ClearBackground(WHITE);
-        DrawCircle(screen_width/2, screen_height/2, 30, RED);
-        EndDrawing();
 
+        BeginDrawing();
+
+            DrawRectangle(GetScreenHeight()/2 ,GetScreenWidth()/1, 300,100, GREEN);
+
+            ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
+            for (auto & button : keyPad)
+            {
+                if (GuiButton((Rectangle){ 24, 24, 120, 30 }, "#191#Show Message")) showMessageBox = true;
+
+            if (showMessageBox)
+            {
+                int result = GuiMessageBox((Rectangle){ 85, 70, 250, 100 },
+                    "#191#Message Box", "Hi! This is a message!", "Nice;Cool");
+
+                if (result >= 0) showMessageBox = false;
+            }
+            }
+            
+
+            if (GuiButton((Rectangle){ 24, 24, 120, 30 }, "#191#Show Message")) showMessageBox = true;
+
+            if (showMessageBox)
+            {
+                int result = GuiMessageBox((Rectangle){ 85, 70, 250, 100 },
+                    "#191#Message Box", "Hi! This is a message!", "Nice;Cool");
+
+                if (result >= 0) showMessageBox = false;
+            }
+
+        EndDrawing();
     }
 
     CloseWindow();
     return 0;
 }
+
