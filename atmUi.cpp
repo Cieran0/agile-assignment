@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include "raylib.h"
 
 #include <sstream>
 
@@ -11,6 +10,54 @@
 using namespace std;
 
 vector<string> inputs;
+string displayText = "Please enter your PIN:"; // Global display text
+string pinDisplay = ""; // To show asterisks for PIN
+
+// Function to update the display text
+void setDisplayText(const string& text) {
+    displayText = text;
+}
+
+// Function to get the display text
+string getDisplayText() {
+    return displayText;
+}
+
+// Function to update PIN display
+void updatePinDisplay() {
+    pinDisplay = string(inputs.size(), '*'); // Convert PIN digits to asterisks
+}
+
+// Modified handleInput function
+bool handleInput(string buttonPressed) {
+    if (buttonPressed == "clear") {
+        inputs.clear();
+        pinDisplay = "";
+        return true;
+    }
+    
+    if (buttonPressed == "cancel") {
+        inputs.clear();
+        pinDisplay = "";
+        setDisplayText("Please enter your PIN:");
+        return true;
+    }
+
+    if (inputs.size() < 4 && buttonPressed.length() == 1) {
+        inputs.push_back(buttonPressed);
+        updatePinDisplay();
+        return true;
+    }
+
+    if (buttonPressed == "enter" && inputs.size() == 4) {
+        setDisplayText("Processing PIN...");
+        // put fake delay or something cba rn
+        setDisplayText("Pin of " + string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]));
+        return true;
+    }
+
+    return false;
+}
 
 class ATM {
 private:
@@ -92,45 +139,33 @@ public:
     }
 };
 
-bool handleInput(string buttonPressed){
-
-     if (inputs.size() < 4 && buttonPressed.length() == 1)
-    {
-        inputs.push_back(buttonPressed);
-        return true;
-    }
-
-    cout << " too many inputs" << endl;
-
-    return false;
-}
-
 int main()
 {
-    InitWindow(1920, 1080, "raygui - controls test suite");
+    int screenWidth = GetMonitorWidth(0);  
+    int screenHeight = GetMonitorHeight(0); 
+    InitWindow(screenWidth, screenHeight, "raygui - NCR ATM");
     ToggleFullscreen();
     SetTargetFPS(60);
 
-    bool showMessageBox = false;
-
     string keyPad[4][4] = {{"1", "2", "3", "cancel"},
-                                {"4", "5", "6", "clear"},
-                                {"7", "8", "9", "enter"},
-                                {" ", "0", " ", " "}};
-
- 
+                          {"4", "5", "6", "clear"},
+                          {"7", "8", "9", "enter"},
+                          {" ", "0", " ", " "}};
 
     while (!WindowShouldClose())
     {
-
         BeginDrawing();
-
-            DrawText("hello",0,0, 30, BLACK);
-
-
+        // wtf happend to the indenting??
             DrawRectangle(500 ,200, 350,150, GREEN);
-
             ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
+            // Draw the display text
+            DrawText(displayText.c_str(), 510, 210, 20, BLACK);
+            
+            // Draw the PIN display
+            if (!pinDisplay.empty()) {
+                DrawText(pinDisplay.c_str(), 510, 240, 30, BLACK);
+            }
 
             int offsetX = 0;
             int offsetY = 0;
@@ -138,19 +173,22 @@ int main()
             { 
                 for(int col = 0; col < 4; col ++){
                     offsetX += 100;
-                    if (GuiButton((Rectangle){600 + offsetX, 400 + offsetY, 80, 40},keyPad[row][col].c_str()))
+                    // wouldnt compile on mac without being casted to a float...
+                    Rectangle btnRect = {
+                        static_cast<float>(600 + offsetX),
+                        static_cast<float>(400 + offsetY),
+                        80.0f,
+                        40.0f
+                    };
+                    if (GuiButton(btnRect, keyPad[row][col].c_str()))
                     {
-                        DrawText("*",0,0, 30, BLACK);
-                        if(handleInput(keyPad[row][col]) == false){
-                        }
+                        handleInput(keyPad[row][col]);
                     }                
                 }
 
                 offsetY += 50;
                 offsetX = 0;
             }
-
-            
             
         EndDrawing();
     }
