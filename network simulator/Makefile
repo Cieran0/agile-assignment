@@ -1,2 +1,2 @@
 all:
-	g++ -o network_sim *.cpp
+	g++ -o network_sim *.cpp -lssl -lcrypto
