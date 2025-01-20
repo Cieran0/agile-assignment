@@ -2,15 +2,22 @@
 #include <string>
 #include "raylib.h"
 
+#include <sstream>
+
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
+#include <vector>
+
+using namespace std;
+
+vector<string> inputs;
 
 class ATM {
 private:
-    std::string cardNumber;      
-    std::string expiryDate;      
-    std::string atmID;          
-    std::string transactionID;  
+    string cardNumber;      
+    string expiryDate;      
+    string atmID;          
+    string transactionID;  
     int pin; 
     double withdrawalAmount;     
 
@@ -21,19 +28,19 @@ public:
 
     //setters
 
-    void setCardNumber(const std::string& card) {
+    void setCardNumber(const string& card) {
         cardNumber = card;
     }
 
-    void setExpiryDate(const std::string& expiry) {
+    void setExpiryDate(const string& expiry) {
         expiryDate = expiry;
     }
 
-    void setAtmID(const std::string& id) {
+    void setAtmID(const string& id) {
         atmID = id;
     }
 
-    void setTransactionID(const std::string& transaction) {
+    void setTransactionID(const string& transaction) {
         transactionID = transaction;
     }
 
@@ -45,24 +52,24 @@ public:
         if (amount >= 0) {
             withdrawalAmount = amount;
         } else {
-            std::cerr << "Invalid withdrawal amount!" << std::endl;
+            cerr << "Invalid withdrawal amount!" << endl;
         }
     }
 
     // Getters
-    std::string getCardNumber() const {
+    string getCardNumber() const {
         return cardNumber;
     }
 
-    std::string getExpiryDate() const {
+    string getExpiryDate() const {
         return expiryDate;
     }
 
-    std::string getAtmID() const {
+    string getAtmID() const {
         return atmID;
     }
 
-    std::string getTransactionID() const {
+    string getTransactionID() const {
         return transactionID;
     }
 
@@ -76,15 +83,27 @@ public:
 
    
     void displayTransactionDetails() const {
-        std::cout << "Transaction Details:" << std::endl;
-        std::cout << "Card Number: " << cardNumber << std::endl;
-        std::cout << "Expiry Date: " << expiryDate << std::endl;
-        std::cout << "ATM ID: " << atmID << std::endl;
-        std::cout << "Transaction ID: " << transactionID << std::endl;
-        std::cout << "Withdrawal Amount: £" << withdrawalAmount << std::endl;
+        cout << "Transaction Details:" << endl;
+        cout << "Card Number: " << cardNumber << endl;
+        cout << "Expiry Date: " << expiryDate << endl;
+        cout << "ATM ID: " << atmID << endl;
+        cout << "Transaction ID: " << transactionID << endl;
+        cout << "Withdrawal Amount: £" << withdrawalAmount << endl;
     }
 };
 
+bool handleInput(string buttonPressed){
+
+     if (inputs.size() < 4 && buttonPressed.length() == 1)
+    {
+        inputs.push_back(buttonPressed);
+        return true;
+    }
+
+    cout << " too many inputs" << endl;
+
+    return false;
+}
 
 int main()
 {
@@ -94,7 +113,7 @@ int main()
 
     bool showMessageBox = false;
 
-    std::string keyPad[4][4] = {{"1", "2", "3", "cancel"},
+    string keyPad[4][4] = {{"1", "2", "3", "cancel"},
                                 {"4", "5", "6", "clear"},
                                 {"7", "8", "9", "enter"},
                                 {" ", "0", " ", " "}};
@@ -106,34 +125,33 @@ int main()
 
         BeginDrawing();
 
-            DrawRectangle(GetScreenHeight()/2 ,GetScreenWidth()/1, 300,100, GREEN);
+            DrawText("hello",0,0, 30, BLACK);
+
+
+            DrawRectangle(500 ,200, 350,150, GREEN);
 
             ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-            for (auto & button : keyPad)
-            {
-                if (GuiButton((Rectangle){ 24, 24, 120, 30 }, "#191#Show Message")) showMessageBox = true;
+            int offsetX = 0;
+            int offsetY = 0;
+            for (int row = 0; row < 4; row++)
+            { 
+                for(int col = 0; col < 4; col ++){
+                    offsetX += 100;
+                    if (GuiButton((Rectangle){600 + offsetX, 400 + offsetY, 80, 40},keyPad[row][col].c_str()))
+                    {
+                        DrawText("*",0,0, 30, BLACK);
+                        if(handleInput(keyPad[row][col]) == false){
+                        }
+                    }                
+                }
 
-            if (showMessageBox)
-            {
-                int result = GuiMessageBox((Rectangle){ 85, 70, 250, 100 },
-                    "#191#Message Box", "Hi! This is a message!", "Nice;Cool");
+                offsetY += 50;
+                offsetX = 0;
+            }
 
-                if (result >= 0) showMessageBox = false;
-            }
-            }
             
-
-            if (GuiButton((Rectangle){ 24, 24, 120, 30 }, "#191#Show Message")) showMessageBox = true;
-
-            if (showMessageBox)
-            {
-                int result = GuiMessageBox((Rectangle){ 85, 70, 250, 100 },
-                    "#191#Message Box", "Hi! This is a message!", "Nice;Cool");
-
-                if (result >= 0) showMessageBox = false;
-            }
-
+            
         EndDrawing();
     }
 
