@@ -3,20 +3,28 @@
 
 vector<string> inputs;
 string displayText = "Please enter your PIN:"; // Global display text
+string balanceText = "Enter amount for withdrawl";
 
 string pinDisplay = ""; // To show asterisks for PIN
 string enteredPIN;
 bool validatedPIN = false;
 
-typedef struct{
-string PIN;
-float balance;
-}account;
+
+enum Screen {
+    EnterPin = 1,
+    MainMenu = 2,
+    Withdraw = 3,
+    Balance = 4,
+    Deposit = 5
+};
+
+enum Screen screen = EnterPin;
+
 
 string keyPad[4][4] = {{"1", "2", "3", "cancel"},
-                          {"4", "5", "6", "clear"},
-                          {"7", "8", "9", "enter"},
-                          {" ", "0", " ", " "}};
+                    {"4", "5", "6", "clear"},
+                    {"7", "8", "9", "enter"},
+                    {" ", "0", " ", " "}};
 
     // Function to update the display text
 void setDisplayText(const string& text) {
@@ -27,12 +35,13 @@ void setDisplayText(const string& text) {
   Will be replaced by switch and network simulator
 */
 bool validatePIN(std::string enteredPIN){
-    account a1;
+    Account a1;
     a1.PIN = "1234";
     
         if (enteredPIN == a1.PIN)
         {
             cout << "match " << endl;
+            screen = MainMenu;
             return true;
         }  
       
@@ -89,7 +98,7 @@ void displayTransactionChoices(){
                 {{100, 100, 200, 50}, "Balance Inquiry"},
                 {{100, 200, 200, 50}, "Cash Withdrawal"},
                 {{100, 300, 200, 50}, "Deposit"}
-            };
+        };
 
         int buttonCount = sizeof(buttons)/ sizeof(buttons[0]);
 
@@ -101,64 +110,108 @@ void displayTransactionChoices(){
                 switch (i)
                 {
                 case 0:
+                    screen = Balance;
                     cout << "balance" << endl;
                     break;
                 case 1:
+                    screen = Withdraw;
                     cout << "withdraw" << endl;
                     break;
                 case 2:
+                    screen = Deposit;
                     cout << "deposit" << endl;
                     break;
                 }
             
             }
+        }
+}
 
+void drawMainMenu() {
+        DrawRectangle(500 ,200, 350,150, GREEN);
+
+        // Draw the display text
+        DrawText(displayText.c_str(), 510, 210, 20, BLACK);
+        
+        // Draw the PIN display
+        if (!pinDisplay.empty()) {
+            DrawText(pinDisplay.c_str(), 510, 240, 30, BLACK);
+        }
+
+        int offsetX = 0;
+        int offsetY = 0;
+        for (int row = 0; row < 4; row++)
+        { 
+            for(int col = 0; col < 4; col ++){
+                offsetX += 100;
+                // wouldnt compile on mac without being casted to a float...
+                Rectangle btnRect = {
+                    static_cast<float>(600 + offsetX),
+                    static_cast<float>(400 + offsetY),
+                    80.0f,
+                    40.0f
+                };
+                if (GuiButton(btnRect, keyPad[row][col].c_str()))
+                {
+                    handleInput(keyPad[row][col]);
+                }                
+            }
+            offsetY += 50;
+            offsetX = 0;
         }
 }
 
 void displayTerminal(){
-    if (validatedPIN == false)
-        {
-            DrawRectangle(500 ,200, 350,150, GREEN);
 
-            // Draw the display text
-            DrawText(displayText.c_str(), 510, 210, 20, BLACK);
-            
-            // Draw the PIN display
-            if (!pinDisplay.empty()) {
-                DrawText(pinDisplay.c_str(), 510, 240, 30, BLACK);
-            }
-
-            int offsetX = 0;
-            int offsetY = 0;
-            for (int row = 0; row < 4; row++)
-            { 
-                for(int col = 0; col < 4; col ++){
-                    offsetX += 100;
-                    // wouldnt compile on mac without being casted to a float...
-                    Rectangle btnRect = {
-                        static_cast<float>(600 + offsetX),
-                        static_cast<float>(400 + offsetY),
-                        80.0f,
-                        40.0f
-                    };
-                    if (GuiButton(btnRect, keyPad[row][col].c_str()))
-                    {
-                        handleInput(keyPad[row][col]);
-                    }                
-                }
-
-                offsetY += 50;
-                offsetX = 0;
-            }
-        }
-        else{
+    switch (screen) {
+        case 1:
+            drawMainMenu();
+            cout << "on enter pin menu" << endl;
+            break;
+        case 2:
             displayTransactionChoices();
-        }
+            cout << "on main menu" << endl;
+            break;
+        case 3:
+            drawWithdrawMenu();
+            cout << "on withdraw screen" << endl;
+            break;
+    }
 }
 
 void balance(){
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
     DrawText("",0,0, 40, BLACK);
+}
+
+void drawWithdrawMenu() {
+    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
+    DrawRectangle(500, 200, 350, 150, GREEN);
+
+    DrawText("Enter Withdrawal Amount:", 510, 210, 20, BLACK);
+
+    int offsetX = 0;
+    int offsetY = 0;
+    for (int row = 0; row < 4; row++) {
+        for (int col = 0; col < 4; col++) {
+            offsetX += 100;
+            Rectangle btnRect = {
+                static_cast<float>(600 + offsetX),
+                static_cast<float>(400 + offsetY),
+                80.0f,
+                40.0f
+            };
+            if (GuiButton(btnRect, keyPad[row][col].c_str())) {
+                handleInput(keyPad[row][col]);
+            }
+        }
+        offsetY += 50;
+        offsetX = 0;
+    }
+
+    if (!pinDisplay.empty()) {
+        DrawText(pinDisplay.c_str(), 510, 300, 30, BLACK);
+    }
 }

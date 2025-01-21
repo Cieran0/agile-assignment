@@ -7,5 +7,6 @@
         "iostream": "cpp",
         "sstream": "cpp",
         "string": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 }
