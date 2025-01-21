@@ -91,7 +91,7 @@ private:
                 } else if (message.find("PING") == 0) {
                     response = "PONG :localhost\r\n";
                 } else {
-                    response = ":localhost 421 Unknown command\r\n";
+                    response = ":localhost 421 Unknown command boob\r\n";
                 }
 
                 std::cout << "Sending response: " << response << std::endl;
