@@ -28,7 +28,7 @@ endif
 
 # Target
 all:
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o ui atmUi.cpp $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o ui *.cpp $(LDFLAGS)
 
 # Clean
 clean:
