@@ -1,56 +1,60 @@
 #include "db.hpp"
 #include <iostream>
 #include <sstream>
+#include <format>
 
-static int callback(void* data, int argc, char** argv, char** azColName){
-    for(int i = 0; i < argc; i++){
-        std::cout << azColName[i] << " = " << (argv[i] ? argv[i] : "NULL") << std::endl;
+typedef const unsigned char* sqlite_string; 
+
+Response processTransaction(Transaction transaction, sqlite3* db) {
+    Response response = {0};
+
+    std::string sql_string = std::format("SELECT Balance FROM Customer WHERE CardNumber = '{}' AND PIN = '{}';", transaction.cardNumber, transaction.pinNo);
+
+    sqlite3_stmt* stmt = nullptr;
+    int exitCode = sqlite3_prepare_v2(db, sql_string.c_str(), -1, &stmt, nullptr);
+
+    if (exitCode != SQLITE_OK) {
+        sqlite3_close(db);
+
+        response.succeeded = DATABASE_ERROR;
+        return response;
     }
-    std::cout << std::endl;
 
-    return 0;
+    if (sqlite3_step(stmt) != SQLITE_ROW) {
+        sqlite3_finalize(stmt);
 
+        response.succeeded = INCORRECT_PIN;
+        return response;
+    }
+
+    double current_balance = sqlite3_column_double(stmt, 0);
+    
+    if(transaction.withdrawalAmount == 0) {
+        response.new_balance = current_balance;
+        response.succeeded = true;
+        return response;
+    }
+
+    if (transaction.withdrawalAmount > current_balance) {
+        response.succeeded = INSUFFICIENT_FUNDS;
+        return response;
+    }
+
+    double new_balance = current_balance - transaction.withdrawalAmount;
+    std::string update_sql = std::format("UPDATE Customer SET Balance = {} WHERE CardNumber = '{}';", new_balance, transaction.cardNumber);
+
+    exitCode = sqlite3_exec(db, update_sql.c_str(), nullptr, nullptr, nullptr);
+    if (exitCode != SQLITE_OK) {
+        response.succeeded = DATABASE_ERROR;
+        return response;
+    }
+    
+    response.new_balance = new_balance;
+
+    sqlite3_finalize(stmt);
+    return response;
 }
 
-int init(sqlite3* db){
-    int exitCode = sqlite3_open("database.db", &db);
-    if(exitCode){
-        std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
-    }
-
-    return exitCode;
-}
-
-int doTransaction(Transaction transaction, double &balance, sqlite3* db){
-    std::stringstream query;
-    if(transaction.withdrawalAmount != 0.00){
-        query << "UPDATE Customer SET Balance = Balance - " << transaction.withdrawalAmount << "WHERE " <<  transaction.cardNumber << " = CardNumber AND " << transaction.pinNo << " = PIN;";
-
-    }
-    query.str(std::string());
-
-    query << "SELECT Balance FROM Customer WHERE " <<  transaction.cardNumber << " = CardNumber AND " << transaction.pinNo << " = PIN;";
-}
-
-int main(){
-    sqlite3* db;
-    const char* db_name = "database.db";
-
-    int exitCode = sqlite3_open(db_name, &db);
-    if(exitCode){
-        std::cerr << "Can't open database: " << sqlite3_errmsg(db) << std::endl;
-    }
-
-    const char* query = "SELECT * FROM Customer WHERE Balance = (SELECT MAX(Balance) FROM Customer);";
-
-    char* err_msg = nullptr;
-    exitCode = sqlite3_exec(db, query, callback, 0, &err_msg);
-    if(exitCode != SQLITE_OK){
-        std::cerr << "SQL error: " << err_msg << std::endl;
-        sqlite3_free(err_msg);
-    }
-
-    sqlite3_close(db);
-
-    return 0;
+int initDatabaseConnection(sqlite3* db) {
+    return sqlite3_open("database.db", &db);
 }

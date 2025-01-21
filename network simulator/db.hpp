@@ -10,6 +10,15 @@ struct Transaction {
     double withdrawalAmount;
 };
 
-static int callback(void* data, int argc, char** argv, char** azColName);
-int doTransaction(Transaction t, double &balance, sqlite3* db);
-int init(sqlite3& db);
+#define TRANSACTION_SUCESS 0
+#define INSUFFICIENT_FUNDS 1
+#define DATABASE_ERROR 2
+#define INCORRECT_PIN 3
+
+struct Response {
+    int succeeded;
+    double new_balance;
+};
+
+Response processTransaction(Transaction transaction, sqlite3* db);
+int initDatabaseConnection(sqlite3* db);
