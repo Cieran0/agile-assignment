@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <vector>
 #include "TransactionLogr.h"
 #include "NetworkRouter.h"
 
@@ -12,23 +13,51 @@ public:
     TransactionSwitch() : logger(), router() {}
 
     void startServer() {
-        int server_sock = createSocket(6667);  // IRC default port
-        std::cout << "IRC-compatible Transaction Switch running on port 6667...\n";
+        int server_sock_6667 = createSocket(6667);
+        int server_sock_6668 = createSocket(6668);
+
+        std::cout << "IRC-compatible Transaction Switch running on ports 6667 and 6668...\n";
+
+        std::vector<int> server_sockets = {server_sock_6667, server_sock_6668};
 
         while (true) {
-            sockaddr_in client_addr;
-            socklen_t addr_len = sizeof(client_addr);
-            int client_sock = accept(server_sock, (struct sockaddr*)&client_addr, &addr_len);
-            if (client_sock < 0) {
-                perror("Unable to accept connection");
+            fd_set read_fds;
+            FD_ZERO(&read_fds);
+
+            int max_fd = 0;
+            for (int sock : server_sockets) {
+                FD_SET(sock, &read_fds);
+                if (sock > max_fd) max_fd = sock;
+            }
+
+            // Wait for activity on any socket
+            int activity = select(max_fd + 1, &read_fds, nullptr, nullptr, nullptr);
+            if (activity < 0) {
+                perror("Select error");
                 continue;
             }
 
-            handleClient(client_sock);
-            close(client_sock);
+            for (int sock : server_sockets) {
+                if (FD_ISSET(sock, &read_fds)) {
+                    sockaddr_in client_addr;
+                    socklen_t addr_len = sizeof(client_addr);
+                    int client_sock = accept(sock, (struct sockaddr*)&client_addr, &addr_len);
+                    if (client_sock < 0) {
+                        perror("Unable to accept connection");
+                        continue;
+                    }
+
+                    std::cout << "Accepted connection on port "
+                              << (sock == server_sock_6667 ? "6667" : "6668") << "\n";
+
+                    handleClient(client_sock);
+                    close(client_sock);
+                }
+            }
         }
 
-        close(server_sock);
+        close(server_sock_6667);
+        close(server_sock_6668);
     }
 
 private:
@@ -57,6 +86,7 @@ private:
             exit(EXIT_FAILURE);
         }
 
+        std::cout << "Listening on port " << port << "\n";
         return sock;
     }
 
@@ -83,7 +113,7 @@ private:
                 } else if (message.find("PRIVMSG") == 0) {
                     std::string request = parseMessage(message);
                     if (!request.empty()) {
-                        std::cout << "Extracted transaction request: " << request << std::endl; // Debugging
+                        std::cout << "Extracted transaction request: " << request << std::endl;
                         response = handleTransactionRequest(request);
                     } else {
                         response = ":localhost NOTICE * :Invalid PRIVMSG format.\r\n";
@@ -117,7 +147,6 @@ private:
         if (pos != std::string::npos) {
             std::string parsed = message.substr(pos + 1);
             parsed.erase(parsed.find_last_not_of("\r\n") + 1); // Trim trailing newline and carriage return
-            std::cout << "Parsed message: " << parsed << std::endl; // Debugging
             return parsed;
         }
         return "";

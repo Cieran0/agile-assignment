@@ -1,85 +1,83 @@
 #include <iostream>
-#include <string>
 #include <cstring>
+#include <sstream>
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
-// Connect to the server
-int connectToServer(const std::string &server_ip, int port) {
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) {
+void sendCommand(int sock, const std::string& command) {
+    std::cout << "Sending command: " << command << std::endl; // Debug log
+    send(sock, command.c_str(), command.size(), 0);
+}
+
+int main() {
+    const char* server_ip = "127.0.0.1";
+    const int server_port = 6667;
+
+    std::cout << "Creating socket..." << std::endl;
+    int client_sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (client_sock < 0) {
         perror("Socket creation failed");
-        return -1;
+        return 1;
     }
 
     sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
+    server_addr.sin_port = htons(server_port);
+    inet_pton(AF_INET, server_ip, &server_addr.sin_addr);
 
-    if (inet_pton(AF_INET, server_ip.c_str(), &server_addr.sin_addr) <= 0) {
-        perror("Invalid server IP address");
-        close(sock);
-        return -1;
-    }
-
-    if (connect(sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+    std::cout << "Connecting to server..." << std::endl;
+    if (connect(client_sock, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("Connection to server failed");
-        close(sock);
-        return -1;
-    }
-
-    std::cout << "Connected to server at " << server_ip << ":" << port << std::endl;
-    return sock;
-}
-
-// Send a message to the server and receive the response
-void sendMessage(int sock, const std::string &message) {
-    std::string formatted_message = "PRIVMSG localhost :" + message + "\r\n";
-    if (send(sock, formatted_message.c_str(), formatted_message.length(), 0) < 0) {
-        perror("Send failed");
-        return;
-    }
-
-    std::cout << "Sent: " << formatted_message;
-
-    char buffer[512] = {0};
-    int bytes = recv(sock, buffer, sizeof(buffer) - 1, 0);
-    if (bytes > 0) {
-        std::cout << "Received: " << std::string(buffer) << std::endl;
-    } else if (bytes == 0) {
-        std::cout << "Server closed the connection." << std::endl;
-    } else {
-        perror("Receive failed");
-    }
-}
-
-int main() {
-    std::string server_ip = "127.0.0.1"; // Localhost
-    int port = 6667;                    // Same port as the server
-
-    // Connect to the server
-    int sock = connectToServer(server_ip, port);
-    if (sock < 0) {
+        close(client_sock);
         return 1;
     }
 
-    bool boob = true;
+    std::cout << "Connected to server.\n";
 
-    // Main loop for sending requests
-    std::string input;
-    while (boob) {
-        std::cout << "Enter transaction request (or type 'exit' to quit): ";
-        std::getline(std::cin, input);
+    // Send initial IRC setup commands
+    sendCommand(client_sock, "NICK TestClient\r\n");
+    sendCommand(client_sock, "USER test 0 * :Test Client\r\n");
 
-        if (input == "exit") {
+    char buffer[512];
+    while (true) {
+        std::cout << "Select an option:\n";
+        std::cout << "1. Withdraw\n";
+        std::cout << "2. Quit\n";
+        std::cout << "Enter your choice: ";
+
+        int choice;
+        std::cin >> choice;
+
+        if (choice == 2) {
+            std::cout << "Quitting...\n";
             break;
-        }
+        } else if (choice == 1) {
+            std::cout << "Enter the amount to withdraw: ";
+            int amount;
+            std::cin >> amount;
 
-        sendMessage(sock, input);
+            std::ostringstream request;
+            request << "PRIVMSG :Withdrawal|" << amount << "\r\n";
+
+            sendCommand(client_sock, request.str());
+
+            std::cout << "Waiting for server response...\n";
+            memset(buffer, 0, sizeof(buffer));
+            int bytes_received = recv(client_sock, buffer, sizeof(buffer), 0);
+            if (bytes_received > 0) {
+                std::cout << "Server response: " << std::string(buffer, bytes_received) << "\n";
+            } else {
+                std::cout << "No response or connection closed.\n";
+                break;
+            }
+        } else {
+            std::cout << "Invalid choice. Please try again.\n";
+        }
     }
 
-    close(sock);
-    std::cout << "Disconnected from server." << std::endl;
+    std::cout << "Closing connection.\n";
+    close(client_sock);
     return 0;
 }
