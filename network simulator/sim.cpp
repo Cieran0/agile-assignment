@@ -8,6 +8,9 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/crypto.h>
+#include <thread>
+#include <vector>
+#include <mutex>
 
 struct Transaction {
     char cardNumber[20];
@@ -21,36 +24,40 @@ struct Transaction {
 const int PORT = 8000;
 
 void handleClient(SSL *ssl) {
-    char buff[2048];
+    Transaction transaction;
+    const char okResponse[] = "OK";
     int n;
 
     while (true) {
-        std::memset(buff, 0, 2048);
+        std::memset(&transaction, 0, sizeof(transaction));
 
-        n = SSL_read(ssl, buff, sizeof(buff));
+        n = SSL_read(ssl, &transaction, sizeof(transaction));
         if (n <= 0) {
-            std::cerr << "SSL read error" << std::endl;
+            std::cerr << "Client Disconnected" << std::endl;
             break;
         }
 
-        std::cout << "received: " << buff << std::endl;
+        std::cout << "Transaction {" << std::endl;
+        std::cout << "\tcardNumber: " << transaction.cardNumber << std::endl;
+        std::cout << "\texpiryDate: " << transaction.expiryDate << std::endl;
+        std::cout << "\tatmID: " << transaction.atmID << std::endl;
+        std::cout << "\tuniqueTransactionID: " << transaction.uniqueTransactionID << std::endl;
+        std::cout << "\tpinNo: " << transaction.pinNo << std::endl;
+        std::cout << "\twithdrawalAmount: " << transaction.withdrawalAmount << std::endl;
+        std::cout << "}" << std::endl;
 
-        SSL_write(ssl, buff, n);
+        SSL_write(ssl, okResponse, sizeof(okResponse));
     }
+
+    SSL_free(ssl);
 }
 
-int main() {
-    SSL_CTX *ctx;
-    SSL *ssl;
-    int sockfd, connfd;
-    sockaddr_in servaddr = {0};
-    sockaddr_in cli = {0};
-
+int initSSLServer(SSL_CTX *&ctx, int &sockfd, sockaddr_in &servaddr) {
     // Initialize OpenSSL
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
-    
+
     // Create SSL context
     const SSL_METHOD *method = TLS_server_method();
     ctx = SSL_CTX_new(method);
@@ -75,7 +82,14 @@ int main() {
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
-        std::cout << "Failed to create Socket" << std::endl;
+        std::cerr << "Failed to create socket" << std::endl;
+        return -1;
+    }
+
+    // Set SO_REUSEADDR to force unbind
+    int opt = 1;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        std::cerr << "Failed to set SO_REUSEADDR" << std::endl;
         return -1;
     }
 
@@ -83,32 +97,67 @@ int main() {
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port = htons(PORT);
 
-    if (bind(sockfd, (sockaddr*)&servaddr, sizeof(servaddr)) != 0) {
-        std::cout << "Failed to bind Socket" << std::endl;
+    if (bind(sockfd, (sockaddr *)&servaddr, sizeof(servaddr)) != 0) {
+        std::cout << "Failed to bind socket" << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
+
+void clientThreadFunction(SSL_CTX *ctx, int connfd) {
+    // Create SSL object
+    SSL *ssl = SSL_new(ctx);
+    SSL_set_fd(ssl, connfd);
+
+    // Perform SSL handshake
+    if (SSL_accept(ssl) <= 0)
+    {
+        std::cerr << "SSL handshake failed" << std::endl;
+        ERR_print_errors_fp(stderr);
+        SSL_free(ssl);
+        close(connfd);
+        return;
+    }
+
+    handleClient(ssl);
+    close(connfd);
+}
+
+int main() {
+    SSL_CTX *ctx;
+    int sockfd = -1;
+    sockaddr_in servaddr = {0};
+
+    if (initSSLServer(ctx, sockfd, servaddr) != 0) {
         return -1;
     }
 
     listen(sockfd, 5);
 
-    socklen_t len = sizeof(cli);
-    connfd = accept(sockfd, (sockaddr*)&cli, &len);
+    std::vector<std::thread> threads;
 
-    // Create SSL object
-    ssl = SSL_new(ctx);
-    SSL_set_fd(ssl, connfd);
+    while (true) {
+        sockaddr_in cli = {0};
+        socklen_t len = sizeof(cli);
+        int connfd = accept(sockfd, (sockaddr *)&cli, &len);
+        if (connfd < 0) {
+            std::cerr << "Failed to accept connection" << std::endl;
+            continue;
+        }
 
-    // Perform SSL handshake
-    if (SSL_accept(ssl) <= 0) {
-        std::cerr << "SSL handshake failed" << std::endl;
-        ERR_print_errors_fp(stderr);
-        return -1;
+        threads.emplace_back([ctx, connfd](){
+            clientThreadFunction(ctx, connfd);
+        });
     }
 
-    handleClient(ssl);
-
     // Clean up
-    SSL_free(ssl);
-    close(connfd);
+    for (std::thread &thread : threads) {
+        if (thread.joinable()) {
+            thread.join();
+        }
+    }
+
     close(sockfd);
     SSL_CTX_free(ctx);
     EVP_cleanup();
