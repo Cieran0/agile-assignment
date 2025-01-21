@@ -1,18 +1,12 @@
-// main.cpp
-#include <iostream>
-#include "TransactionSwitch.h"
-using namespace std;
+#include "TransactionSwitch.cpp"
 
 int main() {
-    // create instance of el server
     TransactionSwitch server;
 
     try {
-        // start el server to listen for incoming transactions
         server.startServer();
-    }
-    catch (const exception& e) { // standard error message shiz
-        cerr << "Error starting server: " << e.what() << endl;
+    } catch (const std::exception &e) {
+        std::cerr << "Error starting server: " << e.what() << std::endl;
     }
 
     return 0;
