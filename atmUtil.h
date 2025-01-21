@@ -10,10 +10,8 @@ using namespace std;
 
 struct Account {
     string PIN;
-    float balance;
+    double balance;
 };
-
-
 
 bool validatePIN(string enteredPIN);
 void handleInput(string buttonPressed);
@@ -25,8 +23,10 @@ void displayTerminal();
 void drawMainMenu();
 void drawWithdrawMenu();
 
-void balance();
+void drawBalance();
 void withdraw();
 void deposit();
+
+void presentBalance();
 
 #endif

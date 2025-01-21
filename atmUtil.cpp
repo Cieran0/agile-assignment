@@ -20,6 +20,7 @@ enum Screen {
 
 enum Screen screen = EnterPin;
 
+Account a1 = {PIN: "1234", balance: 1000};
 
 string keyPad[4][4] = {{"1", "2", "3", "cancel"},
                     {"4", "5", "6", "clear"},
@@ -35,9 +36,7 @@ void setDisplayText(const string& text) {
   Will be replaced by switch and network simulator
 */
 bool validatePIN(std::string enteredPIN){
-    Account a1;
-    a1.PIN = "1234";
-    
+        
         if (enteredPIN == a1.PIN)
         {
             cout << "match " << endl;
@@ -176,13 +175,58 @@ void displayTerminal(){
             drawWithdrawMenu();
             cout << "on withdraw screen" << endl;
             break;
+        case 4:
+            drawBalance();
+            break;
     }
 }
 
-void balance(){
+void drawBalance(){
+    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+    
+    //DrawText();
+
+    typedef struct {
+            Rectangle bounds; // Button position and size
+            const char *text; // Button label
+            } Button;
+
+    Button buttons[] = {
+                {{100, 100, 200, 50}, "View Balance"},
+                {{100, 200, 200, 50}, "Print Balance"}
+        };    
+
+    int buttonCount = sizeof(buttons)/ sizeof(buttons[0]);
+
+        for (int i = 0; i < buttonCount; i++) {
+        if (GuiButton(buttons[i].bounds, buttons[i].text)) {
+            
+            switch (i) {
+                case 0:
+                    cout << "View Balance button pressed" << endl;
+                    presentBalance();
+                    break;
+                case 1:
+                    cout << "Print Balance button pressed" << endl;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    
+}
+
+void presentBalance(){
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-    DrawText("",0,0, 40, BLACK);
+    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+    DrawText(to_string(a1.balance).c_str(),200,500, 40, BLACK);
+
+    if (GuiButton({200, 600, 200, 50}, "Back")) {
+        screen = MainMenu; 
+    }
 }
 
 void drawWithdrawMenu() {
