@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <functional>
+#include <sqlite3.h>
 
 std::vector<std::function<void(const Transaction&)>> loggers;
 
@@ -17,7 +18,31 @@ void log(const Transaction& transaction) {
 }
 
 void DatabaseLogger(const Transaction& transaction) {
-    // Not implemented
+    sqlite3* db;
+    int exitCode = sqlite3_open("database.db", &db);
+    if (exitCode != SQLITE_OK) {
+        std::cerr << "Failed to open database: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return;
+    }
+
+    std::string sql = std::format(
+        "INSERT INTO Transactions (TransactionID, ATM_ID, WithdrawlAmount, CardNumber) "
+        "VALUES ({}, {}, {}, '{}');",
+        transaction.uniqueTransactionID,
+        transaction.atmID,
+        transaction.withdrawalAmount,
+        transaction.cardNumber
+    );
+
+    char* errorMessage = nullptr;
+    exitCode = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errorMessage);
+    if (exitCode != SQLITE_OK) {
+        std::cerr << "SQL error: " << errorMessage << std::endl;
+        sqlite3_free(errorMessage);
+    }
+
+    sqlite3_close(db);
 }
 
 void ConsoleLogger(const Transaction& transaction) {
@@ -33,6 +58,7 @@ void ConsoleLogger(const Transaction& transaction) {
 int main(int argc, char const *argv[]) {
     
     addLogger(ConsoleLogger);
+    addLogger(DatabaseLogger);
 
     // Example Transaction
     Transaction exampleTransaction = {
