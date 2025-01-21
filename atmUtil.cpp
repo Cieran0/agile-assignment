@@ -8,6 +8,11 @@ string pinDisplay = ""; // To show asterisks for PIN
 string enteredPIN;
 bool validatedPIN = false;
 
+typedef struct{
+string PIN;
+float balance;
+}account;
+
 string keyPad[4][4] = {{"1", "2", "3", "cancel"},
                           {"4", "5", "6", "clear"},
                           {"7", "8", "9", "enter"},
@@ -22,17 +27,15 @@ void setDisplayText(const string& text) {
   Will be replaced by switch and network simulator
 */
 bool validatePIN(std::string enteredPIN){
-    string storedPIN[5] = {"1234", "1243", "1345", "1678"};
-
-    for (auto &pins : storedPIN)
-    {
-        if (enteredPIN == pins)
+    account a1;
+    a1.PIN = "1234";
+    
+        if (enteredPIN == a1.PIN)
         {
             cout << "match " << endl;
             return true;
         }  
-    }
-    
+      
     return false;
 }
 
@@ -41,20 +44,17 @@ void handleInput(string buttonPressed) {
     if (buttonPressed == "clear") {
         inputs.clear();
         pinDisplay = "";
-        
     }
     
     if (buttonPressed == "cancel") {
         inputs.clear();
         pinDisplay = "";
-        setDisplayText("Please enter your PIN:");
-        
+        setDisplayText("Please enter your PIN:");  
     }
 
     if (inputs.size() < 4 && buttonPressed.length() == 1) {
         inputs.push_back(buttonPressed);
         updatePinDisplay();
-        
     }
 
     if (buttonPressed == "enter" && inputs.size() == 4) {
@@ -157,3 +157,8 @@ void displayTerminal(){
         }
 }
 
+void balance(){
+    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
+    DrawText("",0,0, 40, BLACK);
+}

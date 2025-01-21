@@ -17,5 +17,8 @@ string getDisplayText();
 void updatePinDisplay();
 void displayTerminal();
 
+void balance();
+void withdraw();
+void deposit();
 
 #endif

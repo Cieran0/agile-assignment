@@ -14,7 +14,7 @@ using namespace std;
     string expiryDate;      
     string atmID;          
     string transactionID;  
-    int pin; 
+    string pin; 
     double withdrawalAmount;     
 
 int main()
