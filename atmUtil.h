@@ -13,6 +13,12 @@ struct Account {
     double balance;
 };
 
+typedef struct {
+    Rectangle bounds; 
+    const char *text;
+} Button;
+
+
 bool validatePIN(string enteredPIN);
 void handleInput(string buttonPressed);
 void displayTransactionChoices();

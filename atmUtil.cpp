@@ -15,7 +15,8 @@ enum Screen {
     MainMenu = 2,
     Withdraw = 3,
     Balance = 4,
-    Deposit = 5
+    BalanceAmount = 5,
+    Deposit = 6
 };
 
 enum Screen screen = EnterPin;
@@ -87,12 +88,6 @@ string getDisplayText() {
 }
 
 void displayTransactionChoices(){
-
-        typedef struct {
-            Rectangle bounds; // Button position and size
-            const char *text; // Button label
-        } Button;
-
         Button buttons[] = {
                 {{100, 100, 200, 50}, "Balance Inquiry"},
                 {{100, 200, 200, 50}, "Cash Withdrawal"},
@@ -178,6 +173,9 @@ void displayTerminal(){
         case 4:
             drawBalance();
             break;
+        case 5:
+            presentBalance();
+            break;
     }
 }
 
@@ -204,7 +202,7 @@ void drawBalance(){
             switch (i) {
                 case 0:
                     cout << "View Balance button pressed" << endl;
-                    presentBalance();
+                    screen = BalanceAmount;
                     break;
                 case 1:
                     cout << "Print Balance button pressed" << endl;
@@ -218,16 +216,17 @@ void drawBalance(){
     
 }
 
-void presentBalance(){
+void presentBalance() {
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
-    DrawText(to_string(a1.balance).c_str(),200,500, 40, BLACK);
+    DrawText(to_string(a1.balance).c_str(), 200, 500, 40, BLACK);
 
     if (GuiButton({200, 600, 200, 50}, "Back")) {
-        screen = MainMenu; 
+        screen = MainMenu; // Change screen only when "Back" is clicked
     }
+
 }
+
 
 void drawWithdrawMenu() {
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
