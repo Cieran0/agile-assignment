@@ -16,7 +16,7 @@ public:
         int server_sock_6667 = createSocket(6667);
         int server_sock_6668 = createSocket(6668);
 
-        std::cout << "IRC-compatible Transaction Switch running on ports 6667 and 6668...\n";
+        std::cout << "unning on ports 6667 and 6668...\n";
 
         std::vector<int> server_sockets = {server_sock_6667, server_sock_6668};
 
@@ -43,11 +43,11 @@ public:
                     socklen_t addr_len = sizeof(client_addr);
                     int client_sock = accept(sock, (struct sockaddr*)&client_addr, &addr_len);
                     if (client_sock < 0) {
-                        perror("Unable to accept connection");
+                        perror("Cannot accpet connection");
                         continue;
                     }
 
-                    std::cout << "Accepted connection on port "
+                    std::cout << "Connection accepted on port "
                               << (sock == server_sock_6667 ? "6667" : "6668") << "\n";
 
                     handleClient(client_sock);
@@ -67,7 +67,7 @@ private:
     int createSocket(int port) {
         int sock = socket(AF_INET, SOCK_STREAM, 0);
         if (sock < 0) {
-            perror("Unable to create socket");
+            perror("Cannot create socket");
             exit(EXIT_FAILURE);
         }
 

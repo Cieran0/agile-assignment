@@ -36,12 +36,12 @@ int main() {
 
     std::cout << "Connected to server.\n";
 
-    // Send initial IRC setup commands
+    // IRC setup commands
     sendCommand(client_sock, "NICK TestClient\r\n");
     sendCommand(client_sock, "USER test 0 * :Test Client\r\n");
 
     char buffer[512];
-    while (true) {
+    while (true) { // menu thing
         std::cout << "Select an option:\n";
         std::cout << "1. Withdraw\n";
         std::cout << "2. Quit\n";
