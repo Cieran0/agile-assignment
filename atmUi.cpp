@@ -12,6 +12,8 @@ using namespace std;
 vector<string> inputs;
 string displayText = "Please enter your PIN:"; // Global display text
 string pinDisplay = ""; // To show asterisks for PIN
+string enteredPIN;
+bool validatedPIN = false;
 
 // Function to update the display text
 void setDisplayText(const string& text) {
@@ -28,35 +30,56 @@ void updatePinDisplay() {
     pinDisplay = string(inputs.size(), '*'); // Convert PIN digits to asterisks
 }
 
+/*very basic function to simulate the PIN being checked once entered.
+  Will be replaced by switch and network simulator
+*/
+bool validatePIN(string enteredPIN){
+    string storedPIN[5] = {"1234", "1243", "1345", "1678"};
+
+    for (auto &pins : storedPIN)
+    {
+        if (enteredPIN == pins)
+        {
+            cout << "match " << endl;
+            return true;
+        }
+        
+    }
+    
+    return false;
+}
+
 // Modified handleInput function
-bool handleInput(string buttonPressed) {
+void handleInput(string buttonPressed) {
     if (buttonPressed == "clear") {
         inputs.clear();
         pinDisplay = "";
-        return true;
+        //return true;
     }
     
     if (buttonPressed == "cancel") {
         inputs.clear();
         pinDisplay = "";
         setDisplayText("Please enter your PIN:");
-        return true;
+        //return true;
     }
 
     if (inputs.size() < 4 && buttonPressed.length() == 1) {
         inputs.push_back(buttonPressed);
         updatePinDisplay();
-        return true;
+        //return true;
     }
 
     if (buttonPressed == "enter" && inputs.size() == 4) {
         setDisplayText("Processing PIN...");
         // put fake delay or something cba rn
         setDisplayText("Pin of " + string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]));
-        return true;
+        enteredPIN = string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]);
+        validatedPIN = validatePIN(enteredPIN);
+        //return true;
     }
 
-    return false;
+    //return false;
 }
 
 class ATM {
@@ -156,8 +179,12 @@ int main()
     {
         BeginDrawing();
         // wtf happend to the indenting??
+
+         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
+        if (validatedPIN == false)
+        {
             DrawRectangle(500 ,200, 350,150, GREEN);
-            ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
             // Draw the display text
             DrawText(displayText.c_str(), 510, 210, 20, BLACK);
@@ -189,9 +216,16 @@ int main()
                 offsetY += 50;
                 offsetX = 0;
             }
-            
+        }
+        else{
+            ClearBackground(WHITE);
+            DrawText("Valid pin. ", 500, 300, 20, BLACK);
+        }
+                 
         EndDrawing();
     }
+
+    cout << "PIN " << enteredPIN << endl;
 
     CloseWindow();
     return 0;
