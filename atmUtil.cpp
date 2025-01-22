@@ -6,6 +6,7 @@ string balanceText = "Enter amount for withdrawl";
 
 string pinDisplay = ""; // To show asterisks for PIN
 string enteredPIN;
+static string withdrawInput = "";
 bool validatedPIN = false;
 
 #define ROW_COUNT 4
@@ -38,8 +39,8 @@ void setDisplayText(const string& text) {
 /*very basic function to simulate the PIN being checked once entered.
   Will be replaced by switch and network simulator
 */
-bool validatePIN(std::string enteredPIN){
-        
+bool validatePIN(std::string enteredPIN)
+{
     if (enteredPIN == a1.PIN)
     {
         cout << "match " << endl;
@@ -247,21 +248,19 @@ void printFunction(string balance){
 }
 
 void processingScreen(string messageToPrint){
-
     static int counter = 0;
     bool printingComplete = false;
 
-     if (counter < 60*5)
+    if (counter < 60*5)
     {
         printingComplete = true;
         counter++;
         DrawText("Processing... ", 200, 500, 40, BLACK);
     } else {
-    DrawText("Printing successful. ", 200, 500, 40, BLACK);
-
-    if (GuiButton({200, 600, 200, 50}, "Back")) {
-        screen = MainMenu; 
-    }
+        DrawText("Printing successful. ", 200, 500, 40, BLACK);
+        if (GuiButton({200, 600, 200, 50}, "Back")) {
+            screen = MainMenu; 
+        }
     }
 }
 
@@ -273,11 +272,48 @@ void printBalance(){
  
 }
 
+void handleWithdrawInput(const string& buttonPressed) {
+    if (buttonPressed == "clear") {
+        withdrawInput.clear();
+        return;
+    }
+
+    if (buttonPressed == "cancel") {
+        withdrawInput.clear();
+        screen = MainMenu;
+        return;
+    }
+
+    if (buttonPressed.size() == 1 && isdigit(buttonPressed[0])) {
+        withdrawInput.push_back(buttonPressed[0]);
+        return;
+    }
+
+    if (buttonPressed == "enter") {
+        if (!withdrawInput.empty()) {
+            float amount = std::stof(withdrawInput);
+            if (amount <= a1.balance) {
+                a1.balance -= amount;
+            }
+            else {
+                cout << "not enough money :()" << endl;
+            }
+        }
+        withdrawInput.clear();
+        screen = MainMenu;
+    }
+}
+
+
 
 void drawWithdrawMenu() {
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
     DrawRectangle(500, 200, 350, 150, GREEN);
     DrawText("Enter Withdrawal Amount:", 510, 210, 20, BLACK);
+
+    if (!withdrawInput.empty()) {
+        DrawText(withdrawInput.c_str(), 510, 300, 30, BLACK);
+    }
 
     int offsetX = 0;
     int offsetY = 0;
@@ -291,14 +327,11 @@ void drawWithdrawMenu() {
                 40.0f
             };
             if (GuiButton(btnRect, keyPad[row][col].c_str())) {
-                handleInput(keyPad[row][col]);
+                handleWithdrawInput(keyPad[row][col]);
             }
         }
         offsetY += 50;
         offsetX = 0;
     }
-
-    if (!pinDisplay.empty()) {
-        DrawText(pinDisplay.c_str(), 510, 300, 30, BLACK);
-    }
 }
+
