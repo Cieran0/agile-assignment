@@ -10,7 +10,7 @@
 #include <openssl/crypto.h>
 #include <thread>
 #include <vector>
-#include "db.hpp"
+#include "log.hpp"
 #include <mutex>
 
 const int PORT = 8000;
@@ -53,6 +53,10 @@ void handleClient(SSL *ssl) {
         std::cout << "\tsucceeded: " << response.succeeded << std::endl;
         std::cout << "\tnew_balance: " << response.new_balance << std::endl;
         std::cout << "}" << std::endl;
+
+        if(response.succeeded == 0){
+            log(transaction);
+        }
 
         SSL_write(ssl, okResponse, sizeof(okResponse));
     }
@@ -135,6 +139,8 @@ void clientThreadFunction(SSL_CTX *ctx, int connfd) {
 }
 
 int main() {
+    addLogger(DatabaseLogger);
+    addLogger(txtLogger);
     SSL_CTX *ctx;
     int sockfd = -1;
     sockaddr_in servaddr = {0};
