@@ -1,0 +1,26 @@
+Received transaction request: Withdrawal|50
+Transaction response: Approved|Transaction successful!
+Received transaction request: Withdrawal|400
+Transaction response: Declined|Amount exceeds limit.
+Received transaction request: Withdrawal|400
+Transaction response: Declined|Amount exceeds limit.
+Received transaction request: Withdrawal|400
+Transaction response: Declined|Amount exceeds limit.
+Received transaction request: Withdrawal|400
+Transaction response: Declined|Amount exceeds limit.
+Received transaction request: Withdrawal|200
+Transaction response: Approved|Transaction successful!
+Received transaction request: Withdrawal|35
+Transaction response: Approved|Transaction successful!
+Received transaction request: Withdrawal|20
+Transaction response: Approved|Transaction successful!
+Received transaction request: Withdrawal|34
+Transaction response: Approved|Transaction successful!
+Received transaction request: Withdrawal|50
+Transaction response: Approved|Transaction successful!
+Received transaction request: Withdrawal|400
+Transaction response: Declined|Amount exceeds limit.
+Received transaction request: Withdrawal|5000
+Transaction response: Declined|Amount exceeds limit.
+Received transaction request: Withdrawal|5000
+Transaction response: Declined|Amount exceeds limit.
