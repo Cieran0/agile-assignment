@@ -1,6 +1,5 @@
 #include "atmUtil.h"
 
-
 vector<string> inputs;
 string displayText = "Please enter your PIN:"; // Global display text
 string balanceText = "Enter amount for withdrawl";
@@ -16,7 +15,8 @@ enum Screen {
     Withdraw = 3,
     Balance = 4,
     BalanceAmount = 5,
-    Deposit = 6
+    Deposit = 6,
+    PrintBalance = 7
 };
 
 enum Screen screen = EnterPin;
@@ -88,6 +88,7 @@ string getDisplayText() {
 }
 
 void displayTransactionChoices(){
+
         Button buttons[] = {
                 {{100, 100, 200, 50}, "Balance Inquiry"},
                 {{100, 200, 200, 50}, "Cash Withdrawal"},
@@ -116,7 +117,6 @@ void displayTransactionChoices(){
                     cout << "deposit" << endl;
                     break;
                 }
-            
             }
         }
 }
@@ -171,24 +171,23 @@ void displayTerminal(){
             cout << "on withdraw screen" << endl;
             break;
         case 4:
-            drawBalance();
+            drawBalanceChoices();
+            cout << "on the balance choice screen " << endl;
             break;
         case 5:
-            presentBalance();
+            viewBalance();
+            cout << "view balance screen " << endl;
+            break;
+        case 7:
+            cout << "print balance screen " << endl;
+            printBalance();
             break;
     }
 }
 
-void drawBalance(){
+void drawBalanceChoices(){
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
     
-    //DrawText();
-
-    typedef struct {
-            Rectangle bounds; // Button position and size
-            const char *text; // Button label
-            } Button;
-
     Button buttons[] = {
                 {{100, 100, 200, 50}, "View Balance"},
                 {{100, 200, 200, 50}, "Print Balance"}
@@ -206,25 +205,57 @@ void drawBalance(){
                     break;
                 case 1:
                     cout << "Print Balance button pressed" << endl;
+                    screen = PrintBalance;
                     break;
                 default:
                     break;
             }
         }
-    }
-
-    
+    }    
 }
 
-void presentBalance() {
+void viewBalance() {
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
     DrawText(to_string(a1.balance).c_str(), 200, 500, 40, BLACK);
 
     if (GuiButton({200, 600, 200, 50}, "Back")) {
-        screen = MainMenu; // Change screen only when "Back" is clicked
+        screen = MainMenu; 
     }
+}
 
+void printFunction(string balance){
+    ofstream balancePrint;
+    balancePrint.open("printedBalance.txt");
+    balancePrint << "account balance" << balance << endl;
+    balancePrint.close();
+}
+
+void processingScreen(string messageToPrint){
+
+    static int counter = 0;
+    bool printingComplete = false;
+
+     if (counter < 60*5)
+    {
+        printingComplete = true;
+        counter++;
+        DrawText("Processing... ", 200, 500, 40, BLACK);
+    } else {
+    DrawText("Printing successful. ", 200, 500, 40, BLACK);
+
+    if (GuiButton({200, 600, 200, 50}, "Back")) {
+        screen = MainMenu; 
+    }
+    }
+}
+
+void printBalance(){
+    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+    
+    processingScreen(to_string(a1.balance));
+    printFunction(to_string(a1.balance));
+     
 }
 
 

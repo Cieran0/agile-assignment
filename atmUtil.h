@@ -2,6 +2,8 @@
 #define ATMUTIL_H
 
 #include <iostream>
+#include <fstream>
+#include <thread>
 #include <string>
 #include <vector>
 #include "raygui.h"
@@ -29,10 +31,14 @@ void displayTerminal();
 void drawMainMenu();
 void drawWithdrawMenu();
 
-void drawBalance();
+void drawBalanceChoices();
 void withdraw();
 void deposit();
 
-void presentBalance();
+void viewBalance();
+void printBalance();
+void printFunction(string balance);
+
+void processingScreen(string messageToPrint);
 
 #endif
