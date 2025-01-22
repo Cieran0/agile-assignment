@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 import ssl
 import socket
@@ -67,13 +68,21 @@ def main():
             conn.send(message)
 
             # Receive the response from the server
-            data = conn.recv(2048)
-            response = data.decode();
-            if response == "OK\0":
-                print("Transaction Approved")
+            response_data = conn.recv(2048)
+
+            # Unpack the response struct from the server
+            succeeded, new_balance = struct.unpack('i d', response_data)
+            if succeeded == 0:  # TRANSACTION_SUCCESS
+                print(f"Transaction Approved. New Balance: £{new_balance:.2f}")
+            elif succeeded == 1:  # INSUFFICIENT_FUNDS
+                print("Transaction Declined: Insufficient Funds")
+            elif succeeded == 2:  # DATABASE_ERROR
+                print("Transaction Declined: Database Error")
+            elif succeeded == 3:  # INCORRECT_PIN
+                print("Transaction Declined: Incorrect PIN")
             else:
-                print(f"Transaction Declined: \"{response}\"")
-                
+                print(f"Transaction Declined: Unknown error code {succeeded}")
+
             time.sleep(5)  # Wait before sending the next transaction
 
     finally:
@@ -82,3 +91,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

@@ -20,5 +20,5 @@ struct Response {
     double new_balance;
 };
 
-Response processTransaction(Transaction transaction, sqlite3* db);
-int initDatabaseConnection(sqlite3* db);
+Response processTransaction(Transaction transaction, sqlite3*& db);
+int initDatabaseConnection(sqlite3*& db);

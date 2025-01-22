@@ -5,7 +5,8 @@
 
 typedef const unsigned char* sqlite_string; 
 
-Response processTransaction(Transaction transaction, sqlite3* db) {
+Response processTransaction(Transaction transaction, sqlite3*& db) {
+
     Response response = {0};
 
     std::string sql_string = std::format("SELECT Balance FROM Customer WHERE CardNumber = '{}' AND PIN = '{}';", transaction.cardNumber, transaction.pinNo);
@@ -55,6 +56,6 @@ Response processTransaction(Transaction transaction, sqlite3* db) {
     return response;
 }
 
-int initDatabaseConnection(sqlite3* db) {
+int initDatabaseConnection(sqlite3*& db) {
     return sqlite3_open("database.db", &db);
 }
