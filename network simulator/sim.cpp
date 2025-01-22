@@ -10,21 +10,20 @@
 #include <openssl/crypto.h>
 #include <thread>
 #include <vector>
+#include "db.hpp"
 #include <mutex>
-
-struct Transaction {
-    char cardNumber[20];
-    char expiryDate[6];
-    uint64_t atmID;
-    uint64_t uniqueTransactionID;
-    char pinNo[5];
-    double withdrawalAmount;
-};
 
 const int PORT = 8000;
 
 void handleClient(SSL *ssl) {
+    sqlite3* db = nullptr;
+    if(initDatabaseConnection(db) != SQLITE_OK){
+        std::cerr << "Failed to open database connection" << std::endl;
+        return;
+    }
+
     Transaction transaction;
+    Response response;
     const char okResponse[] = "OK";
     int n;
 
@@ -46,8 +45,19 @@ void handleClient(SSL *ssl) {
         std::cout << "\twithdrawalAmount: " << transaction.withdrawalAmount << std::endl;
         std::cout << "}" << std::endl;
 
+        response = processTransaction(transaction, db);
+
+        SSL_write(ssl, &response, sizeof(response));
+
+        std::cout << "Response {" << std::endl;
+        std::cout << "\tsucceeded: " << response.succeeded << std::endl;
+        std::cout << "\tnew_balance: " << response.new_balance << std::endl;
+        std::cout << "}" << std::endl;
+
         SSL_write(ssl, okResponse, sizeof(okResponse));
     }
+
+    
 
     SSL_free(ssl);
 }
