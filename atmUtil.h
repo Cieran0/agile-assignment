@@ -27,8 +27,8 @@ void displayTransactionChoices();
 void setDisplayText(const string& text);
 string getDisplayText();
 void updatePinDisplay();
-void displayTerminal();
-void drawMainMenu();
+void screenManager();
+void atmLayout();
 void drawWithdrawMenu();
 
 void drawBalanceChoices();

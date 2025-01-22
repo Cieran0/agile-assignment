@@ -121,7 +121,7 @@ void displayTransactionChoices(){
         }
 }
 
-void drawMainMenu() {
+void atmLayout() {
         DrawRectangle(500 ,200, 350,150, GREEN);
 
         // Draw the display text
@@ -155,11 +155,11 @@ void drawMainMenu() {
         }
 }
 
-void displayTerminal(){
+void screenManager(){
 
     switch (screen) {
         case 1:
-            drawMainMenu();
+            atmLayout();
             cout << "on enter pin menu" << endl;
             break;
         case 2:
@@ -255,7 +255,7 @@ void printBalance(){
     
     processingScreen(to_string(a1.balance));
     printFunction(to_string(a1.balance));
-     
+ 
 }
 
 

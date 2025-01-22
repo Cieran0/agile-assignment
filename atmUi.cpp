@@ -31,7 +31,7 @@ int main()
         
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-        displayTerminal();
+        screenManager();
                  
         EndDrawing();
     }
