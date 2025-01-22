@@ -31,6 +31,7 @@ void screenManager();
 void atmLayout();
 void drawWithdrawMenu();
 
+void resetGlobalTextVariables();
 void drawBalanceChoices();
 void withdraw();
 void deposit();

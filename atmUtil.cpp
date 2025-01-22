@@ -8,6 +8,8 @@ string pinDisplay = ""; // To show asterisks for PIN
 string enteredPIN;
 bool validatedPIN = false;
 
+#define ROW_COUNT 4
+#define COLUMN_COUNT 4
 
 enum Screen {
     EnterPin = 1,
@@ -38,14 +40,21 @@ void setDisplayText(const string& text) {
 */
 bool validatePIN(std::string enteredPIN){
         
-        if (enteredPIN == a1.PIN)
-        {
-            cout << "match " << endl;
-            screen = MainMenu;
-            return true;
-        }  
-      
+    if (enteredPIN == a1.PIN)
+    {
+        cout << "match " << endl;
+        screen = MainMenu;
+        return true;
+    }  
+    
     return false;
+}
+
+void resetGlobalTextVariables() {
+    inputs.clear();
+    enteredPIN = "";
+    pinDisplay = "";
+    displayText = "Please enter your PIN:";
 }
 
 // Modified handleInput function
@@ -92,7 +101,8 @@ void displayTransactionChoices(){
         Button buttons[] = {
                 {{100, 100, 200, 50}, "Balance Inquiry"},
                 {{100, 200, 200, 50}, "Cash Withdrawal"},
-                {{100, 300, 200, 50}, "Deposit"}
+                {{100, 300, 200, 50}, "Deposit"},
+                {{100, 400, 200, 50}, "Exit"}
         };
 
         int buttonCount = sizeof(buttons)/ sizeof(buttons[0]);
@@ -116,6 +126,11 @@ void displayTransactionChoices(){
                     screen = Deposit;
                     cout << "deposit" << endl;
                     break;
+                case 3:
+                    screen = EnterPin;
+                    cout << "Enter Pin" << endl;
+                    resetGlobalTextVariables();
+                    break;
                 }
             }
         }
@@ -134,9 +149,9 @@ void atmLayout() {
 
         int offsetX = 0;
         int offsetY = 0;
-        for (int row = 0; row < 4; row++)
+        for (int row = 0; row < ROW_COUNT; row++)
         { 
-            for(int col = 0; col < 4; col ++){
+            for(int col = 0; col < COLUMN_COUNT; col ++){
                 offsetX += 100;
                 // wouldnt compile on mac without being casted to a float...
                 Rectangle btnRect = {
@@ -261,9 +276,7 @@ void printBalance(){
 
 void drawWithdrawMenu() {
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
-
     DrawRectangle(500, 200, 350, 150, GREEN);
-
     DrawText("Enter Withdrawal Amount:", 510, 210, 20, BLACK);
 
     int offsetX = 0;
