@@ -6,7 +6,6 @@
 typedef const unsigned char* sqlite_string; 
 
 Response processTransaction(Transaction transaction, sqlite3*& db) {
-
     Response response = {0};
 
     std::string sql_string = std::format("SELECT Balance FROM Customer WHERE CardNumber = '{}' AND PIN = '{}';", transaction.cardNumber, transaction.pinNo);
@@ -15,6 +14,7 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
     int exitCode = sqlite3_prepare_v2(db, sql_string.c_str(), -1, &stmt, nullptr);
 
     if (exitCode != SQLITE_OK) {
+        std::cerr << "Database error (prepare): " << sqlite3_errmsg(db) << std::endl; // Print error message
         sqlite3_close(db);
 
         response.succeeded = DATABASE_ERROR;
@@ -22,6 +22,7 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
     }
 
     if (sqlite3_step(stmt) != SQLITE_ROW) {
+        std::cerr << "Database error (step): " << sqlite3_errmsg(db) << std::endl; // Print error message
         sqlite3_finalize(stmt);
 
         response.succeeded = INCORRECT_PIN;
@@ -30,16 +31,18 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
 
     double current_balance = sqlite3_column_double(stmt, 0);
 
-    std::cout << current_balance << std::endl;
+    std::cout << "Current balance: " << current_balance << std::endl;
     
-    if(transaction.withdrawalAmount == 0) {
+    if (transaction.withdrawalAmount == 0) {
         response.new_balance = current_balance;
         response.succeeded = TRANSACTION_SUCESS;
+        sqlite3_finalize(stmt);
         return response;
     }
 
     if (transaction.withdrawalAmount > current_balance) {
         response.succeeded = INSUFFICIENT_FUNDS;
+        sqlite3_finalize(stmt);
         return response;
     }
 
@@ -48,7 +51,9 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
 
     exitCode = sqlite3_exec(db, update_sql.c_str(), nullptr, nullptr, nullptr);
     if (exitCode != SQLITE_OK) {
+        std::cerr << "Database error (exec): " << sqlite3_errmsg(db) << std::endl; // Print error message
         response.succeeded = DATABASE_ERROR;
+        sqlite3_finalize(stmt);
         return response;
     }
     

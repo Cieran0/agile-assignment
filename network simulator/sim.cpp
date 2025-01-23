@@ -70,6 +70,10 @@ void handleClient(SSL *ssl) {
             break;
         }
 
+        std::cout << "Transaction {" << std::endl;
+        std::cout << "\tID: " << transaction.uniqueTransactionID << std::endl;
+        std::cout << "}" << std::endl;
+
         response = processTransaction(transaction, db);
 
         SSL_write(ssl, &response, sizeof(response));
@@ -80,7 +84,7 @@ void handleClient(SSL *ssl) {
         std::cout << "}" << std::endl;
 
         if (response.succeeded == 0) {
-            //log(transaction);
+            log(transaction);
         }
 
         SSL_write(ssl, okResponse, sizeof(okResponse));
@@ -194,7 +198,7 @@ int main() {
     thread_setup();
 
     addLogger(DatabaseLogger);
-    addLogger(txtLogger);
+    //addLogger(txtLogger);
     SSL_CTX *ctx;
     sockaddr_in servaddr = {0};
 
