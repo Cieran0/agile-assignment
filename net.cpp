@@ -53,8 +53,16 @@ void cleanup_winsock() {
     #endif
 }
 
+#define NO_NET
+
 Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_t atmID, std::string pin, double withdrawalAmount) {
     Response response;
+
+	#ifdef NO_NET
+		response.new_balance = 1000;
+		response.succeeded = TRANSACTION_SUCESS;
+		return response;
+	#endif
 
     if (!initialize_winsock()) {
         return NETWORK_ERROR;

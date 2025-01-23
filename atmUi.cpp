@@ -7,8 +7,6 @@
 
 using namespace std;
 
-string cardNumber;
-string expiryDate;
 string atmID;
 string transactionID;
 string pin;
