@@ -11,6 +11,14 @@ extern int screenHeight;
 
 using namespace std;
 
+#define ATM_BACKGROUND CLITERAL(Color){ 45, 49, 66, 255 }     // Dark blue-gray
+#define ATM_DISPLAY_BG CLITERAL(Color){ 200, 247, 197, 255 }  // Light green
+#define ATM_BUTTON_BG CLITERAL(Color){ 77, 83, 110, 255 }     // Medium blue-gray
+#define ATM_BUTTON_HOVER CLITERAL(Color){ 137, 142, 163, 255 }
+#define ATM_TEXT CLITERAL(Color){ 33, 37, 41, 255 }           // Dark gray
+
+#define RAYGUI_BUTTON_BORDER_WIDTH   2
+#define RAYGUI_BUTTON_TEXT_PADDING   10
 
 struct Account {
     string PIN;

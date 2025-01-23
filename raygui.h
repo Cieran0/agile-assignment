@@ -1,3 +1,5 @@
+#pragma once
+
 /*******************************************************************************************
 *
 *   raygui v4.5-dev - A simple and easy-to-use immediate-mode gui library
@@ -1711,8 +1713,9 @@ int GuiPanel(Rectangle bounds, const char *text)
     //--------------------------------------------------------------------
     if (text != NULL) GuiStatusBar(statusBar, text);  // Draw panel header as status bar
 
-    GuiDrawRectangle(bounds, RAYGUI_PANEL_BORDER_WIDTH, GetColor(GuiGetStyle(DEFAULT, (state == STATE_DISABLED)? (int)BORDER_COLOR_DISABLED: (int)LINE_COLOR)),
-                     GetColor(GuiGetStyle(DEFAULT, (state == STATE_DISABLED)? BASE_COLOR_DISABLED : BACKGROUND_COLOR)));
+    GuiDrawRectangle(bounds, RAYGUI_PANEL_BORDER_WIDTH, 
+                 GetColor(GuiGetStyle(DEFAULT, (state == STATE_DISABLED)? (int)BORDER_COLOR_DISABLED : (int)LINE_COLOR)),
+                 GetColor(GuiGetStyle(DEFAULT, (int)((state == STATE_DISABLED)? (int)BASE_COLOR_DISABLED : (int)BACKGROUND_COLOR))));
     //--------------------------------------------------------------------
 
     return result;
@@ -3039,7 +3042,7 @@ int GuiValueBoxFloat(Rectangle bounds, const char *text, char *textValue, float 
     {
         Vector2 mousePoint = GetMousePosition();
 
-        bool valueHasChanged = false;
+        //bool valueHasChanged = false;
 
         if (editMode)
         {
@@ -3061,7 +3064,7 @@ int GuiValueBoxFloat(Rectangle bounds, const char *text, char *textValue, float 
                         textValue[keyCount] = (char)key;
                         keyCount++;
 
-                        valueHasChanged = true;
+                        //valueHasChanged = true;
                     }
                 }
             }
@@ -3073,7 +3076,7 @@ int GuiValueBoxFloat(Rectangle bounds, const char *text, char *textValue, float 
                 {
                     keyCount--;
                     textValue[keyCount] = '\0';
-                    valueHasChanged = true;
+                    //valueHasChanged = true;
                 }
             }
 

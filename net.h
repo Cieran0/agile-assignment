@@ -3,6 +3,12 @@
 #include <cstdint>
 #include <string>
 
+#define TRANSACTION_SUCESS 0
+#define INSUFFICIENT_FUNDS 1
+#define DATABASE_ERROR 2
+#define INCORRECT_PIN 3
+#define NETWORK_ERROR 4
+
 struct Transaction{
     char cardNumber[20];
     char expiryDate[6];
@@ -15,8 +21,12 @@ struct Transaction{
 struct Response {
     int succeeded;
     double new_balance;
+    // Constructor for implicit cast from int to Response
+    Response() {}
+    Response(int code) : succeeded(code), new_balance(0) {}
 };
 
+extern const char* host;
+extern int port;
 
-
-Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::string atmID, std::string pin, double withdrawalAmount);
+Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_t atmID, std::string pin, double withdrawalAmount);

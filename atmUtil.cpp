@@ -119,7 +119,7 @@ void handleInput(string buttonPressed) {
         
         enteredPIN = string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]);
         //validatedPIN = validatePIN(enteredPIN);     
-        Response r = forwardToSocket(a1.cardNumber, a1.expiryDate,  "2001", enteredPIN, 0.0);
+        Response r = forwardToSocket(a1.cardNumber, a1.expiryDate,  2001, enteredPIN, 0.0);
 
         if(r.succeeded == 0) {
             screen = MainMenu;
@@ -518,7 +518,7 @@ void handleWithdrawInput(const string& buttonPressed) {
                 withdrawInput.clear();
             }
             else{
-                Response r = forwardToSocket(a1.cardNumber, a1.expiryDate, "2001", enteredPIN, amount);
+                Response r = forwardToSocket(a1.cardNumber, a1.expiryDate, 2001, enteredPIN, amount);
                 if(r.succeeded == 0) {
                 a1.balance = r.new_balance;
                 withdrawInput.clear();

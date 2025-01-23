@@ -1,40 +1,64 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#pragma comment(lib, "ws2_32.lib")
+#else
+#include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 #endif
-
-#define TRANSACTION_SUCESS 0
-#define INSUFFICIENT_FUNDS 1
-#define DATABASE_ERROR 2
-#define INCORRECT_PIN 3
 
 #include "net.h"
 #include <iostream>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-uint64_t rand_uint64(void) {
-  uint64_t r = 0;
-  for (int i=0; i<64; i += 15 /*30*/) {
-    r = r*((uint64_t)RAND_MAX + 1) + rand();
-  }
-  return r;
+uint64_t rand_uint64() {
+    srand((unsigned int)time(NULL));
+    uint64_t r = 0;
+    for (int i = 0; i < 64; i += 15) {
+        r = r * ((uint64_t)RAND_MAX + 1) + rand();
+    }
+    // Ensure the value is less than or equal to int64_t max (2^63 - 1)
+    return r % ((uint64_t)1 << 63);
 }
 
-Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::string atmID, std::string pin, double withdrawalAmount) {
-    const char *host = "10.201.102.155";
-    const int port = 6668;
+const char *host;
+int port;
 
-#ifdef _WIN32
+// Helper function to close the socket
+void close_socket(int sock) {
+    #ifdef _WIN32
+    closesocket(sock);
+    #else
+    close(sock);
+    #endif
+}
+
+// Helper function to initialize Winsock on Windows
+bool initialize_winsock() {
+    #ifdef _WIN32
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         std::cerr << "WSAStartup failed" << std::endl;
-        Response response;
-        response.succeeded = DATABASE_ERROR;
-        return response;
+        return false;
     }
-#endif
+    #endif
+    return true;
+}
+
+// Helper function to clean up Winsock on Windows
+void cleanup_winsock() {
+    #ifdef _WIN32
+    WSACleanup();
+    #endif
+}
+
+Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_t atmID, std::string pin, double withdrawalAmount) {
+    Response response;
+
+    if (!initialize_winsock()) {
+        return NETWORK_ERROR;
+    }
 
     SSL_library_init();
     SSL_load_error_strings();
@@ -43,18 +67,16 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::st
 
     if (!ctx) {
         std::cerr << "Failed to create SSL context" << std::endl;
-        Response response;
-        response.succeeded = DATABASE_ERROR;
-        return response;
+        cleanup_winsock();
+        return NETWORK_ERROR;
     }
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
         std::cerr << "Failed to create socket" << std::endl;
         SSL_CTX_free(ctx);
-        Response response;
-        response.succeeded = DATABASE_ERROR;
-        return response;
+        cleanup_winsock();
+        return NETWORK_ERROR;
     }
 
     sockaddr_in server_addr;
@@ -63,28 +85,18 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::st
     server_addr.sin_port = htons(port);
     if (inet_pton(AF_INET, host, &server_addr.sin_addr) <= 0) {
         std::cerr << "Invalid server address" << std::endl;
-#ifdef _WIN32
-        closesocket(sock);
-#else
-        close(sock);
-#endif
+        close_socket(sock);
         SSL_CTX_free(ctx);
-        Response response;
-        response.succeeded = DATABASE_ERROR;
-        return response;
+        cleanup_winsock();
+        return NETWORK_ERROR;
     }
 
     if (connect(sock, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         std::cerr << "Failed to connect to the server" << std::endl;
-#ifdef _WIN32
-        closesocket(sock);
-#else
-        close(sock);
-#endif
+        close_socket(sock);
         SSL_CTX_free(ctx);
-        Response response;
-        response.succeeded = DATABASE_ERROR;
-        return response;
+        cleanup_winsock();
+        return NETWORK_ERROR;
     }
 
     SSL *ssl = SSL_new(ctx);
@@ -93,70 +105,44 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::st
     if (SSL_connect(ssl) <= 0) {
         std::cerr << "TLS handshake failed" << std::endl;
         SSL_free(ssl);
-#ifdef _WIN32
-        closesocket(sock);
-#else
-        close(sock);
-#endif
+        close_socket(sock);
         SSL_CTX_free(ctx);
-        Response response;
-        response.succeeded = DATABASE_ERROR;
-        return response;
+        cleanup_winsock();
+        return NETWORK_ERROR;
     }
 
-    std::cout << "Connected to the server via TLS" << std::endl;
+    Transaction transaction = {0};
 
-    Transaction transaction;
-    memset(&transaction, 0, sizeof(transaction));
     strncpy(transaction.cardNumber, cardNumber.c_str(), sizeof(transaction.cardNumber) - 1);
     strncpy(transaction.expiryDate, expiryDate.c_str(), sizeof(transaction.expiryDate) - 1);
-    transaction.atmID = stoull(atmID);
-    transaction.uniqueTransactionID = rand_uint64();
     strncpy(transaction.pinNo, pin.c_str(), sizeof(transaction.pinNo) - 1);
+
+    transaction.atmID = atmID;
+    transaction.uniqueTransactionID = rand_uint64();
     transaction.withdrawalAmount = withdrawalAmount;
 
     if (SSL_write(ssl, &transaction, sizeof(transaction)) <= 0) {
         std::cerr << "Failed to send transaction to the server" << std::endl;
         SSL_free(ssl);
-#ifdef _WIN32
-        closesocket(sock);
-#else
-        close(sock);
-#endif
+        close_socket(sock);
         SSL_CTX_free(ctx);
-        Response response;
-        response.succeeded = DATABASE_ERROR;
-        return response;
+        cleanup_winsock();
+        return NETWORK_ERROR;
     }
 
-    std::cout << "Withdrew: " << transaction.withdrawalAmount << std::endl;
-
-    Response response;
     if (SSL_read(ssl, &response, sizeof(response)) <= 0) {
         std::cerr << "Failed to receive response from the server" << std::endl;
         SSL_free(ssl);
-#ifdef _WIN32
-        closesocket(sock);
-#else
-        close(sock);
-#endif
+        close_socket(sock);
         SSL_CTX_free(ctx);
-        response.succeeded = DATABASE_ERROR;
-        return response;
+        cleanup_winsock();
+        return NETWORK_ERROR;
     }
 
-    std::cout << "Transaction Response:" << std::endl;
-    std::cout << "  Succeeded: " << response.succeeded << std::endl;
-    std::cout << "  New Balance: " << response.new_balance << std::endl;
-
     SSL_free(ssl);
-#ifdef _WIN32
-    closesocket(sock);
-    WSACleanup();
-#else
-    close(sock);
-#endif
+    close_socket(sock);
     SSL_CTX_free(ctx);
+    cleanup_winsock();
 
     return response;
 }
