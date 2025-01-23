@@ -90,7 +90,7 @@ void forwardToSocket(string cardNumber, string expiryDate, string transactionID,
     strncpy(transaction.pinNo, pin.c_str(), sizeof(transaction.pinNo) - 1);
     transaction.withdrawalAmount = withdrawalAmount;
 
-    // Send the transaction struct to the server
+    // Send the transaction struct to the server 
     if (SSL_write(ssl, &transaction, sizeof(transaction)) <= 0) {
         cerr << "Failed to send transaction to the server" << endl;
         SSL_free(ssl);
@@ -120,8 +120,8 @@ void forwardToSocket(string cardNumber, string expiryDate, string transactionID,
     SSL_CTX_free(ctx);
 }
 
-int main() {
-    // Example usage
-    forwardToSocket("1234567890123456", "0125", "1001", "2001", "1234", 100.0);
-    return 0;
-}
+// int main() {
+//     // Example usage
+//     forwardToSocket("1234567890123456", "0125", "1001", "2001", "1234", 100.0);
+//     return 0;
+// }

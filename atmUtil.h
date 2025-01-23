@@ -13,6 +13,9 @@
 #define DATABASE_ERROR 2
 #define INCORRECT_PIN 3
 
+extern int screenWidth;  
+extern int screenHeight; 
+
 using namespace std;
 
 struct Account {
