@@ -17,13 +17,21 @@ using namespace std;
     string pin; 
     double withdrawalAmount;     
 
+int screenWidth;
+int screenHeight;
+
 int main()
 {
-    int screenWidth = GetMonitorWidth(0);  
-    int screenHeight = GetMonitorHeight(0); 
-    InitWindow(screenWidth, screenHeight, "raygui - NCR ATM");
+    Response r = forwardToSocket("123", "1", "0", "1", "1234", 5);
+    std::cout << r.succeeded << std::endl;
+
+
+    InitWindow(0, 0, "raygui - NCR ATM");
+    GuiSetStyle(DEFAULT,TEXT_SIZE ,50);
     ToggleFullscreen();
     SetTargetFPS(60);
+    screenHeight = GetMonitorHeight(0); 
+    screenWidth = GetMonitorWidth(0);
 
     while (!WindowShouldClose())
     {

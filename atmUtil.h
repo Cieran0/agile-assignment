@@ -6,6 +6,11 @@
 #include <thread>
 #include <string>
 #include <vector>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
 #include "raygui.h"
 
 #define TRANSACTION_SUCESS 0
@@ -15,8 +20,11 @@
 
 using namespace std;
 
+
 struct Account {
     string PIN;
+    string cardNumber;
+    string expiryDate;
     double balance;
 };
 
@@ -62,6 +70,9 @@ void printFunction(string balance);
 
 void processingScreen(string messageToPrint);
 
-void forwardToSocket(string cardNumber, string expiryDate, string transactionID, string atmID, string pin, double withdrawalAmount);
- 
+Response forwardToSocket(string cardNumber, string expiryDate, string transactionID, string atmID, string pin, double withdrawalAmount);
+
+extern int screenWidth;
+extern int screenHeight;
+
 #endif

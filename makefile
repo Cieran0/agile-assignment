@@ -9,18 +9,18 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
     RAYLIB_PATH = /usr/lib/raylib
     INCLUDES = -I/usr/include/raylib
-    LDFLAGS = -L$(RAYLIB_PATH) -lraylib
+    LDFLAGS = -L$(RAYLIB_PATH) -lraylib -lcrypto -lssl
     # Add any Linux-specific flags here
 else ifeq ($(UNAME_S),Darwin)
     RAYLIB_PATH = /opt/homebrew/Cellar/raylib
     RAYLIB_INCLUDE = $(shell find $(RAYLIB_PATH) -name include)
     RAYLIB_LIB = $(shell find $(RAYLIB_PATH) -name lib)
     INCLUDES = -I$(RAYLIB_INCLUDE)
-    LDFLAGS = -L$(RAYLIB_LIB) -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
+    LDFLAGS = -L$(RAYLIB_LIB) -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -lcrypto -lssl
 else ifeq ($(OS),Windows_NT)
     RAYLIB_PATH = C:/raylib
     INCLUDES = -I$(RAYLIB_PATH)/include
-    LDFLAGS = -L$(RAYLIB_PATH)/lib -lraylib
+    LDFLAGS = -L$(RAYLIB_PATH)/lib -lraylib -lcrypto -lssl
     # Add any Windows-specific flags here
 else
     $(error Unsupported OS)

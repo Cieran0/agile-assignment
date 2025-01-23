@@ -1,5 +1,7 @@
 #include "atmUtil.h"
 
+
+
 vector<string> inputs;
 string displayText = "Please enter your PIN:"; // Global display text
 string balanceText = "Enter amount for withdrawl";
@@ -24,7 +26,7 @@ enum Screen {
 
 enum Screen screen = EnterPin;
 
-Account a1 = {PIN: "1234", balance: 1000};
+Account a1 = {PIN: "5541", cardNumber:"5030153826527268", expiryDate: "06/28",balance: 1000};
 
 string keyPad[4][4] = {{"1", "2", "3", "cancel"},
                     {"4", "5", "6", "clear"},
@@ -81,7 +83,12 @@ void handleInput(string buttonPressed) {
         // put fake delay or something cba rn
         setDisplayText("Pin of " + string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]));
         enteredPIN = string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]);
-        validatedPIN = validatePIN(enteredPIN);     
+        //validatedPIN = validatePIN(enteredPIN);     
+        Response r = forwardToSocket(a1.cardNumber, a1.expiryDate, "1", "2001", a1.PIN, 0.0);
+
+        if(r.succeeded == 0) {
+            screen = MainMenu;
+        }
     }
 
 }
@@ -138,10 +145,11 @@ void displayTransactionChoices(){
 }
 
 void atmLayout() {
-        DrawRectangle(500 ,200, 350,150, GREEN);
+
+        DrawRectangle(screenWidth/4 ,screenHeight/6, screenWidth/2,screenHeight/4, GREEN);
 
         // Draw the display text
-        DrawText(displayText.c_str(), 510, 210, 20, BLACK);
+        DrawText(displayText.c_str(), screenWidth/4 + (5) ,screenHeight/6 + (5), screenHeight/30, BLACK);
         
         // Draw the PIN display
         if (!pinDisplay.empty()) {
@@ -153,20 +161,36 @@ void atmLayout() {
         for (int row = 0; row < ROW_COUNT; row++)
         { 
             for(int col = 0; col < COLUMN_COUNT; col ++){
-                offsetX += 100;
+                offsetX += screenWidth/10;
                 // wouldnt compile on mac without being casted to a float...
                 Rectangle btnRect = {
-                    static_cast<float>(600 + offsetX),
-                    static_cast<float>(400 + offsetY),
-                    80.0f,
-                    40.0f
+                    static_cast<float>(screenWidth/4 + offsetX),
+                    static_cast<float>(screenHeight/2 + offsetY),
+                    screenWidth/12,
+                    screenHeight/24
                 };
+                if (keyPad[row][col] == "cancel") {
+                    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(RED));
+                }
+                else if(keyPad[row][col] == "clear")
+                {
+                    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(YELLOW));
+
+                }
+                else if(keyPad[row][col] == "enter"){
+                    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(GREEN));     
+                }
+                  else {
+                    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(GRAY));
+                }
                 if (GuiButton(btnRect, keyPad[row][col].c_str()))
                 {
                     handleInput(keyPad[row][col]);
-                }                
+                }
+
+
             }
-            offsetY += 50;
+            offsetY += screenHeight/15;
             offsetX = 0;
         }
 }
@@ -176,7 +200,7 @@ void screenManager(){
     switch (screen) {
         case 1:
             atmLayout();
-            cout << "on enter pin menu" << endl;
+            //cout << "on enter pin menu" << endl;
             break;
         case 2:
             displayTransactionChoices();
@@ -335,3 +359,119 @@ void drawWithdrawMenu() {
     }
 }
 
+Response forwardToSocket(string cardNumber, string expiryDate, string transactionID, string atmID, string pin, double withdrawalAmount) {
+    const char *host = "127.0.0.1"; // Server address
+    const int port = 6667;         // Server port
+
+    // Initialise OpenSSL
+    SSL_library_init();
+    SSL_load_error_strings();
+    const SSL_METHOD *method = TLS_client_method();
+    SSL_CTX *ctx = SSL_CTX_new(method);
+
+    if (!ctx) {
+        cerr << "Failed to create SSL context" << endl;
+        Response response;
+        response.succeeded = DATABASE_ERROR;
+        return response;
+    }
+
+    // Create a socket
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        cerr << "Failed to create socket" << endl;
+        SSL_CTX_free(ctx);
+        Response response;
+
+        response.succeeded = DATABASE_ERROR;
+        return response;
+    }
+
+    // Set up the server address struct
+    sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+    if (inet_pton(AF_INET, host, &server_addr.sin_addr) <= 0) {
+        cerr << "Invalid server address" << endl;
+        close(sock);
+        SSL_CTX_free(ctx);
+        Response response;
+
+        response.succeeded = DATABASE_ERROR;
+        return response;
+    }
+
+    // Connect to the server
+    if (connect(sock, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        cerr << "Failed to connect to the server" << endl;
+        close(sock);
+        SSL_CTX_free(ctx);
+        Response response;
+
+        response.succeeded = DATABASE_ERROR;
+        return response;
+    }
+
+    // Wrap the socket with SSL
+    SSL *ssl = SSL_new(ctx);
+    SSL_set_fd(ssl, sock);
+
+    if (SSL_connect(ssl) <= 0) {
+        cerr << "TLS handshake failed" << endl;
+        SSL_free(ssl);
+        close(sock);
+        SSL_CTX_free(ctx);
+        Response response;
+
+        response.succeeded = DATABASE_ERROR;
+        return response;
+    }
+
+    cout << "Connected to the server via TLS" << endl;
+
+    // Prepare the transaction struct
+    Transaction transaction;
+    memset(&transaction, 0, sizeof(transaction));
+    strncpy(transaction.cardNumber, cardNumber.c_str(), sizeof(transaction.cardNumber) - 1);
+    strncpy(transaction.expiryDate, expiryDate.c_str(), sizeof(transaction.expiryDate) - 1);
+    transaction.atmID = stoull(atmID);
+    transaction.uniqueTransactionID = stoull(transactionID);
+    strncpy(transaction.pinNo, pin.c_str(), sizeof(transaction.pinNo) - 1);
+    transaction.withdrawalAmount = withdrawalAmount;
+
+    // Send the transaction struct to the server
+    if (SSL_write(ssl, &transaction, sizeof(transaction)) <= 0) {
+        cerr << "Failed to send transaction to the server" << endl;
+        SSL_free(ssl);
+        close(sock);
+        SSL_CTX_free(ctx);
+        Response response;
+
+        response.succeeded = DATABASE_ERROR;
+        return response;
+    }
+
+    // Receive the response struct from the server
+    Response response;
+    if (SSL_read(ssl, &response, sizeof(response)) <= 0) {
+        cerr << "Failed to receive response from the server" << endl;
+        SSL_free(ssl);
+        close(sock);
+        SSL_CTX_free(ctx);
+        response.succeeded = DATABASE_ERROR;
+        return response;
+    }
+
+    // Print the response
+    cout << "Transaction Response:" << endl;
+    cout << "  Succeeded: " << response.succeeded << endl;
+    cout << "  New Balance: " << response.new_balance << endl;
+
+    // Clean up
+    SSL_free(ssl);
+    close(sock);
+    SSL_CTX_free(ctx);
+
+    return response;
+}
