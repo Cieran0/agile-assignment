@@ -29,10 +29,12 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
     }
 
     double current_balance = sqlite3_column_double(stmt, 0);
+
+    std::cout << current_balance << std::endl;
     
     if(transaction.withdrawalAmount == 0) {
         response.new_balance = current_balance;
-        response.succeeded = true;
+        response.succeeded = TRANSACTION_SUCESS;
         return response;
     }
 
