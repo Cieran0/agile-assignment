@@ -17,9 +17,6 @@ using namespace std;
     string pin; 
     double withdrawalAmount;     
 
-int screenWidth;
-int screenHeight;
-
 int main()
 {
     Response r = forwardToSocket("123", "1", "0", "1", "1234", 5);

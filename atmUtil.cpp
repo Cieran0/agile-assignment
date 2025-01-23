@@ -11,7 +11,7 @@
 
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
-
+#include <functional>
 
 vector<string> inputs;
 string displayText = "Please enter your PIN:"; // Global display text
@@ -290,11 +290,13 @@ void atmLayout() {
 
 void screenInit() {
     InitWindow(0, 0, "raygui - NCR ATM");
+
     GuiSetStyle(DEFAULT,TEXT_SIZE ,50);
+    setupGuiStyle();
     ToggleFullscreen();
     SetTargetFPS(60);
-    screenHeight = GetMonitorHeight(0); 
-    screenWidth = GetMonitorWidth(0);
+    screenWidth = GetMonitorWidth(0);  
+    screenHeight = GetMonitorHeight(0);
 }
 
 void screenManager(){
