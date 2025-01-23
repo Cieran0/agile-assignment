@@ -1,1 +1,2 @@
-basic framework for what server could look like and function ??
+Working server with atm and network connections possible
+Work on additional atm
