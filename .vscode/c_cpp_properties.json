@@ -1,20 +1,21 @@
 {
     "configurations": [
         {
-            "name": "Mac",
+            "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
                 "/opt/homebrew/include",
                 "/opt/homebrew/Cellar/openssl@3/3.4.0/include"
+                "C:/raylib/include",
+                "\"C:\\Program Files\\OpenSSL-Win64\\include\""
             ],
-            "defines": [],
-            "macFrameworkPath": [
-                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
             ],
-            "compilerPath": "/usr/bin/clang",
-            "cStandard": "c17",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "macos-clang-arm64"
+            "compilerPath": "gcc.exe",
+            "intelliSenseMode": "windows-gcc-x64"
         }
     ],
     "version": 4
