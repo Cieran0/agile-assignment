@@ -558,8 +558,8 @@ void drawWithdrawMenu() {
 void drawWaitingForCard() {
     int atmWidth  = 750;
     int atmHeight = 900;
-    int atmX = screenWidth / 2.5;
-    int atmY = screenHeight / 5;
+    int atmX = (screenWidth - atmWidth) / 2;  // Updated
+    int atmY = (screenHeight - atmHeight) / 2; // Updated
     
     DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
     DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
@@ -589,6 +589,7 @@ void drawWaitingForCard() {
         resetGlobalTextVariables();
     }
 }
+
 
 
 void handleDepositInput(const string& buttonPressed) {
