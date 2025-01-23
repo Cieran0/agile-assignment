@@ -529,22 +529,109 @@ void drawWithdrawMenu() {
         DrawText(("£" + withdrawInput).c_str(), atmX + 20, atmY + 40, 30, ATM_TEXT);
     }
 
-    int offsetX = 0;
-    int offsetY = 0;
-    for (int row = 0; row < 4; row++) {
-        for (int col = 0; col < 4; col++) {
-            offsetX += 100;
-            Rectangle btnRect = {
-                static_cast<float>(600 + offsetX),
-                static_cast<float>(400 + offsetY),
-                80.0f,
-                40.0f
-            };
-            if (GuiButton(btnRect, keyPad[row][col].c_str())) {
-                handleWithdrawInput(keyPad[row][col]);
-            }
-        }
-        offsetY += 50;
-        offsetX = 0;
+    int keypadWidth  = 300;
+    int keypadHeight = 300;
+
+    int keypadX = (atmX + atmWidth/2) - (keypadWidth/2);
+    int keypadY = (atmY + atmHeight/2) - (keypadHeight/2);
+
+    drawKeypad(keypadX, keypadY, handleWithdrawInput);
+}
+
+void drawWaitingForCard() {
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = (screenWidth - atmWidth) / 2;  // Updated
+    int atmY = (screenHeight - atmHeight) / 2; // Updated
+    
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+    
+    int screenX = atmX + 50;
+    int screenY = atmY + 50;
+    int screenW = atmWidth - 100;
+    int screenH = 200;
+    DrawRectangle(screenX, screenY, screenW, screenH, ATM_DISPLAY_BG);
+    
+    DrawText("Please Insert Card", screenX + 70, screenY + 70, 20, ATM_TEXT);
+    
+    int slotWidth  = 200;
+    int slotHeight = 10;
+    int slotX = atmX + (atmWidth - slotWidth) / 2;
+    int slotY = atmY + atmHeight - 80; 
+    DrawRectangle(slotX, slotY, slotWidth, slotHeight, DARKGRAY);
+
+    Rectangle cardBtn = {
+        (float)slotX,
+        (float)(slotY - 40),
+        (float)slotWidth,
+        30
+    };
+    if (GuiButton(cardBtn, "INSERT CARD")) {
+        screen = EnterPin;
+        resetGlobalTextVariables();
     }
 }
+
+
+
+void handleDepositInput(const string& buttonPressed) {
+    if (buttonPressed == "clear") {
+        depositInput.clear();
+        return;
+    }
+
+    if (buttonPressed == "cancel") {
+        depositInput.clear();
+        screen = MainMenu;
+        return;
+    }
+
+    if (buttonPressed.size() == 1 && isdigit(buttonPressed[0])) {
+        depositInput.push_back(buttonPressed[0]);
+        return;
+    }
+
+    if (buttonPressed == "enter") {
+        if (!depositInput.empty()) {
+            float amount = std::stof(depositInput);
+            a1.balance += amount;
+            cout << "Deposited: £" << amount << endl;
+        }
+        depositInput.clear();
+        screen = MainMenu;
+    }
+}
+
+void drawDepositMenu() {
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5f;
+    int atmY = screenHeight / 5;
+
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+    DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+    DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+    DrawText("Enter Deposit Amount:", atmX + 20, atmY + 20, 20, ATM_TEXT);
+    
+    if (!depositInput.empty()) {
+        DrawText(("£" + depositInput).c_str(), atmX + 20, atmY + 40, 30, ATM_TEXT);
+    }
+
+    int keypadWidth  = 300;
+    int keypadHeight = 300;
+
+    int keypadX = (atmX + atmWidth/2) - (keypadWidth/2);
+    int keypadY = (atmY + atmHeight/2) - (keypadHeight/2);
+
+    drawKeypad(keypadX, keypadY, handleDepositInput);
+
+    DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
+    DrawText("INSERT CASH HERE", atmX + 20, atmY + 230, 15, LIGHTGRAY);
+}
+void initializeATM() {
+    setupGuiStyle();
+}
+
