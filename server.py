@@ -11,6 +11,7 @@ RESPONSE_STRUCT_FORMAT = 'i d'  # Format string for Response struct
 account_balances = {
     1234567890123456: 1000.0,  # Example card number mapped to balance
     9876543210987654: 1500.0,  # Another card number
+    5030153826527268: 100000.53
 }
 
 def handle_transaction(transaction_data):
@@ -51,7 +52,7 @@ def handle_transaction(transaction_data):
 
         # Return success response with updated balance
         logging.info(f"Transaction successful. New balance for card {card_number}: {new_balance}")
-        return struct.pack(RESPONSE_STRUCT_FORMAT, 1, new_balance)
+        return struct.pack(RESPONSE_STRUCT_FORMAT, 0, new_balance)
 
     except Exception as e:
         logging.error(f"Error handling transaction: {e}")
@@ -109,4 +110,4 @@ if __name__ == '__main__':
     keyfile = 'server_key.pem'
 
     # Start the server on localhost:65432
-    start_tls_server('localhost', 65431, certfile, keyfile)
+    start_tls_server('localhost', 6667, certfile, keyfile)

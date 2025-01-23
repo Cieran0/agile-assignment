@@ -1,12 +1,12 @@
+#include "net.h"
 #include "atmUtil.h"
 #include <iostream>
 #include <string>
 
 #include <sstream>
 
-#define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
 #include <vector>
+
 
 using namespace std;
 
@@ -17,23 +17,22 @@ using namespace std;
     string pin; 
     double withdrawalAmount;     
 
+int screenWidth;
+int screenHeight;
+
 int main()
 {
-    InitWindow(screenWidth, screenHeight, "raygui - NCR ATM");
-    GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
-    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    Response r = forwardToSocket("123", "1", "0", "1", "1234", 5);
+    std::cout << r.succeeded << std::endl;
 
-    ToggleFullscreen();
-
-    screenWidth  = GetScreenWidth();
-    screenHeight = GetScreenHeight();
-
-    SetTargetFPS(60);
+    screenInit();
 
     while (!WindowShouldClose())
     {
         BeginDrawing();
-        ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+        
+
+
         screenManager();
         EndDrawing();
     }

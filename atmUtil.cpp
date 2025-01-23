@@ -1,5 +1,18 @@
 #include "atmUtil.h"
 
+#include <iostream>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <cstring>
+
+
+#include "net.h"
+
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
+
 vector<string> inputs;
 string displayText = "Please enter your PIN:"; // Global display text
 string balanceText = "Enter amount for withdrawl";
@@ -44,7 +57,7 @@ enum Screen {
 
 enum Screen screen = WaitingForCard;
 
-Account a1 = {PIN: "1234", balance: 1000};
+Account a1 = {PIN: "5541", cardNumber:"5030153826527268", expiryDate: "06/28",balance: 1000};
 
 string keyPad[4][4] = {{"1", "2", "3", "cancel"},
                     {"4", "5", "6", "clear"},
@@ -102,7 +115,12 @@ void handleInput(string buttonPressed) {
         // put fake delay or something cba rn
         setDisplayText("Pin of " + string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]));
         enteredPIN = string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]);
-        validatedPIN = validatePIN(enteredPIN);     
+        //validatedPIN = validatePIN(enteredPIN);     
+        Response r = forwardToSocket(a1.cardNumber, a1.expiryDate, "1", "2001", a1.PIN, 0.0);
+
+        if(r.succeeded == 0) {
+            screen = MainMenu;
+        }
     }
 
 }
@@ -285,14 +303,27 @@ void atmLayout()
     DrawText("INSERTED CARD", atmX + 20, atmY + 230, 15, LIGHTGRAY);
 }
 
+
+void screenInit() {
+    InitWindow(0, 0, "raygui - NCR ATM");
+    GuiSetStyle(DEFAULT,TEXT_SIZE ,50);
+    ToggleFullscreen();
+    SetTargetFPS(60);
+    screenHeight = GetMonitorHeight(0); 
+    screenWidth = GetMonitorWidth(0);
+}
+
 void screenManager(){
+
+    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
     switch (screen) {
         case WaitingForCard:
             drawWaitingForCard();
             break;
         case EnterPin:
             atmLayout();
-            cout << "on enter pin menu" << endl;
+            //cout << "on enter pin menu" << endl;
             break;
         case MainMenu:
             displayTransactionChoices();
