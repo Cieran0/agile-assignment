@@ -14,9 +14,17 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::string transactionID, std::string atmID, std::string pin, double withdrawalAmount) {
-    const char *host = "127.0.0.1";
-    const int port = 6667;
+uint64_t rand_uint64(void) {
+  uint64_t r = 0;
+  for (int i=0; i<64; i += 15 /*30*/) {
+    r = r*((uint64_t)RAND_MAX + 1) + rand();
+  }
+  return r;
+}
+
+Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::string atmID, std::string pin, double withdrawalAmount) {
+    const char *host = "10.201.102.155";
+    const int port = 6668;
 
 #ifdef _WIN32
     WSADATA wsaData;
@@ -103,7 +111,7 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::st
     strncpy(transaction.cardNumber, cardNumber.c_str(), sizeof(transaction.cardNumber) - 1);
     strncpy(transaction.expiryDate, expiryDate.c_str(), sizeof(transaction.expiryDate) - 1);
     transaction.atmID = stoull(atmID);
-    transaction.uniqueTransactionID = stoull(transactionID);
+    transaction.uniqueTransactionID = rand_uint64();
     strncpy(transaction.pinNo, pin.c_str(), sizeof(transaction.pinNo) - 1);
     transaction.withdrawalAmount = withdrawalAmount;
 
@@ -120,6 +128,8 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::st
         response.succeeded = DATABASE_ERROR;
         return response;
     }
+
+    std::cout << "Withdrew: " << transaction.withdrawalAmount << std::endl;
 
     Response response;
     if (SSL_read(ssl, &response, sizeof(response)) <= 0) {
