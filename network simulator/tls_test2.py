@@ -4,7 +4,7 @@ import socket
 import struct
 import random
 
-PORT = 8000
+PORT = 6668
 SERVER = '127.0.0.1'  # Change to the server's IP address if needed
 
 def main():
@@ -14,7 +14,7 @@ def main():
     atm_id = 2486815646  # Random ATM ID
     unique_transaction_id = random.randint(1, 100000)  # Random transaction ID
     pin_no = "5541"  # 4-digit PIN
-    withdrawal_amount = 100.0  # Withdrawal amount
+    withdrawal_amount = 1.0  # Withdrawal amount
 
     # Create a socket and wrap it with SSL
     context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)

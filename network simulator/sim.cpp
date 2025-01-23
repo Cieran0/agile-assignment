@@ -9,6 +9,7 @@
 #include <queue>
 #include "log.hpp"
 #include "sim.hpp"
+#include <fstream>
 
 const int PORT = 6668;
 std::atomic<bool> serverRunning(true);
@@ -198,7 +199,7 @@ int main() {
     thread_setup();
 
     addLogger(DatabaseLogger);
-    //addLogger(txtLogger);
+    addLogger(txtLogger);
     SSL_CTX *ctx;
     sockaddr_in servaddr = {0};
 
@@ -245,6 +246,11 @@ int main() {
             thread.join();
         }
     }
+
+    std::ofstream log_file;
+    log_file.open("sim_log.txt", std::ios_base::app);
+    log_file << getTextOut();
+    log_file.close();
 
     close(sockfd);
     SSL_CTX_free(ctx);

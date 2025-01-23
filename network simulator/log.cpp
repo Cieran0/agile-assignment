@@ -5,8 +5,11 @@
 #include <functional>
 #include <sqlite3.h>
 #include <fstream>
+#include <sstream>
+
 
 std::vector<std::function<void(const Transaction&)>> loggers;
+std::stringstream textOut;
 
 void addLogger(const std::function<void(const Transaction&)>& logger) {
     loggers.push_back(logger);
@@ -47,11 +50,11 @@ void DatabaseLogger(const Transaction& transaction) {
 }
 
 void txtLogger(const Transaction& transaction){
-    std::ofstream log_file;
+    //std::ofstream log_file;
 
-    log_file.open("sim_log.txt", std::ios_base::app);
+    //log_file.open("sim_log.txt", std::ios_base::app);
 
-    log_file << std::format("{}: withdrawal of £{} with card number {} at ATM {}\n",
+    textOut << std::format("{}: withdrawal of £{} with card number {} at ATM {}\n",
         transaction.uniqueTransactionID,
         transaction.withdrawalAmount,
         transaction.cardNumber,
@@ -67,4 +70,8 @@ void ConsoleLogger(const Transaction& transaction) {
         transaction.atmID
     );
     std::cout << console_message << std::endl;
+}
+
+std::string getTextOut(){
+    return textOut.str();
 }
