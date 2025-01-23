@@ -8,6 +8,7 @@
 */
 
 #include "test.hpp"
+#include "../network simulator/sim.hpp"
 #include <iostream>
 
 struct ExampleStruct {

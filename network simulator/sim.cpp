@@ -1,17 +1,8 @@
 #include <iostream>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <cstring>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/crypto.h>
+#include "sim.hpp"
 #include <thread>
 #include <vector>
 #include "log.hpp"
-#include <mutex>
 
 const int PORT = 8000;
 
@@ -36,23 +27,9 @@ void handleClient(SSL *ssl) {
             break;
         }
 
-        std::cout << "Transaction {" << std::endl;
-        std::cout << "\tcardNumber: " << transaction.cardNumber << std::endl;
-        std::cout << "\texpiryDate: " << transaction.expiryDate << std::endl;
-        std::cout << "\tatmID: " << transaction.atmID << std::endl;
-        std::cout << "\tuniqueTransactionID: " << transaction.uniqueTransactionID << std::endl;
-        std::cout << "\tpinNo: " << transaction.pinNo << std::endl;
-        std::cout << "\twithdrawalAmount: " << transaction.withdrawalAmount << std::endl;
-        std::cout << "}" << std::endl;
-
         response = processTransaction(transaction, db);
 
         SSL_write(ssl, &response, sizeof(response));
-
-        std::cout << "Response {" << std::endl;
-        std::cout << "\tsucceeded: " << response.succeeded << std::endl;
-        std::cout << "\tnew_balance: " << response.new_balance << std::endl;
-        std::cout << "}" << std::endl;
 
         if(response.succeeded == 0){
             log(transaction);
