@@ -8,19 +8,20 @@ string pinDisplay = ""; // To show asterisks for PIN
 string enteredPIN;
 static string withdrawInput = "";
 bool validatedPIN = false;
+int screenWidth = GetMonitorWidth(0);  
+int screenHeight = GetMonitorHeight(0);
 
 static string depositInput = "";
 
 #define ROW_COUNT 4
 #define COLUMN_COUNT 4
 
+
 #define ATM_BACKGROUND CLITERAL(Color){ 45, 49, 66, 255 }     // Dark blue-gray
 #define ATM_DISPLAY_BG CLITERAL(Color){ 200, 247, 197, 255 }  // Light green
 #define ATM_BUTTON_BG CLITERAL(Color){ 77, 83, 110, 255 }     // Medium blue-gray
 #define ATM_BUTTON_HOVER CLITERAL(Color){ 137, 142, 163, 255 }
 #define ATM_TEXT CLITERAL(Color){ 33, 37, 41, 255 }           // Dark gray
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
 
 #define RAYGUI_BUTTON_BORDER_WIDTH   2
 #define RAYGUI_BUTTON_TEXT_PADDING   10
@@ -148,38 +149,52 @@ void setupGuiStyle() {
     GuiSetStyle(BUTTON, BORDER_COLOR_PRESSED, ColorToInt(WHITE));
 }
 
-void displayTransactionChoices(){
-    // Draw ATM frame
-    DrawRectangle(400, 100, 550, 600, ATM_BACKGROUND);
-    DrawRectangleLines(400, 100, 550, 600, DARKGRAY);
-    
-    // Draw screen area
-    DrawRectangle(450, 150, 450, 500, ATM_DISPLAY_BG);
-    DrawText("Please select your transaction", 500, 170, 20, ATM_TEXT);
+void displayTransactionChoices()
+{
+    // 1) Draw the ATM frame
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5;
+    int atmY = screenHeight / 5;
 
-    // Add shadow effect to buttons
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+    DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+    DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+
     for (int i = 0; i < 4; i++) {
-        DrawRectangle(503, 253 + (i * 80), 350, 60, DARKGRAY);  // Shadow
+        DrawRectangle(
+            atmX + 203,           
+            atmY + 253 + i*80, 
+            350, 
+            60, 
+            DARKGRAY
+        );
     }
 
     Button buttons[] = {
-        {{500, 250, 350, 60}, "Balance Inquiry"},
-        {{500, 330, 350, 60}, "Cash Withdrawal"},
-        {{500, 410, 350, 60}, "Deposit"},
-        {{500, 490, 350, 60}, "Exit"}
+        {{(float)(atmX + 200), (float)(atmY + 250), 350, 60}, "Balance Inquiry"},
+        {{(float)(atmX + 200), (float)(atmY + 330), 350, 60}, "Cash Withdrawal"},
+        {{(float)(atmX + 200), (float)(atmY + 410), 350, 60}, "Deposit"},
+        {{(float)(atmX + 200), (float)(atmY + 490), 350, 60}, "Exit"}
     };
 
-    int buttonCount = sizeof(buttons) / sizeof(buttons[0]);
+    int buttonCount = sizeof(buttons)/sizeof(buttons[0]);
 
-    for (size_t i = 0; i < buttonCount; i++) {
-        // Draw button highlight/glow effect when hovered
+    for (int i = 0; i < buttonCount; i++)
+    {
         Rectangle btnRect = buttons[i].bounds;
+
         if (CheckCollisionPointRec(GetMousePosition(), btnRect)) {
-            DrawRectangleRec((Rectangle){btnRect.x - 2, btnRect.y - 2, btnRect.width + 4, btnRect.height + 4}, 
-                            Fade(LIGHTGRAY, 0.3f));
+            DrawRectangleRec(
+                (Rectangle){btnRect.x - 2, btnRect.y - 2, btnRect.width + 4, btnRect.height + 4}, 
+                Fade(LIGHTGRAY, 0.3f)
+            );
         }
         
-        if (GuiButton(buttons[i].bounds, buttons[i].text)) {
+        if (GuiButton(btnRect, buttons[i].text))
+        {
             switch (i) {
                 case 0:
                     screen = Balance;
@@ -203,16 +218,15 @@ void displayTransactionChoices(){
     }
 }
 
-// Helper function to draw keypad using GuiButton - add this near other helper functions
 void drawKeypad(int startX, int startY, const std::function<void(const string&)>& handleInput) {
     int buttonWidth = 80;
     int buttonHeight = 60;
     int spacing = 20;
 
-    // Draw the buttons
     for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 4; col++) {
-            if (keyPad[row][col] != " ") {  // Skip empty spaces in keypad
+            string keypadButtonText = keyPad[row][col];
+            if (keypadButtonText != " ") { 
                 float x = startX + (col * (buttonWidth + spacing));
                 float y = startY + (row * (buttonHeight + spacing));
                 
@@ -223,6 +237,17 @@ void drawKeypad(int startX, int startY, const std::function<void(const string&)>
                     static_cast<float>(buttonHeight)
                 };
 
+
+                if (keypadButtonText == "cancel") {
+                    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(RED));
+                } else if (keypadButtonText == "clear") {
+                    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(YELLOW));
+                } else if (keypadButtonText == "enter") {
+                    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(GREEN));
+                } else {
+                    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(GRAY));
+                }
+
                 if (GuiButton(btnRect, keyPad[row][col].c_str())) {
                     handleInput(keyPad[row][col]);
                 }
@@ -231,27 +256,33 @@ void drawKeypad(int startX, int startY, const std::function<void(const string&)>
     }
 }
 
-void atmLayout() {
-    // Draw ATM outer casing
-    DrawRectangle(400, 100, 550, 650, ATM_BACKGROUND);
-    DrawRectangleLines(400, 100, 550, 650, DARKGRAY);
-    
-    // Draw screen bezel
-    DrawRectangle(450, 150, 450, 200, DARKGRAY);
-    DrawRectangle(460, 160, 430, 180, ATM_DISPLAY_BG);
-    
-    DrawText(displayText.c_str(), 470, 170, 20, ATM_TEXT);
-    
+void atmLayout() 
+{
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5f;
+    int atmY = screenHeight / 5;
+
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+    DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+    DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+    DrawText(displayText.c_str(), atmX + 20, atmY + 20, 20, ATM_TEXT);
     if (!pinDisplay.empty()) {
-        DrawText(pinDisplay.c_str(), 470, 200, 30, ATM_TEXT);
+        DrawText(pinDisplay.c_str(), atmX + 20, atmY + 60, 30, ATM_TEXT);
     }
 
-    // Draw keypad using GuiButton
-    drawKeypad(500, 400, handleInput);
+    int keypadWidth  = 300;
+    int keypadHeight = 300;
 
-    // Draw card slot
-    DrawRectangle(450, 370, 200, 10, DARKGRAY);
-    DrawText("INSERTED CARD", 480, 355, 15, LIGHTGRAY);
+    int keypadX = (atmX + atmWidth/2) - (keypadWidth/2);
+    int keypadY = (atmY + atmHeight/2) - (keypadHeight/2);
+
+    drawKeypad(keypadX, keypadY, handleInput);
+
+    DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
+    DrawText("INSERTED CARD", atmX + 20, atmY + 230, 15, LIGHTGRAY);
 }
 
 void screenManager(){
@@ -291,19 +322,22 @@ void screenManager(){
 }
 
 void drawBalanceChoices() {
-    // Draw ATM frame
-    DrawRectangle(400, 100, 550, 600, ATM_BACKGROUND);
-    DrawRectangleLines(400, 100, 550, 600, DARKGRAY);
-    
-    // Draw screen area
-    DrawRectangle(450, 150, 450, 200, DARKGRAY);
-    DrawRectangle(460, 160, 430, 180, ATM_DISPLAY_BG);
-    DrawText("Select Balance Option", 500, 170, 20, ATM_TEXT);
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5f;
+    int atmY = screenHeight / 5;
+
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+    DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+    DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+    DrawText("Select balance option", atmX + 20, atmY + 20, 20, ATM_TEXT);
 
     Button buttons[] = {
-        {{500, 400, 350, 60}, "View Balance"},
-        {{500, 480, 350, 60}, "Print Balance"},
-        {{500, 560, 350, 60}, "Back to Main Menu"}
+        {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 300), 350.0f, 60.0f}, "View Balance"},
+        {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 380), 350.0f, 60.0f}, "Print Balance"},
+        {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 460), 350.0f, 60.0f}, "Back to Main Menu"}
     };    
 
     int buttonCount = sizeof(buttons) / sizeof(buttons[0]);
@@ -328,23 +362,32 @@ void drawBalanceChoices() {
     }
 
     // Draw card slot
-    DrawRectangle(450, 370, 200, 10, DARKGRAY);
-    DrawText("CARD INSERTED", 480, 355, 15, LIGHTGRAY);
+    DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
+    DrawText("INSERTED CARD", atmX + 20, atmY + 230, 15, LIGHTGRAY);
 }
 
+
+
 void viewBalance() {
-    // Draw ATM frame
-    DrawRectangle(400, 100, 550, 600, ATM_BACKGROUND);
-    DrawRectangleLines(400, 100, 550, 600, DARKGRAY);
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5f;
+    int atmY = screenHeight / 5;
+
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+    DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+    DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+    DrawText("Your Current Balance:", atmX + 250, atmY + 100, 20, ATM_TEXT);
+    DrawText(("£" + to_string(a1.balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
     
-    // Draw screen area
-    DrawRectangle(450, 150, 450, 400, ATM_DISPLAY_BG);
-    
-    DrawText("Your Current Balance:", 470, 170, 20, ATM_TEXT);
-    DrawText(("£" + to_string(a1.balance)).c_str(), 470, 220, 40, ATM_TEXT);
-    
-    // Back button using GuiButton
-    Rectangle backBtn = {500, 450, 350, 60};
+    Rectangle backBtn = {
+        static_cast<float>(atmX + 200), 
+        static_cast<float>(atmY + 450), 
+        350.0f, 
+        60.0f
+    };
     if (GuiButton(backBtn, "Back to Main Menu")) {
         screen = MainMenu;
     }
@@ -365,7 +408,7 @@ void processingScreen(string messageToPrint){
     {
         printingComplete = true;
         counter++;
-        DrawText("Processing... ", 200, 500, 40, BLACK);
+        DrawText("Processing...", 470, 170, 20, ATM_TEXT);
     } else {
         DrawText("Printing successful. ", 200, 500, 40, BLACK);
         if (GuiButton({200, 600, 200, 50}, "Back")) {
@@ -375,35 +418,41 @@ void processingScreen(string messageToPrint){
 }
 
 void printBalance() {
-    // Draw ATM frame
-    DrawRectangle(400, 100, 550, 600, ATM_BACKGROUND);
-    DrawRectangleLines(400, 100, 550, 600, DARKGRAY);
-    
-    // Draw screen area
-    DrawRectangle(450, 150, 450, 200, DARKGRAY);
-    DrawRectangle(460, 160, 430, 180, ATM_DISPLAY_BG);
-    DrawText("Printing Balance", 500, 170, 20, ATM_TEXT);
-    
-    static int counter = 0;
-    if (counter < 60 * 3) {  // 3 seconds
-        counter++;
-        DrawText("Processing...", 500, 250, 30, ATM_TEXT);
-        printFunction(to_string(a1.balance));
-    } else {
-        DrawText("Print Complete", 500, 250, 30, ATM_TEXT);
-        DrawText("Please take your receipt", 500, 300, 20, ATM_TEXT);
-        
-        // Back button using GuiButton
-        Rectangle backBtn = {500, 450, 350, 60};
-        if (GuiButton(backBtn, "Back to Main Menu")) {
-            screen = MainMenu;
-            counter = 0;  // Reset counter for next time
-        }
-    }
-    
-    // Draw card slot
-    DrawRectangle(450, 370, 200, 10, DARKGRAY);
-    DrawText("CARD INSERTED", 480, 355, 15, LIGHTGRAY);
+   int atmWidth  = 750;
+   int atmHeight = 900;
+   int atmX = screenWidth / 2.5f;
+   int atmY = screenHeight / 5;
+
+   DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+   DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+   DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+   DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+   DrawText("Printing Balance", atmX + 275, atmY + 150, 20, ATM_TEXT);
+   
+   static int counter = 0;
+   if (counter < 60 * 5) { 
+       counter++;
+       DrawText("Processing....", atmX + 20, atmY + 20, 20, ATM_TEXT);
+       printFunction(to_string(a1.balance));
+   } else {
+       DrawText("Please take your receipt", atmX + 20, atmY + 20, 20, ATM_TEXT);
+       
+       Rectangle backBtn = {
+           static_cast<float>(atmX + 200), 
+           static_cast<float>(atmY + 450), 
+           350.0f, 
+           60.0f
+       };
+       if (GuiButton(backBtn, "Back to Main Menu")) {
+           screen = MainMenu;
+           counter = 0;  
+       }
+   }
+   
+   // Draw card slot
+   DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
+    DrawText("INSERTED CARD", atmX + 20, atmY + 230, 15, LIGHTGRAY);
 }
 
 void handleWithdrawInput(const string& buttonPressed) {
@@ -439,45 +488,66 @@ void handleWithdrawInput(const string& buttonPressed) {
 }
 
 void drawWithdrawMenu() {
-    // Draw ATM frame
-    DrawRectangle(400, 100, 550, 650, ATM_BACKGROUND);
-    DrawRectangleLines(400, 100, 550, 650, DARKGRAY);
-    
-    // Draw screen area
-    DrawRectangle(450, 150, 450, 200, DARKGRAY);
-    DrawRectangle(460, 160, 430, 180, ATM_DISPLAY_BG);
-    DrawText("Enter Withdrawal Amount:", 470, 170, 20, ATM_TEXT);
-    
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5f;
+    int atmY = screenHeight / 5;
+
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+    DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+    DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+    DrawText("Enter withdrawal amount", atmX + 20, atmY + 20, 20, ATM_TEXT);
+
     if (!withdrawInput.empty()) {
-        DrawText(("£" + withdrawInput).c_str(), 470, 200, 30, ATM_TEXT);
+        DrawText(("£" + withdrawInput).c_str(), atmX + 20, atmY + 40, 30, ATM_TEXT);
     }
 
-    // Draw keypad using GuiButton
-    drawKeypad(500, 400, handleWithdrawInput);
+    int keypadWidth  = 300;
+    int keypadHeight = 300;
+
+    int keypadX = (atmX + atmWidth/2) - (keypadWidth/2);
+    int keypadY = (atmY + atmHeight/2) - (keypadHeight/2);
+
+    drawKeypad(keypadX, keypadY, handleWithdrawInput);
 }
 
 void drawWaitingForCard() {
-    // Draw ATM outer casing
-    DrawRectangle(400, 100, 550, 650, ATM_BACKGROUND);
-    DrawRectangleLines(400, 100, 550, 650, DARKGRAY);
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5;
+    int atmY = screenHeight / 5;
     
-    // Draw screen bezel
-    DrawRectangle(450, 150, 450, 200, DARKGRAY);
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
     
-    // Draw screen display
-    DrawRectangle(460, 160, 430, 180, ATM_DISPLAY_BG);
-    DrawText("Please Insert Card", 570, 230, 20, ATM_TEXT);
+    int screenX = atmX + 50;
+    int screenY = atmY + 50;
+    int screenW = atmWidth - 100;
+    int screenH = 200;
+    DrawRectangle(screenX, screenY, screenW, screenH, ATM_DISPLAY_BG);
     
-    // Draw card slot
-    DrawRectangle(450, 370, 200, 10, DARKGRAY);
+    DrawText("Please Insert Card", screenX + 70, screenY + 70, 20, ATM_TEXT);
     
-    // Use GuiButton for card insertion
-    Rectangle cardBtn = {450, 350, 200, 30};
+    int slotWidth  = 200;
+    int slotHeight = 10;
+    int slotX = atmX + (atmWidth - slotWidth) / 2;
+    int slotY = atmY + atmHeight - 80; 
+    DrawRectangle(slotX, slotY, slotWidth, slotHeight, DARKGRAY);
+
+    Rectangle cardBtn = {
+        (float)slotX,
+        (float)(slotY - 40),
+        (float)slotWidth,
+        30
+    };
     if (GuiButton(cardBtn, "INSERT CARD")) {
         screen = EnterPin;
         resetGlobalTextVariables();
     }
 }
+
 
 void handleDepositInput(const string& buttonPressed) {
     if (buttonPressed == "clear") {
@@ -508,27 +578,33 @@ void handleDepositInput(const string& buttonPressed) {
 }
 
 void drawDepositMenu() {
-    // Draw ATM frame
-    DrawRectangle(400, 100, 550, 650, ATM_BACKGROUND);
-    DrawRectangleLines(400, 100, 550, 650, DARKGRAY);
-    
-    // Draw screen area
-    DrawRectangle(450, 150, 450, 200, DARKGRAY);
-    DrawRectangle(460, 160, 430, 180, ATM_DISPLAY_BG);
-    DrawText("Enter Deposit Amount:", 470, 170, 20, ATM_TEXT);
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5f;
+    int atmY = screenHeight / 5;
+
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+    DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+    DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+    DrawText("Enter Deposit Amount:", atmX + 20, atmY + 20, 20, ATM_TEXT);
     
     if (!depositInput.empty()) {
-        DrawText(("£" + depositInput).c_str(), 470, 200, 30, ATM_TEXT);
+        DrawText(("£" + depositInput).c_str(), atmX + 20, atmY + 40, 30, ATM_TEXT);
     }
 
-    // Draw keypad using GuiButton
-    drawKeypad(500, 400, handleDepositInput);
+    int keypadWidth  = 300;
+    int keypadHeight = 300;
 
-    // Draw deposit slot
-    DrawRectangle(450, 370, 200, 10, DARKGRAY);
-    DrawText("INSERT CASH HERE", 480, 355, 15, LIGHTGRAY);
+    int keypadX = (atmX + atmWidth/2) - (keypadWidth/2);
+    int keypadY = (atmY + atmHeight/2) - (keypadHeight/2);
+
+    drawKeypad(keypadX, keypadY, handleDepositInput);
+
+    DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
+    DrawText("INSERT CASH HERE", atmX + 20, atmY + 230, 15, LIGHTGRAY);
 }
-
 void initializeATM() {
     setupGuiStyle();
 }

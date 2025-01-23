@@ -19,24 +19,25 @@ using namespace std;
 
 int main()
 {
-    int screenWidth = GetMonitorWidth(0);  
-    int screenHeight = GetMonitorHeight(0); 
     InitWindow(screenWidth, screenHeight, "raygui - NCR ATM");
+    GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+
     ToggleFullscreen();
+
+    screenWidth  = GetScreenWidth();
+    screenHeight = GetScreenHeight();
+
     SetTargetFPS(60);
 
     while (!WindowShouldClose())
     {
         BeginDrawing();
-        
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
-
         screenManager();
-                 
         EndDrawing();
     }
 
     CloseWindow();
     return 0;
 }
-
