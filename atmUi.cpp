@@ -19,8 +19,8 @@ using namespace std;
 
 int main()
 {
-    Response r = forwardToSocket("123", "1", "0", "1", "1234", 5);
-    std::cout << r.succeeded << std::endl;
+    //Response r = forwardToSocket("123", "1", "0", "1", "1234", 5);
+    //std::cout << r.succeeded << std::endl;
 
     screenInit();
 

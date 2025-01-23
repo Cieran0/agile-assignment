@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <cstring>
+#include <random>
 
 
 #include "net.h"
@@ -16,6 +17,7 @@
 vector<string> inputs;
 string displayText = "Please enter your PIN:"; // Global display text
 string balanceText = "Enter amount for withdrawl";
+string withdrawlText = "Enter withdrawal amount";
 
 string pinDisplay = ""; // To show asterisks for PIN
 string enteredPIN;
@@ -57,7 +59,7 @@ enum Screen {
 
 enum Screen screen = WaitingForCard;
 
-Account a1 = {PIN: "5541", cardNumber:"5030153826527268", expiryDate: "06/28",balance: 1000};
+Account a1 = {cardNumber:"5030153826527268", expiryDate: "06/28"};
 
 string keyPad[4][4] = {{"1", "2", "3", "cancel"},
                     {"4", "5", "6", "clear"},
@@ -108,18 +110,26 @@ void handleInput(string buttonPressed) {
     if (inputs.size() < 4 && buttonPressed.length() == 1) {
         inputs.push_back(buttonPressed);
         updatePinDisplay();
+        setDisplayText("Please enter your PIN:");
     }
 
     if (buttonPressed == "enter" && inputs.size() == 4) {
         setDisplayText("Processing PIN...");
         // put fake delay or something cba rn
-        setDisplayText("Pin of " + string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]));
+        
         enteredPIN = string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]);
         //validatedPIN = validatePIN(enteredPIN);     
-        Response r = forwardToSocket(a1.cardNumber, a1.expiryDate, "1", "2001", a1.PIN, 0.0);
+        Response r = forwardToSocket(a1.cardNumber, a1.expiryDate,  "2001", enteredPIN, 0.0);
 
         if(r.succeeded == 0) {
             screen = MainMenu;
+            a1.balance = r.new_balance;
+        }
+        else{
+            setDisplayText("Incorrect pin. try again");
+            inputs.clear();
+            updatePinDisplay();
+            screen = EnterPin;
         }
     }
 
@@ -291,12 +301,12 @@ void atmLayout() {
 void screenInit() {
     InitWindow(0, 0, "raygui - NCR ATM");
 
-    GuiSetStyle(DEFAULT,TEXT_SIZE ,50);
     setupGuiStyle();
     ToggleFullscreen();
     SetTargetFPS(60);
     screenWidth = GetMonitorWidth(0);  
     screenHeight = GetMonitorHeight(0);
+    GuiSetStyle(DEFAULT,TEXT_SIZE ,screenHeight/100);
 }
 
 void screenManager(){
@@ -308,30 +318,23 @@ void screenManager(){
             break;
         case EnterPin:
             atmLayout();
-            //cout << "on enter pin menu" << endl;
             break;
         case MainMenu:
             displayTransactionChoices();
-            cout << "on main menu" << endl;
             break;
         case Withdraw:
             drawWithdrawMenu();
-            cout << "on withdraw screen" << endl;
             break;
         case Balance:
             drawBalanceChoices();
-            cout << "on the balance choice screen " << endl;
             break;
         case BalanceAmount:
             viewBalance();
-            cout << "view balance screen " << endl;
             break;
         case Deposit:
             drawDepositMenu();
-            cout << "on deposit screen" << endl;
             break;
         case PrintBalance:
-            cout << "print balance screen " << endl;
             printBalance();
             break;
     }
@@ -485,21 +488,27 @@ void handleWithdrawInput(const string& buttonPressed) {
 
     if (buttonPressed.size() == 1 && isdigit(buttonPressed[0])) {
         withdrawInput.push_back(buttonPressed[0]);
+        withdrawlText = "Please enter amount";
         return;
     }
 
     if (buttonPressed == "enter") {
         if (!withdrawInput.empty()) {
-            float amount = std::stof(withdrawInput);
-            if (amount <= a1.balance) {
-                a1.balance -= amount;
+            double amount = std::stof(withdrawInput);
+            if (amount > a1.balance)
+            {
+                withdrawlText = "Insufficient funds";
+                withdrawInput.clear();
             }
-            else {
-                cout << "not enough money :()" << endl;
+            else{
+                Response r = forwardToSocket(a1.cardNumber, a1.expiryDate, "2001", enteredPIN, amount);
+                if(r.succeeded == 0) {
+                a1.balance = r.new_balance;
+                withdrawInput.clear();
+                screen = MainMenu;
             }
+          }      
         }
-        withdrawInput.clear();
-        screen = MainMenu;
     }
 }
 
@@ -514,7 +523,7 @@ void drawWithdrawMenu() {
 
     DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
     DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
-    DrawText("Enter withdrawal amount", atmX + 20, atmY + 20, 20, ATM_TEXT);
+    DrawText(withdrawlText.c_str(), atmX + 20, atmY + 20, 20, ATM_TEXT);
 
     if (!withdrawInput.empty()) {
         DrawText(("£" + withdrawInput).c_str(), atmX + 20, atmY + 40, 30, ATM_TEXT);

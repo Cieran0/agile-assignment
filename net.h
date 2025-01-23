@@ -19,4 +19,4 @@ struct Response {
 
 
 
-Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::string transactionID, std::string atmID, std::string pin, double withdrawalAmount);
+Response forwardToSocket(std::string cardNumber, std::string expiryDate, std::string atmID, std::string pin, double withdrawalAmount);
