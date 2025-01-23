@@ -2,6 +2,7 @@
 import ssl
 import socket
 import struct
+import random
 
 PORT = 8000
 SERVER = '127.0.0.1'  # Change to the server's IP address if needed
@@ -11,7 +12,7 @@ def main():
     card_number = "5030153826527268"  # 16-digit card number
     expiry_date = "0628"  # MMYY format
     atm_id = 2486815646  # Random ATM ID
-    unique_transaction_id = 268229  # Random transaction ID
+    unique_transaction_id = random.randint(1, 100000)  # Random transaction ID
     pin_no = "5541"  # 4-digit PIN
     withdrawal_amount = 100.0  # Withdrawal amount
 

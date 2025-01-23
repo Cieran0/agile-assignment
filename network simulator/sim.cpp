@@ -10,14 +10,55 @@
 #include <openssl/crypto.h>
 #include <thread>
 #include <vector>
-#include "log.hpp"
 #include <mutex>
+#include <csignal>
+#include <atomic>
+#include <condition_variable>
+#include <queue>
+#include "log.hpp"
 
-const int PORT = 8000;
+const int PORT = 6668;
+std::atomic<bool> serverRunning(true);
+int sockfd = -1;
+
+// Thread-safe OpenSSL setup
+#include <pthread.h>
+static pthread_mutex_t *mutex_buf = nullptr;
+
+static void locking_function(int mode, int n, const char *file, int line) {
+    if (mode & CRYPTO_LOCK)
+        pthread_mutex_lock(&mutex_buf[n]);
+    else
+        pthread_mutex_unlock(&mutex_buf[n]);
+}
+
+static void thread_setup() {
+    mutex_buf = (pthread_mutex_t *)malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
+    for (int i = 0; i < CRYPTO_num_locks(); i++)
+        pthread_mutex_init(&mutex_buf[i], NULL);
+    CRYPTO_set_locking_callback(locking_function);
+}
+
+static void thread_cleanup() {
+    CRYPTO_set_locking_callback(NULL);
+    for (int i = 0; i < CRYPTO_num_locks(); i++)
+        pthread_mutex_destroy(&mutex_buf[i]);
+    free(mutex_buf);
+}
+
+// Signal handler for graceful shutdown
+void handleSignal(int signal) {
+    if (signal == SIGINT) {
+        std::cout << "Shutting down server..." << std::endl;
+        serverRunning = false;
+        close(sockfd); // Close the main socket to stop accepting new connections
+    }
+}
 
 void handleClient(SSL *ssl) {
+    std::cout << "Handling new client connection" << std::endl;
     sqlite3* db = nullptr;
-    if(initDatabaseConnection(db) != SQLITE_OK){
+    if (initDatabaseConnection(db) != SQLITE_OK) {
         std::cerr << "Failed to open database connection" << std::endl;
         return;
     }
@@ -54,16 +95,16 @@ void handleClient(SSL *ssl) {
         std::cout << "\tnew_balance: " << response.new_balance << std::endl;
         std::cout << "}" << std::endl;
 
-        if(response.succeeded == 0){
-            log(transaction);
+        if (response.succeeded == 0) {
+            //log(transaction);
         }
 
         SSL_write(ssl, okResponse, sizeof(okResponse));
     }
 
-    
-
+    sqlite3_close(db);
     SSL_free(ssl);
+    std::cout << "Client connection closed" << std::endl;
 }
 
 int initSSLServer(SSL_CTX *&ctx, int &sockfd, sockaddr_in &servaddr) {
@@ -112,7 +153,7 @@ int initSSLServer(SSL_CTX *&ctx, int &sockfd, sockaddr_in &servaddr) {
     servaddr.sin_port = htons(PORT);
 
     if (bind(sockfd, (sockaddr *)&servaddr, sizeof(servaddr)) != 0) {
-        std::cout << "Failed to bind socket" << std::endl;
+        std::cerr << "Failed to bind socket" << std::endl;
         return -1;
     }
 
@@ -120,13 +161,16 @@ int initSSLServer(SSL_CTX *&ctx, int &sockfd, sockaddr_in &servaddr) {
 }
 
 void clientThreadFunction(SSL_CTX *ctx, int connfd) {
-    // Create SSL object
     SSL *ssl = SSL_new(ctx);
+    if (!ssl) {
+        std::cerr << "Failed to create SSL object" << std::endl;
+        close(connfd);
+        return;
+    }
+
     SSL_set_fd(ssl, connfd);
 
-    // Perform SSL handshake
-    if (SSL_accept(ssl) <= 0)
-    {
+    if (SSL_accept(ssl) <= 0) {
         std::cerr << "SSL handshake failed" << std::endl;
         ERR_print_errors_fp(stderr);
         SSL_free(ssl);
@@ -135,40 +179,80 @@ void clientThreadFunction(SSL_CTX *ctx, int connfd) {
     }
 
     handleClient(ssl);
+    //SSL_free(ssl);
     close(connfd);
 }
 
+std::mutex mtx;
+std::condition_variable cv;
+std::queue<int> clientQueue;
+const int MAX_THREADS = 10; // Adjust based on system capacity
+
+void threadPoolWorker(SSL_CTX *ctx) {
+    while (serverRunning) {
+        int connfd;
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            cv.wait(lock, [] { return !clientQueue.empty() || !serverRunning; });
+            if (!serverRunning && clientQueue.empty()) break;
+            connfd = clientQueue.front();
+            clientQueue.pop();
+        }
+        clientThreadFunction(ctx, connfd);
+    }
+}
+
 int main() {
+    // Set up signal handling for graceful shutdown
+    std::signal(SIGINT, handleSignal);
+
+    // Initialize thread-safe OpenSSL
+    thread_setup();
+
     addLogger(DatabaseLogger);
     addLogger(txtLogger);
     SSL_CTX *ctx;
-    int sockfd = -1;
     sockaddr_in servaddr = {0};
 
     if (initSSLServer(ctx, sockfd, servaddr) != 0) {
+        thread_cleanup();
         return -1;
     }
 
-    listen(sockfd, 5);
+    if (listen(sockfd, 5) != 0) {
+        std::cerr << "Failed to listen on socket" << std::endl;
+        close(sockfd);
+        SSL_CTX_free(ctx);
+        thread_cleanup();
+        return -1;
+    }
 
-    std::vector<std::thread> threads;
+    std::vector<std::thread> threadPool;
+    for (int i = 0; i < MAX_THREADS; ++i) {
+        threadPool.emplace_back(threadPoolWorker, ctx);
+    }
 
-    while (true) {
+    while (serverRunning) {
         sockaddr_in cli = {0};
         socklen_t len = sizeof(cli);
         int connfd = accept(sockfd, (sockaddr *)&cli, &len);
         if (connfd < 0) {
-            std::cerr << "Failed to accept connection" << std::endl;
+            if (serverRunning) {
+                std::cerr << "Failed to accept connection" << std::endl;
+            }
             continue;
         }
 
-        threads.emplace_back([ctx, connfd](){
-            clientThreadFunction(ctx, connfd);
-        });
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            clientQueue.push(connfd);
+        }
+        cv.notify_one();
     }
 
     // Clean up
-    for (std::thread &thread : threads) {
+    cv.notify_all(); // Wake up all threads
+    for (std::thread &thread : threadPool) {
         if (thread.joinable()) {
             thread.join();
         }
@@ -177,6 +261,8 @@ int main() {
     close(sockfd);
     SSL_CTX_free(ctx);
     EVP_cleanup();
+    thread_cleanup();
 
+    std::cout << "Server shutdown complete." << std::endl;
     return 0;
 }

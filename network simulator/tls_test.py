@@ -7,7 +7,7 @@ import struct
 import random
 import string
 
-PORT = 8000
+PORT = 6668
 SERVER = '127.0.0.1'  # Change to the server's IP address if needed
 
 # Helper functions to generate random data
