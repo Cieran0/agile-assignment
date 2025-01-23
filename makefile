@@ -19,8 +19,9 @@ else ifeq ($(UNAME_S),Darwin)
     LDFLAGS = -L$(RAYLIB_LIB) -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -lcrypto -lssl
 else ifeq ($(OS),Windows_NT)
     RAYLIB_PATH = C:/raylib
-    INCLUDES = -I$(RAYLIB_PATH)/include
-    LDFLAGS = -L$(RAYLIB_PATH)/lib -lraylib -lcrypto -lssl
+    OPENSSL_PATH = "C:/Program Files/OpenSSL-Win64"
+    INCLUDES = -I$(RAYLIB_PATH)/include -I$(OPENSSL_PATH)/include
+    LDFLAGS = -L$(RAYLIB_PATH)/lib -L$(OPENSSL_PATH)/lib/VC/x64/MDd -lraylib -lcrypto -lssl -lgdi32 -lwinmm -lws2_32
     # Add any Windows-specific flags here
 else
     $(error Unsupported OS)

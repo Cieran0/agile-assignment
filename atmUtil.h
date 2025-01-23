@@ -2,21 +2,9 @@
 #define ATMUTIL_H
 
 #include <iostream>
-#include <fstream>
-#include <thread>
-#include <string>
-#include <vector>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <arpa/inet.h>
 #include <unistd.h>
-
-#include "raygui.h"
-
-#define TRANSACTION_SUCESS 0
-#define INSUFFICIENT_FUNDS 1
-#define DATABASE_ERROR 2
-#define INCORRECT_PIN 3
+#include <cstdint>
+#include "raylib.h"
 
 using namespace std;
 
@@ -32,21 +20,6 @@ typedef struct {
     Rectangle bounds; 
     const char *text;
 } Button;
-
-struct Transaction{
-    char cardNumber[20];
-    char expiryDate[6];
-    uint64_t atmID;
-    uint64_t uniqueTransactionID;
-    char pinNo[5];
-    double withdrawalAmount;
-};
-
-struct Response {
-    int succeeded;
-    double new_balance;
-};
-
 
 
 bool validatePIN(string enteredPIN);
@@ -70,7 +43,7 @@ void printFunction(string balance);
 
 void processingScreen(string messageToPrint);
 
-Response forwardToSocket(string cardNumber, string expiryDate, string transactionID, string atmID, string pin, double withdrawalAmount);
+void screenInit();
 
 extern int screenWidth;
 extern int screenHeight;
