@@ -1,13 +1,5 @@
 #include <iostream>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <cstring>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/crypto.h>
+#include "sim.hpp"
 #include <thread>
 #include <vector>
 #include <mutex>
@@ -16,6 +8,7 @@
 #include <condition_variable>
 #include <queue>
 #include "log.hpp"
+#include "sim.hpp"
 
 const int PORT = 6668;
 std::atomic<bool> serverRunning(true);
@@ -76,15 +69,6 @@ void handleClient(SSL *ssl) {
             std::cerr << "Client Disconnected" << std::endl;
             break;
         }
-
-        std::cout << "Transaction {" << std::endl;
-        std::cout << "\tcardNumber: " << transaction.cardNumber << std::endl;
-        std::cout << "\texpiryDate: " << transaction.expiryDate << std::endl;
-        std::cout << "\tatmID: " << transaction.atmID << std::endl;
-        std::cout << "\tuniqueTransactionID: " << transaction.uniqueTransactionID << std::endl;
-        std::cout << "\tpinNo: " << transaction.pinNo << std::endl;
-        std::cout << "\twithdrawalAmount: " << transaction.withdrawalAmount << std::endl;
-        std::cout << "}" << std::endl;
 
         response = processTransaction(transaction, db);
 
