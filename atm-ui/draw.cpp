@@ -119,8 +119,10 @@ void screenInit() {
     SetTargetFPS(60);
     screenWidth = GetMonitorWidth(0);  
     screenHeight = GetMonitorHeight(0);
-    atmX = screenWidth / 2.5f;
-    atmY = screenHeight / 5;
+    //screenWidth = 1920;  
+    //screenHeight = 1080;
+    atmX = (screenWidth - atmWidth)/2;
+    atmY = (screenHeight - atmHeight) / 2;
     GuiSetStyle(DEFAULT, TEXT_SIZE, screenHeight/100);
 }
 
