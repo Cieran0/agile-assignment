@@ -18,14 +18,12 @@ uint64_t rand_uint64() {
     for (int i = 0; i < 64; i += 15) {
         r = r * ((uint64_t)RAND_MAX + 1) + rand();
     }
-    // Ensure the value is less than or equal to int64_t max (2^63 - 1)
     return r % ((uint64_t)1 << 63);
 }
 
 const char *host;
 int port;
 
-// Helper function to close the socket
 void close_socket(int sock) {
     #ifdef _WIN32
     closesocket(sock);
@@ -34,7 +32,6 @@ void close_socket(int sock) {
     #endif
 }
 
-// Helper function to initialize Winsock on Windows
 bool initialize_winsock() {
     #ifdef _WIN32
     WSADATA wsaData;
@@ -46,27 +43,16 @@ bool initialize_winsock() {
     return true;
 }
 
-// Helper function to clean up Winsock on Windows
 void cleanup_winsock() {
     #ifdef _WIN32
     WSACleanup();
     #endif
 }
 
-#define NO_NET
-
 Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_t atmID, std::string pin, double withdrawalAmount) {
     Response response;
 
-	#ifdef NO_NET
-		response.new_balance = 1000;
-		response.succeeded = TRANSACTION_SUCESS;
-		return response;
-	#endif
-
-    if (!initialize_winsock()) {
-        return NETWORK_ERROR;
-    }
+    if (!initialize_winsock()) return NETWORK_ERROR;
 
     SSL_library_init();
     SSL_load_error_strings();
@@ -120,11 +106,9 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_
     }
 
     Transaction transaction = {0};
-
     strncpy(transaction.cardNumber, cardNumber.c_str(), sizeof(transaction.cardNumber) - 1);
     strncpy(transaction.expiryDate, expiryDate.c_str(), sizeof(transaction.expiryDate) - 1);
     strncpy(transaction.pinNo, pin.c_str(), sizeof(transaction.pinNo) - 1);
-
     transaction.atmID = atmID;
     transaction.uniqueTransactionID = rand_uint64();
     transaction.withdrawalAmount = withdrawalAmount;

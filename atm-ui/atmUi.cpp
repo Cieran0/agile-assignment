@@ -15,8 +15,7 @@ double withdrawalAmount;
 #define DEFAULT_HOST "127.0.0.1"
 #define DEFAULT_PORT 6667
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     port = DEFAULT_PORT;
     host = DEFAULT_HOST;
 

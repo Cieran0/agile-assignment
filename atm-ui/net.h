@@ -9,7 +9,7 @@
 #define INCORRECT_PIN 3
 #define NETWORK_ERROR 4
 
-struct Transaction{
+struct Transaction {
     char cardNumber[20];
     char expiryDate[6];
     uint64_t atmID;
@@ -21,7 +21,6 @@ struct Transaction{
 struct Response {
     int succeeded;
     double new_balance;
-    // Constructor for implicit cast from int to Response
     Response() {}
     Response(int code) : succeeded(code), new_balance(0) {}
 };
