@@ -9,13 +9,14 @@
 #include <vector>
 #include <thread>
 #include <mutex>
+#include <atomic>
+#include <condition_variable>
 #include "TransactionLogr.h"
 #include "Transaction.h"
-#include "NetworkRouter.h"
 
 class TransactionSwitch {
 public:
-    TransactionSwitch() : logger(), router() {
+    TransactionSwitch(const char* network_sim_ip, int network_sim_port) : logger(), network_sim_ip(network_sim_ip), network_sim_port(network_sim_port) {
         SSL_library_init();
         SSL_load_error_strings();
         OpenSSL_add_all_algorithms();
@@ -65,19 +66,32 @@ public:
                 continue;
             }
 
-            // Create a thread to handle the client connection
-            std::thread(&TransactionSwitch::handleConnection, this, atm_socket).detach();
+            // Create a thread to handle the client connection 
+            {
+                std::lock_guard<std::mutex> lock(threads_mutex);
+                threads.emplace_back(&TransactionSwitch::handleConnection, this, atm_socket);
+            }
+        }
+
+        // Join all threads before closing the server socket
+        for (auto &thread : threads) {
+            if (thread.joinable()) {
+                thread.join();
+            }
         }
 
         close(server_sock_6667);
     }
 
 private:
+    const char* network_sim_ip;
+    int network_sim_port;
     TransactionLogger logger;
-    NetworkRouter router;
     SSL_CTX *ctx;
     std::mutex logger_mutex; // Mutex for thread-safe access to logger
     std::mutex router_mutex; // Mutex for thread-safe access to router
+    std::vector<std::thread> threads;
+    std::mutex threads_mutex; // Mutex for thread-safe access to threads vector
 
     SSL_CTX *createSSLContext() {
         const SSL_METHOD *method = TLS_server_method();
@@ -128,7 +142,7 @@ private:
 
             {
                 std::lock_guard<std::mutex> lock(logger_mutex);
-                std::cout << "Received: " << message.cardNumber << std::endl;
+                logger.logTransaction(message);
             }
 
             Response response = sendNetworkMessage(message);
@@ -137,22 +151,20 @@ private:
     }
 
     Response sendNetworkMessage(Transaction message) {
-        const int DATABASE_ERROR = 1;
-        const char *host = "10.201.102.155"; // Server address
-        const int port = 6668;              // Server port
+        const char *host = network_sim_ip;
+        const int port = network_sim_port;
+        Response response;
 
         SSL_CTX *client_ctx = SSL_CTX_new(TLS_client_method());
         if (!client_ctx) {
-            Response response;
-            response.succeeded = DATABASE_ERROR;
+            response.succeeded = NETWORK_ERROR;
             return response;
         }
 
         int sock = socket(AF_INET, SOCK_STREAM, 0);
         if (sock < 0) {
             SSL_CTX_free(client_ctx);
-            Response response;
-            response.succeeded = DATABASE_ERROR;
+            response.succeeded = NETWORK_ERROR;
             return response;
         }
 
@@ -162,16 +174,14 @@ private:
         if (inet_pton(AF_INET, host, &server_addr.sin_addr) <= 0) {
             close(sock);
             SSL_CTX_free(client_ctx);
-            Response response;
-            response.succeeded = DATABASE_ERROR;
+            response.succeeded = NETWORK_ERROR;
             return response;
         }
 
         if (connect(sock, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
             close(sock);
             SSL_CTX_free(client_ctx);
-            Response response;
-            response.succeeded = DATABASE_ERROR;
+            response.succeeded = NETWORK_ERROR;
             return response;
         }
 
@@ -182,8 +192,7 @@ private:
             SSL_free(ssl);
             close(sock);
             SSL_CTX_free(client_ctx);
-            Response response;
-            response.succeeded = DATABASE_ERROR;
+            response.succeeded = NETWORK_ERROR;
             return response;
         }
 
@@ -191,17 +200,15 @@ private:
             SSL_free(ssl);
             close(sock);
             SSL_CTX_free(client_ctx);
-            Response response;
-            response.succeeded = DATABASE_ERROR;
+           response.succeeded = NETWORK_ERROR;
             return response;
         }
 
-        Response response;
         if (SSL_read(ssl, &response, sizeof(response)) <= 0) {
             SSL_free(ssl);
             close(sock);
             SSL_CTX_free(client_ctx);
-            response.succeeded = DATABASE_ERROR;
+           response.succeeded = NETWORK_ERROR;
             return response;
         }
 

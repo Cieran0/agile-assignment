@@ -4,12 +4,11 @@
 
 #include <string>
 #include "TransactionLogr.h"
-#include "NetworkRouter.h"
 
 class TransactionSwitch {
 public:
     // constructor & destructor
-    TransactionSwitch();
+    TransactionSwitch(const char* network_sim_ip, int network_sim_port);
     ~TransactionSwitch();
 
     // start server
@@ -21,7 +20,6 @@ private:
 
     // memb vars
     TransactionLogger logger;
-    NetworkRouter router;
 };
 
 #endif // TRANSACTIONSWITCH_H

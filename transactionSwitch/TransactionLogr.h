@@ -4,6 +4,7 @@
 
 #include <string>
 #include <fstream>
+#include "Transaction.h"
 
 class TransactionLogger {
 public:
@@ -12,7 +13,7 @@ public:
     ~TransactionLogger();
 
     // save transaction to a log file
-    void logTransaction(const std::string& transactionDetails);
+    void logTransaction(const Transaction& transaction);
 
 private:
     // shiz
