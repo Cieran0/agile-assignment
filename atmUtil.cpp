@@ -111,14 +111,28 @@ void handleInput(string buttonPressed) {
         inputs.push_back(buttonPressed);
         updatePinDisplay();
         setDisplayText("Please enter your PIN:");
+        setDisplayText("Please enter your PIN:");
     }
 
     if (buttonPressed == "enter" && inputs.size() == 4) {
         setDisplayText("Processing PIN...");
         // put fake delay or something cba rn
         
+        
         enteredPIN = string(1, inputs[0][0]) + string(1, inputs[1][0]) + string(1, inputs[2][0]) + string(1, inputs[3][0]);
-        //validatedPIN = validatePIN(enteredPIN);     
+        ////validatedPIN = validatePIN(enteredPIN);     
+        Response r = forwardToSocket(a1.cardNumber, a1.expiryDate,  "2001", enteredPIN, 0.0);
+
+        if(r.succeeded == 0) {
+            screen = MainMenu;
+            a1.balance = r.new_balance;
+        }
+        else{
+            setDisplayText("Incorrect pin. try again");
+            inputs.clear();
+            updatePinDisplay();
+            screen = EnterPin;
+        }
         Response r = forwardToSocket(a1.cardNumber, a1.expiryDate,  "2001", enteredPIN, 0.0);
 
         if(r.succeeded == 0) {
@@ -238,9 +252,14 @@ void displayTransactionChoices()
                     break;
                 case 3:
                     screen = WaitingForCard;
+                    screen = WaitingForCard;
                     resetGlobalTextVariables();
                     cout << "exit" << endl;
+                    cout << "exit" << endl;
                     break;
+            }
+        }
+    }
             }
         }
     }
@@ -312,7 +331,12 @@ void screenInit() {
 void screenManager(){
 
     ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
     switch (screen) {
+        case WaitingForCard:
+            drawWaitingForCard();
+            break;
+        case EnterPin:
         case WaitingForCard:
             drawWaitingForCard();
             break;
@@ -320,20 +344,28 @@ void screenManager(){
             atmLayout();
             break;
         case MainMenu:
+        case MainMenu:
             displayTransactionChoices();
             break;
+        case Withdraw:
         case Withdraw:
             drawWithdrawMenu();
             break;
         case Balance:
+        case Balance:
             drawBalanceChoices();
             break;
+        case BalanceAmount:
         case BalanceAmount:
             viewBalance();
             break;
         case Deposit:
             drawDepositMenu();
             break;
+        case Deposit:
+            drawDepositMenu();
+            break;
+        case PrintBalance:
         case PrintBalance:
             printBalance();
             break;
@@ -353,22 +385,41 @@ void drawBalanceChoices() {
     DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
     DrawText("Select balance option", atmX + 20, atmY + 20, 20, ATM_TEXT);
 
+void drawBalanceChoices() {
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5f;
+    int atmY = screenHeight / 5;
+
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+    DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+    DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+    DrawText("Select balance option", atmX + 20, atmY + 20, 20, ATM_TEXT);
+
     Button buttons[] = {
         {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 300), 350.0f, 60.0f}, "View Balance"},
         {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 380), 350.0f, 60.0f}, "Print Balance"},
         {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 460), 350.0f, 60.0f}, "Back to Main Menu"}
     };    
+        {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 300), 350.0f, 60.0f}, "View Balance"},
+        {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 380), 350.0f, 60.0f}, "Print Balance"},
+        {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 460), 350.0f, 60.0f}, "Back to Main Menu"}
+    };    
 
-    int buttonCount = sizeof(buttons) / sizeof(buttons[0]);
+    int buttonCount = sizeof(buttons)  / sizeof(buttons[0]);
 
     for (size_t i = 0; i < buttonCount; i++) {
         if (GuiButton(buttons[i].bounds, buttons[i].text)) {
             switch (i) {
                 case 0:
                     screen = BalanceAmount;
+                    screen = BalanceAmount;
                     cout << "View Balance button pressed" << endl;
                     break;
                 case 1:
+                    screen = PrintBalance;
                     screen = PrintBalance;
                     cout << "Print Balance button pressed" << endl;
                     break;
@@ -384,6 +435,8 @@ void drawBalanceChoices() {
     DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
     DrawText("INSERTED CARD", atmX + 20, atmY + 230, 15, LIGHTGRAY);
 }
+
+
 
 
 
@@ -489,6 +542,7 @@ void handleWithdrawInput(const string& buttonPressed) {
     if (buttonPressed.size() == 1 && isdigit(buttonPressed[0])) {
         withdrawInput.push_back(buttonPressed[0]);
         withdrawlText = "Please enter amount";
+        withdrawlText = "Please enter amount";
         return;
     }
 
@@ -499,7 +553,23 @@ void handleWithdrawInput(const string& buttonPressed) {
             {
                 withdrawlText = "Insufficient funds";
                 withdrawInput.clear();
+            double amount = std::stof(withdrawInput);
+            if (amount > a1.balance)
+            {
+                withdrawlText = "Insufficient funds";
+                withdrawInput.clear();
             }
+            else{
+                Response r = forwardToSocket(a1.cardNumber, a1.expiryDate, "2001", enteredPIN, amount);
+                if(r.succeeded == 0) {
+                a1.balance = r.new_balance;
+                withdrawInput.clear();
+                screen = MainMenu;
+            }
+          }      
+        }
+    }
+}
             else{
                 Response r = forwardToSocket(a1.cardNumber, a1.expiryDate, "2001", enteredPIN, amount);
                 if(r.succeeded == 0) {
@@ -524,11 +594,127 @@ void drawWithdrawMenu() {
     DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
     DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
     DrawText(withdrawlText.c_str(), atmX + 20, atmY + 20, 20, ATM_TEXT);
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5f;
+    int atmY = screenHeight / 5;
+
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+    DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+    DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+    DrawText(withdrawlText.c_str(), atmX + 20, atmY + 20, 20, ATM_TEXT);
 
     if (!withdrawInput.empty()) {
         DrawText(("£" + withdrawInput).c_str(), atmX + 20, atmY + 40, 30, ATM_TEXT);
+        DrawText(("£" + withdrawInput).c_str(), atmX + 20, atmY + 40, 30, ATM_TEXT);
     }
 
+    int keypadWidth  = 300;
+    int keypadHeight = 300;
+
+    int keypadX = (atmX + atmWidth/2) - (keypadWidth/2);
+    int keypadY = (atmY + atmHeight/2) - (keypadHeight/2);
+
+    drawKeypad(keypadX, keypadY, handleWithdrawInput);
+}
+
+void drawWaitingForCard() {
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = (screenWidth - atmWidth) / 2;  // Updated
+    int atmY = (screenHeight - atmHeight) / 2; // Updated
+    
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+    
+    int screenX = atmX + 50;
+    int screenY = atmY + 50;
+    int screenW = atmWidth - 100;
+    int screenH = 200;
+    DrawRectangle(screenX, screenY, screenW, screenH, ATM_DISPLAY_BG);
+    
+    DrawText("Please Insert Card", screenX + 70, screenY + 70, 20, ATM_TEXT);
+    
+    int slotWidth  = 200;
+    int slotHeight = 10;
+    int slotX = atmX + (atmWidth - slotWidth) / 2;
+    int slotY = atmY + atmHeight - 80; 
+    DrawRectangle(slotX, slotY, slotWidth, slotHeight, DARKGRAY);
+
+    Rectangle cardBtn = {
+        (float)slotX,
+        (float)(slotY - 40),
+        (float)slotWidth,
+        30
+    };
+    if (GuiButton(cardBtn, "INSERT CARD")) {
+        screen = EnterPin;
+        resetGlobalTextVariables();
+    }
+}
+
+
+
+void handleDepositInput(const string& buttonPressed) {
+    if (buttonPressed == "clear") {
+        depositInput.clear();
+        return;
+    }
+
+    if (buttonPressed == "cancel") {
+        depositInput.clear();
+        screen = MainMenu;
+        return;
+    }
+
+    if (buttonPressed.size() == 1 && isdigit(buttonPressed[0])) {
+        depositInput.push_back(buttonPressed[0]);
+        return;
+    }
+
+    if (buttonPressed == "enter") {
+        if (!depositInput.empty()) {
+            float amount = std::stof(depositInput);
+            a1.balance += amount;
+            cout << "Deposited: £" << amount << endl;
+        }
+        depositInput.clear();
+        screen = MainMenu;
+    }
+}
+
+void drawDepositMenu() {
+    int atmWidth  = 750;
+    int atmHeight = 900;
+    int atmX = screenWidth / 2.5f;
+    int atmY = screenHeight / 5;
+
+    DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
+    DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
+
+    DrawRectangle(atmX, atmY, atmWidth, 200, DARKGRAY);
+    DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, 180, ATM_DISPLAY_BG);
+    DrawText("Enter Deposit Amount:", atmX + 20, atmY + 20, 20, ATM_TEXT);
+    
+    if (!depositInput.empty()) {
+        DrawText(("£" + depositInput).c_str(), atmX + 20, atmY + 40, 30, ATM_TEXT);
+    }
+
+    int keypadWidth  = 300;
+    int keypadHeight = 300;
+
+    int keypadX = (atmX + atmWidth/2) - (keypadWidth/2);
+    int keypadY = (atmY + atmHeight/2) - (keypadHeight/2);
+
+    drawKeypad(keypadX, keypadY, handleDepositInput);
+
+    DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
+    DrawText("INSERT CASH HERE", atmX + 20, atmY + 230, 15, LIGHTGRAY);
+}
+void initializeATM() {
+    setupGuiStyle();
     int keypadWidth  = 300;
     int keypadHeight = 300;
 
