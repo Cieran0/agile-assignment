@@ -6,10 +6,10 @@
 #include <sqlite3.h>
 #include <fstream>
 #include <sstream>
-
+#include <chrono>
 
 std::vector<std::function<void(const Transaction&)>> loggers;
-std::stringstream textOut;
+std::ofstream log_txt;
 
 void addLogger(const std::function<void(const Transaction&)>& logger) {
     loggers.push_back(logger);
@@ -50,28 +50,26 @@ void DatabaseLogger(const Transaction& transaction) {
 }
 
 void txtLogger(const Transaction& transaction){
-    //std::ofstream log_file;
-
-    //log_file.open("sim_log.txt", std::ios_base::app);
-
-    textOut << std::format("{}: withdrawal of £{} with card number {} at ATM {}\n",
-        transaction.uniqueTransactionID,
+    std::string message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
+        std::chrono::system_clock::now(),
+        transaction.uniqueTransactionID, 
         transaction.withdrawalAmount,
         transaction.cardNumber,
         transaction.atmID
     );
+
+    if(log_txt.is_open()) {
+        log_txt << message << std::endl;
+    }
 }
 
 void ConsoleLogger(const Transaction& transaction) {
-    std::string console_message = std::format("{}: withdrawal of £{} with card number {} at ATM {}",
+    std::string console_message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
+        std::chrono::system_clock::now(),
         transaction.uniqueTransactionID, 
         transaction.withdrawalAmount,
         transaction.cardNumber,
         transaction.atmID
     );
     std::cout << console_message << std::endl;
-}
-
-std::string getTextOut(){
-    return textOut.str();
 }

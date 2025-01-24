@@ -4,7 +4,7 @@ import socket
 import struct
 import random
 
-PORT = 6668
+PORT = 6667
 SERVER = '127.0.0.1'  # Change to the server's IP address if needed
 
 def main():

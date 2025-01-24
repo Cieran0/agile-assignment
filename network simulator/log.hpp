@@ -14,4 +14,4 @@ void txtLogger(const Transaction& transaction);
 
 void ConsoleLogger(const Transaction& transaction);
 
-std::string getTextOut();
+extern std::ofstream log_txt;

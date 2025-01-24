@@ -71,18 +71,14 @@ void handleClient(SSL *ssl) {
             break;
         }
 
-        std::cout << "Transaction {" << std::endl;
-        std::cout << "\tID: " << transaction.uniqueTransactionID << std::endl;
-        std::cout << "}" << std::endl;
-
         response = processTransaction(transaction, db);
 
         SSL_write(ssl, &response, sizeof(response));
 
-        std::cout << "Response {" << std::endl;
-        std::cout << "\tsucceeded: " << response.succeeded << std::endl;
-        std::cout << "\tnew_balance: " << response.new_balance << std::endl;
-        std::cout << "}" << std::endl;
+        // std::cout << "Response {" << std::endl;
+        // std::cout << "\tsucceeded: " << response.succeeded << std::endl;
+        // std::cout << "\tnew_balance: " << response.new_balance << std::endl;
+        // std::cout << "}" << std::endl;
 
         if (response.succeeded == 0) {
             log(transaction);
@@ -198,8 +194,11 @@ int main() {
     // Initialize thread-safe OpenSSL
     thread_setup();
 
+    log_txt.open("sim_log.txt", std::ios::app);
     addLogger(DatabaseLogger);
+    addLogger(ConsoleLogger);
     addLogger(txtLogger);
+
     SSL_CTX *ctx;
     sockaddr_in servaddr = {0};
 
@@ -247,10 +246,6 @@ int main() {
         }
     }
 
-    std::ofstream log_file;
-    log_file.open("sim_log.txt", std::ios_base::app);
-    log_file << getTextOut();
-    log_file.close();
 
     close(sockfd);
     SSL_CTX_free(ctx);
