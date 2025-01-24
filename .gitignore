@@ -1,4 +1,8 @@
 ui
 atm
 ui.exe
+test_example
 .vscode/*
+network_sim
+db_sim
+log
