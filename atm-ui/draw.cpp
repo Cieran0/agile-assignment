@@ -25,12 +25,12 @@ int atmY;
 #include <functional>
 
 void accessabilityView(){
-
 }
 
 void drawCashSlot(const char* text) {
-    DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
-    DrawText(text, atmX + 20, atmY + 230, 15, LIGHTGRAY);
+    int startX = atmX + atmWidth + (atmWidth / 8);
+    DrawRectangle(atmX + atmWidth + (atmWidth / 8), atmY + 200, 400, 40, DARKGRAY);
+    DrawText(text, atmX + atmWidth + (atmWidth / 8) + 10, atmY + 210, 20, WHITE);
 }
 
 void drawButtons(vector<Button> buttons) {
@@ -48,7 +48,7 @@ void drawMoney(std::string str) {
 }
 
 void drawCardSlot() {
-    int slotWidth = 200;
+    int slotWidth = 300;
     int slotHeight = 10;
     int slotX = atmX + (atmWidth - slotWidth) / 2;
     int slotY = atmY + atmHeight - 80; 
@@ -142,31 +142,43 @@ int getButtonColor(const std::string& text) {
 void drawKeypad(const std::function<void(const string&)>& handleInput) {
     int keypadWidth = 300;
     int keypadHeight = 300;
-    int startX = atmX + atmWidth + (atmWidth / 9);
-    int startY = (atmY + atmHeight / 1.5) - (keypadHeight / 2);
+    int startX = atmX + atmWidth + (atmWidth / 8);
+    int startY = atmY + atmHeight - keypadHeight; 
     int buttonWidth = 120;
     int buttonHeight = 60;
     int spacing = 20;
     float x = startX;
     float y = startY;
 
-    for (int row = 0; row < 5; row++) { // Loop through 5 rows
-        for (int col = 0; col < 3; col++) { // Loop through 3 columns
+    for (int row = 0; row < 5; row++) { 
+        for (int col = 0; col < 3; col++) {
             string keypadButtonText = keyPad[row][col];
             if (keypadButtonText == " ") { 
                 x += (buttonWidth + spacing); 
                 continue; 
             }
+
             Rectangle btnRect = { x, y, static_cast<float>(buttonWidth), static_cast<float>(buttonHeight) };
+
             GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, getButtonColor(keypadButtonText));
+            GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, ColorToInt(DARKGRAY));
+            GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, ColorToInt(LIGHTGRAY));
+            GuiSetStyle(BUTTON, BORDER_COLOR_PRESSED, ColorToInt(WHITE));
+
             if (GuiButton(btnRect, keypadButtonText.c_str())) {
                 handleInput(keypadButtonText);
             }
-            x += (buttonWidth + spacing); // Move to the next column
+
+            x += (buttonWidth + spacing);
         }
-        x = startX; // Reset x for the next row
-        y += (buttonHeight + spacing); // Move to the next row
+        x = startX;
+        y += (buttonHeight + spacing);
     }
+
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(DARKGRAY)); 
+    GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, ColorToInt(DARKGRAY));
+    GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, ColorToInt(LIGHTGRAY));
+    GuiSetStyle(BUTTON, BORDER_COLOR_PRESSED, ColorToInt(WHITE));
 }
 
 void screenInit() {
@@ -178,9 +190,13 @@ void screenInit() {
     screenHeight = GetMonitorHeight(0);
     //screenWidth = 1920;  
     //screenHeight = 1080;
-    atmX = (screenWidth - atmWidth)/6;
+    atmX = (screenWidth - atmWidth) / 5;
     atmY = (screenHeight - atmHeight) / 2;
     GuiSetStyle(DEFAULT, TEXT_SIZE, screenHeight/40);
+}
+
+void drawSideButtons() {
+
 }
 
 void drawATMScreen(const char* text) {
@@ -188,10 +204,10 @@ void drawATMScreen(const char* text) {
     DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
     DrawRectangle(atmX, atmY, atmWidth, atmHeight - 100, DARKGRAY);
     DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, atmHeight - 20, ATM_DISPLAY_BG);
-    DrawText(text, atmX + 20, atmY + 20, 30, ATM_TEXT);
-}
-
-void drawSideButtons() {
+    int textWidth = MeasureText(text, 30); // Measure the width of the text with the specified font size
+    int textX = atmX + (atmWidth - textWidth) / 2; // Center horizontally within the ATM
+    int textY = atmY + 40; // Vertical position
+    DrawText(text, textX, textY, 30, ATM_TEXT);
 
 }
 

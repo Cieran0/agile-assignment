@@ -71,6 +71,7 @@ void drawMoney(std::string str);
 void drawCardSlot();
 void drawATMScreen(const char* text);
 void drawAtmCasing();
+void drawSideButtons();
 
 extern vector<string> inputs;
 extern string displayText;
