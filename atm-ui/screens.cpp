@@ -13,10 +13,12 @@ void drawWaitingForCard() {
 }
 
 void atmLayout() {
+    drawAtmCasing();
     drawATMScreen(displayText.c_str());
     updatePinDisplay();
+    // int textSize = MeasureText(pinDisplay.c_str(), 30);
     if (!pinDisplay.empty()) {
-        DrawText(pinDisplay.c_str(), atmX + 20, atmY + 60, 30, ATM_TEXT);
+        DrawText(pinDisplay.c_str(), ((atmX + atmWidth) / 2), atmHeight / 2, 75, ATM_TEXT);
     }
     drawKeypad(handleInput);
     drawCashSlot("INSERTED CARD");

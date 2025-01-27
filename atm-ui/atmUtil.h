@@ -70,6 +70,7 @@ void drawButtons(vector<Button> buttons);
 void drawMoney(std::string str);
 void drawCardSlot();
 void drawATMScreen(const char* text);
+void drawAtmCasing();
 
 extern vector<string> inputs;
 extern string displayText;
@@ -78,7 +79,7 @@ extern string withdrawlText;
 extern string pinDisplay;
 extern string enteredPIN;
 extern string input;
-extern string keyPad[4][4];
+extern string keyPad[5][3];
 extern std::string cardNumber;
 extern std::string expiryDate;
 extern double balance;
