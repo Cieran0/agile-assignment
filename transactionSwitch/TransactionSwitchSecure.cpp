@@ -145,76 +145,97 @@ private:
                 logger.logTransaction(message);
             }
 
-            Response response = sendNetworkMessage(message);
+        
+            Response response = sendNetworkMessage(message); // destinattion = messsage.cardnumber[0-3]
             SSL_write(ssl, &response, sizeof(Response));
+
+            
         }
     }
 
     Response sendNetworkMessage(Transaction message) {
-        const char *host = network_sim_ip;
-        const int port = network_sim_port;
-        Response response;
+    const char* host;
+    const int port;
 
-        SSL_CTX *client_ctx = SSL_CTX_new(TLS_client_method());
-        if (!client_ctx) {
-            response.succeeded = NETWORK_ERROR;
-            return response;
-        }
+    // get first digit
+    char first_digit = message.cardNumber[0]; 
+    
+    if (first_digit >= '0' && first_digit <= '3') {
+        host = network_sim_ip;  // network_sim_ip will be used for network 1
+        port = network_sim_port; // port for network 1
+    }
+    else if (first_digit >= '4' && first_digit <= '6') {
+        host = network_sim2_ip;  // replace with the actual IP of network 2
+        port = network_sim2_port;  // replace with the actual port of network 2
+    }
+    else {
+        host = network_sim3_ip;  // replace with actual IP of network 3
+        port = network_sim3_port; // replace with actual port of network 3
+    }
 
-        int sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (sock < 0) {
-            SSL_CTX_free(client_ctx);
-            response.succeeded = NETWORK_ERROR;
-            return response;
-        }
+    Response response;
 
-        sockaddr_in server_addr = {};
-        server_addr.sin_family = AF_INET;
-        server_addr.sin_port = htons(port);
-        if (inet_pton(AF_INET, host, &server_addr.sin_addr) <= 0) {
-            close(sock);
-            SSL_CTX_free(client_ctx);
-            response.succeeded = NETWORK_ERROR;
-            return response;
-        }
+    SSL_CTX *client_ctx = SSL_CTX_new(TLS_client_method());
+    if (!client_ctx) {
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
 
-        if (connect(sock, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-            close(sock);
-            SSL_CTX_free(client_ctx);
-            response.succeeded = NETWORK_ERROR;
-            return response;
-        }
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
 
-        SSL *ssl = SSL_new(client_ctx);
-        SSL_set_fd(ssl, sock);
+    sockaddr_in server_addr = {};
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+    if (inet_pton(AF_INET, host, &server_addr.sin_addr) <= 0) {
+        close(sock);
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
 
-        if (SSL_connect(ssl) <= 0) {
-            SSL_free(ssl);
-            close(sock);
-            SSL_CTX_free(client_ctx);
-            response.succeeded = NETWORK_ERROR;
-            return response;
-        }
+    if (connect(sock, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        close(sock);
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
 
-        if (SSL_write(ssl, &message, sizeof(message)) <= 0) {
-            SSL_free(ssl);
-            close(sock);
-            SSL_CTX_free(client_ctx);
-           response.succeeded = NETWORK_ERROR;
-            return response;
-        }
+    SSL *ssl = SSL_new(client_ctx);
+    SSL_set_fd(ssl, sock);
 
-        if (SSL_read(ssl, &response, sizeof(response)) <= 0) {
-            SSL_free(ssl);
-            close(sock);
-            SSL_CTX_free(client_ctx);
-           response.succeeded = NETWORK_ERROR;
-            return response;
-        }
-
+    if (SSL_connect(ssl) <= 0) {
         SSL_free(ssl);
         close(sock);
         SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
         return response;
     }
+
+    if (SSL_write(ssl, &message, sizeof(message)) <= 0) {
+        SSL_free(ssl);
+        close(sock);
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
+
+    if (SSL_read(ssl, &response, sizeof(response)) <= 0) {
+        SSL_free(ssl);
+        close(sock);
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
+
+    SSL_free(ssl);
+    close(sock);
+    SSL_CTX_free(client_ctx);
+    return response;
+}
+
 };
