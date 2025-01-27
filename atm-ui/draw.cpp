@@ -174,6 +174,8 @@ void screenInit() {
     setupGuiStyle();
     ToggleFullscreen();
     SetTargetFPS(60);
+    SetConfigFlags(FLAG_WINDOW_HIGHDPI); 
+    
     screenWidth = GetMonitorWidth(0);  
     screenHeight = GetMonitorHeight(0);
     //screenWidth = 1920;  
