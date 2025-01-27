@@ -21,6 +21,10 @@ int atmY;
 #include "raygui.h"
 #include <functional>
 
+void accessabilityView(){
+
+}
+
 void drawCashSlot(const char* text) {
     DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
     DrawText(text, atmX + 20, atmY + 230, 15, LIGHTGRAY);
@@ -47,13 +51,63 @@ void drawCardSlot() {
     int slotY = atmY + atmHeight - 80; 
     DrawRectangle(slotX, slotY, slotWidth, slotHeight, DARKGRAY);
 
+    Rectangle visibilityBtn = { (float)slotX - 10, (float)(slotY - 300), (float)slotWidth + 20, 50 };
     Rectangle cardBtn = { (float)slotX, (float)(slotY - 40), (float)slotWidth, 30 };
+
+    if (GuiButton(visibilityBtn, "Visibility Options")){
+        setScreen(displayOptions);
+        resetGlobalTextVariables();
+        displayText = "Choose from the sizing optoins below:";
+    }
+    
     if (GuiButton(cardBtn, "INSERT CARD")) {
         setScreen(EnterPin);
         resetGlobalTextVariables();
         displayText = "Please enter your PIN:";
     }
 }
+    
+time_t atmTime;
+bool timeInitialized = false;
+
+void drawPrintedReciept() {
+    if (!timeInitialized) {
+        time(&atmTime);
+        timeInitialized = true;
+    }
+
+    std::string dateTime = ctime(&atmTime);
+    std::string date = dateTime.substr(0, 10) + " " + dateTime.substr(20, 4); 
+    std::string time = dateTime.substr(11, 8);
+    std::string atmId = to_string(ATM_ID); 
+
+    int recieptWidth = screenWidth / 4;
+    int recieptHeight = screenHeight / 4;
+    int x = (screenWidth - recieptWidth) / 2;
+    int y = screenHeight - recieptHeight - (screenHeight / 10);
+
+    std::string balanceString = "Account balance: " + std::to_string(a1.testBalance);
+
+    Rectangle reciept = {x, y, recieptWidth, recieptHeight};
+
+    DrawRectangle(reciept.x, reciept.y, reciept.width, reciept.height, WHITE);
+    DrawRectangleLines(reciept.x, reciept.y, reciept.width, reciept.height, BLACK);
+
+    int padding = recieptWidth / 20;
+    int textX = reciept.x + padding;
+    int textY = reciept.y + padding;
+    int lineHeight = recieptHeight / 10;
+
+    DrawText(("Date: " + date).c_str(), textX, textY, lineHeight, BLACK);
+    textY += lineHeight + padding;
+    DrawText(("Time: " + time).c_str(), textX, textY, lineHeight, BLACK);
+    textY += lineHeight + padding;
+    DrawText(("ATM ID: " +  atmId).c_str(), textX, textY, lineHeight, BLACK);
+    textY += lineHeight + padding;
+
+    DrawText(balanceString.c_str(), textX, textY, lineHeight, BLACK);
+}
+
 
 void setupGuiStyle() {
     GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt(DARKGRAY));

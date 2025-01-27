@@ -7,6 +7,7 @@
 #include "raylib.h"
 #include <vector>
 #include <functional>
+#include <ctime>
 
 extern int screenWidth;  
 extern int screenHeight; 
@@ -32,7 +33,8 @@ enum Screen {
     Balance = 4,
     BalanceAmount = 5,
     Deposit = 6,
-    PrintBalance = 7
+    PrintBalance = 7,
+    displayOptions = 8 
 };
 
 struct Button {
@@ -40,6 +42,13 @@ struct Button {
     const char *text;
     Screen nextScreen;
 };
+
+struct testAccount {
+std::string localPin;
+double testBalance;
+};
+
+extern testAccount a1;
 
 void handleInput(string buttonPressed);
 void updatePinDisplay();
@@ -50,6 +59,7 @@ void printBalanceToFile(string balance);
 void processingScreen(string messageToPrint);
 void screenInit();
 void drawKeypad(const std::function<void(const string&)>& handleInput);
+void drawPrintedReciept();
 
 void handleInput(string buttonPressed);
 void handleWithdrawInput(const string& buttonPressed); 

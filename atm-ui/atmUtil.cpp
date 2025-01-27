@@ -16,6 +16,9 @@ std::string cardNumber = "5030153826527268";
 std::string expiryDate = "06/28";
 double balance = 0;
 
+//Globally declared account to allow for testing when not connected to switch and network
+testAccount a1 = {localPin: "1234", testBalance : 1000};
+
 string keyPad[4][4] = {{"1", "2", "3", "cancel"},
                        {"4", "5", "6", "clear"},
                        {"7", "8", "9", "enter"},

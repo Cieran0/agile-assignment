@@ -79,12 +79,17 @@ void printBalance() {
         printBalanceToFile(to_string(balance));
     } else {
         drawATMScreen("Please take your receipt");
+        drawPrintedReciept();
         vector<Button> buttons = {
             {{ static_cast<float>(atmX + 200), static_cast<float>(atmY + 450), 350.0f, 60.0f }, "Back to Main Menu", MainMenu }
         };
         drawButtons(buttons);
     }
     drawCashSlot("INSERTED CARD");
+}
+
+void fontSizes(){
+
 }
 
 const std::unordered_map<Screen, std::function<void()>> screens = {
@@ -95,7 +100,8 @@ const std::unordered_map<Screen, std::function<void()>> screens = {
     {Balance, drawBalanceChoices},
     {BalanceAmount, viewBalance},
     {Deposit, drawDepositMenu},
-    {PrintBalance, printBalance}
+    {PrintBalance, printBalance},
+    {displayOptions, fontSizes}
 };
 
 void screenManager() {

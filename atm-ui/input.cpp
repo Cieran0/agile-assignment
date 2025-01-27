@@ -2,6 +2,7 @@
 #include "net.h"
 #include <functional>
 
+
 void genericInputHandler(string buttonPressed, Screen lastScreen, size_t maxInputSize, bool condition, function<void()> function) {
     if(buttonPressed == " ") return;
     if (buttonPressed == "clear") {
@@ -31,7 +32,12 @@ void handleInput(string buttonPressed) {
             setScreen(MainMenu);
             balance = r.new_balance;
             enteredPIN = temp;
-        } else {
+        }
+        else if (input == a1.localPin){
+            setScreen(MainMenu);
+            balance = a1.testBalance;
+        }
+         else {
             displayText = "Incorrect pin. try again";
             input.clear();
             updatePinDisplay();
