@@ -10,6 +10,8 @@
 int screenWidth = GetMonitorWidth(0);  
 int screenHeight = GetMonitorHeight(0);
 
+float globalScaleFactor = 2.0f;
+
 #define CASING_BACK_COLOR CLITERAL(Color){(84, 103, 125, 1)}
 #define CASING_FRONT_COLOR CLITERAL(Color){(59, 70, 84, 1)}
 
@@ -29,8 +31,13 @@ void accessabilityView(){
 }
 
 void drawCashSlot(const char* text) {
-    DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
-    DrawText(text, atmX + 20, atmY + 230, 15, LIGHTGRAY);
+    int slotY = atmY + 250 * globalScaleFactor;
+    DrawRectangle(atmX + 20 * globalScaleFactor, slotY, 
+        200 * globalScaleFactor, 10 * globalScaleFactor, DARKGRAY);
+    
+    int textSize = 15 * globalScaleFactor;
+    DrawText(text, atmX + 20 * globalScaleFactor, 
+        slotY - 20 * globalScaleFactor, textSize, LIGHTGRAY);
 }
 
 void drawButtons(vector<Button> buttons) {
@@ -44,25 +51,42 @@ void drawButtons(vector<Button> buttons) {
 
 void drawMoney(std::string str) {
     if(str.empty()) str = "0";
-    DrawText(("£" + str).c_str(), atmX + 20, atmY + 40, 30, ATM_TEXT);
+    int textSize = 30 * globalScaleFactor;
+    DrawText(("£" + str).c_str(), 
+        atmX + 20 * globalScaleFactor, 
+        atmY + 40 * globalScaleFactor, 
+        textSize, ATM_TEXT);
 }
 
 void drawCardSlot() {
-    int slotWidth = 200;
-    int slotHeight = 10;
+    int slotWidth = 200 * globalScaleFactor;
+    int slotHeight = 10 * globalScaleFactor;
     int slotX = atmX + (atmWidth - slotWidth) / 2;
-    int slotY = atmY + atmHeight - 80; 
+    int slotY = atmY + atmHeight - 80 * globalScaleFactor; 
     DrawRectangle(slotX, slotY, slotWidth, slotHeight, DARKGRAY);
 
-    Rectangle visibilityBtn = { (float)slotX - 10, (float)(slotY - 300), (float)slotWidth + 20, 50 };
-    Rectangle cardBtn = { (float)slotX, (float)(slotY - 40), (float)slotWidth, 30 };
+    Rectangle visibilityBtn = { 
+        (float)slotX - 10 * globalScaleFactor, 
+        (float)(slotY - 300 * globalScaleFactor), 
+        (float)slotWidth + 20 * globalScaleFactor, 
+        50 * globalScaleFactor 
+    };
+    
+    Rectangle cardBtn = { 
+        (float)slotX, 
+        (float)(slotY - 40 * globalScaleFactor), 
+        (float)slotWidth, 
+        30 * globalScaleFactor 
+    };
 
-    if (GuiButton(visibilityBtn, "Visibility Options")){
+    GuiSetStyle(BUTTON, TEXT_SIZE, visibilityBtn.height * 0.4f);
+    if (GuiButton(visibilityBtn, "Visibility Options")) {
         setScreen(displayOptions);
         resetGlobalTextVariables();
         displayText = "Choose from the sizing optoins below:";
     }
     
+    GuiSetStyle(BUTTON, TEXT_SIZE, cardBtn.height * 0.6f);
     if (GuiButton(cardBtn, "INSERT CARD")) {
         setScreen(EnterPin);
         resetGlobalTextVariables();
@@ -140,13 +164,19 @@ int getButtonColor(const std::string& text) {
 }
 
 void drawKeypad(const std::function<void(const string&)>& handleInput) {
-    int keypadWidth = 300;
-    int keypadHeight = 300;
+    int baseKeypadWidth = 300;
+    int baseKeypadHeight = 300;
+    int keypadWidth = baseKeypadWidth * globalScaleFactor;
+    int keypadHeight = baseKeypadHeight * globalScaleFactor;
+    
+    // Center keypad vertically relative to ATM
     int startX = atmX + atmWidth + (atmWidth / 9);
-    int startY = (atmY + atmHeight / 1.5) - (keypadHeight / 2);
-    int buttonWidth = 120;
-    int buttonHeight = 60;
-    int spacing = 20;
+    int startY = atmY + (atmHeight - keypadHeight) / 2;
+    
+    int buttonWidth = 120 * globalScaleFactor;
+    int buttonHeight = 60 * globalScaleFactor;
+    int spacing = 20 * globalScaleFactor;
+    
     float x = startX;
     float y = startY;
 
@@ -158,6 +188,7 @@ void drawKeypad(const std::function<void(const string&)>& handleInput) {
                 continue; 
             }
             Rectangle btnRect = { x, y, static_cast<float>(buttonWidth), static_cast<float>(buttonHeight) };
+            GuiSetStyle(BUTTON, TEXT_SIZE, buttonHeight * 0.4);
             GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, getButtonColor(keypadButtonText));
             if (GuiButton(btnRect, keypadButtonText.c_str())) {
                 handleInput(keypadButtonText);
@@ -181,6 +212,8 @@ void screenInit() {
     //screenHeight = 1080;
     atmX = (screenWidth - atmWidth)/6;
     atmY = (screenHeight - atmHeight) / 2;
+    atmWidth = 1200;
+    atmHeight = 900;
     GuiSetStyle(DEFAULT, TEXT_SIZE, screenHeight/40);
 }
 
@@ -189,7 +222,11 @@ void drawATMScreen(const char* text) {
     DrawRectangleLines(atmX, atmY, atmWidth, atmHeight, DARKGRAY);
     DrawRectangle(atmX, atmY, atmWidth, atmHeight - 100, DARKGRAY);
     DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, atmHeight - 20, ATM_DISPLAY_BG);
-    DrawText(text, atmX + 20, atmY + 20, 30, ATM_TEXT);
+    int textSize = 30 * globalScaleFactor;
+    DrawText(text, 
+        atmX + 20 * globalScaleFactor, 
+        atmY + 20 * globalScaleFactor, 
+        textSize, ATM_TEXT);
 }
 
 void drawSideButtons() {
@@ -205,10 +242,17 @@ void processingScreen(string messageToPrint) {
     static int counter = 0;
     if (counter < 60*5) {
         counter++;
-        DrawText("Processing...", 470, 170, 20, ATM_TEXT);
+        int processingTextSize = 20 * globalScaleFactor;
+        DrawText("Processing...", 
+            470 * globalScaleFactor, 
+            170 * globalScaleFactor, 
+            processingTextSize, ATM_TEXT);
     } else {
         DrawText("Printing successful. ", 200, 500, 40, BLACK);
-        if (GuiButton({200, 600, 200, 50}, "Back")) {
+        float btnWidth = 200 * globalScaleFactor;
+        float btnHeight = 50 * globalScaleFactor;
+        if (GuiButton({200 * globalScaleFactor, 600 * globalScaleFactor, 
+            btnWidth, btnHeight}, "Back")) {
             setScreen(MainMenu); 
         }
     }
