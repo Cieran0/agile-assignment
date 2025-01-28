@@ -9,6 +9,7 @@
 
 int screenWidth = GetMonitorWidth(0);  
 int screenHeight = GetMonitorHeight(0);
+char currencySymbol = ' ';
 
 int background = 0;
 
@@ -20,6 +21,18 @@ int atmY;
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 #include <functional>
+
+void drawATM(const char* text){
+    drawATMScreen(text);
+    drawCashSlot("INSERTED CARD");
+    drawSideButtons();
+    drawKeypadAndCardBackground();
+    drawKeypad(handleInput);
+    drawCashSlot("INSERT CARD HERE");
+}
+
+void accessabilityView(){
+}
 
 void drawCashSlot(const char* text) {
     DrawRectangle(atmX + 20, atmY + 250, 200, 10, DARKGRAY);
@@ -37,7 +50,10 @@ void drawButtons(vector<Button> buttons) {
 
 void drawMoney(std::string str) {
     if(str.empty()) str = "0";
-    DrawText(("£" + str).c_str(), atmX + 20, atmY + 40, 30, ATM_TEXT);
+    int textWidth = MeasureText(str.c_str(), 75);
+    int textX = atmX + (atmWidth - textWidth) / 2;
+    int textY = atmY + (atmHeight / 3); 
+    DrawText((currencySymbol + str).c_str(), textX, textY, 75, ATM_TEXT);
 }
 
 void drawCardSlot() {
@@ -112,6 +128,23 @@ void drawKeypad(const std::function<void(const string&)>& handleInput) {
     }
 }
 
+ void setCurrency(Currency currency){
+    switch(currency){
+        case 0:
+            currencySymbol = '£';
+            break;
+        case 1:
+            currencySymbol = '$';
+            break;
+        case 2:
+            currencySymbol = '€';
+            break;
+        case 3:
+            currencySymbol = '₱';
+            break;
+    }
+ }
+
 void screenInit() {
     InitWindow(0, 0, "raygui - NCR ATM");
     setupGuiStyle();
@@ -119,9 +152,7 @@ void screenInit() {
     SetTargetFPS(60);
     screenWidth = GetMonitorWidth(0);  
     screenHeight = GetMonitorHeight(0);
-    //screenWidth = 1920;  
-    //screenHeight = 1080;
-    atmX = (screenWidth - atmWidth)/2;
+    atmX = (screenWidth - atmWidth) / 6;
     atmY = (screenHeight - atmHeight) / 2;
     GuiSetStyle(DEFAULT, TEXT_SIZE, screenHeight/100);
 }

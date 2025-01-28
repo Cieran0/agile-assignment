@@ -28,10 +28,14 @@ void displayTransactionChoices() {
         DrawRectangle(atmX + 203, atmY + 253 + i*80, 350, 60, DARKGRAY);
     }
     vector<Button> buttons = {
+        //left side buttons
         {{(float)(atmX + 200), (float)(atmY + 250), 350, 60}, "Balance Inquiry", Balance},
         {{(float)(atmX + 200), (float)(atmY + 330), 350, 60}, "Cash Withdrawal", Withdraw},
         {{(float)(atmX + 200), (float)(atmY + 410), 350, 60}, "Deposit", Deposit},
-        {{(float)(atmX + 200), (float)(atmY + 490), 350, 60}, "Exit", WaitingForCard}
+        {{(float)(atmX + 200), (float)(atmY + 490), 350, 60}, "Exit", WaitingForCard},
+        
+        //right side buttons
+        {{(float)atmX + (atmWidth/1.5), (float)startY, (float)buttonWidth, (float)buttonHeight}, "Select currency", currencySelect}
     };
     drawButtons(buttons);
 }
@@ -56,7 +60,7 @@ void drawBalanceChoices() {
 void viewBalance() {
     drawATMScreen("");
     DrawText("Your Current Balance:", atmX + 250, atmY + 100, 20, ATM_TEXT);
-    DrawText(("£" + to_string(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
+    DrawText((currencySymbol + to_string(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
 
     vector<Button> buttons = {
         {{ static_cast<float>(atmX + 200), static_cast<float>(atmY + 450), 350.0f, 60.0f }, "Back to Main Menu", MainMenu }
@@ -95,10 +99,6 @@ const std::unordered_map<Screen, std::function<void()>> screens = {
     {Balance, drawBalanceChoices},
     {BalanceAmount, viewBalance},
     {Deposit, drawDepositMenu},
-    {PrintBalance, printBalance}
+    {PrintBalance, printBalance},
 };
-
-void screenManager() {
-    ClearBackground(GetColor(background));
-    screens.at(screen)();
-}
+    

@@ -12,6 +12,7 @@ bool validatedPIN = false;
 string input = "";
 enum Screen screen = WaitingForCard;
 
+
 std::string cardNumber = "5030153826527268";
 std::string expiryDate = "06/28";
 double balance = 0;
@@ -53,3 +54,4 @@ void setScreen(Screen s) {
         enteredPIN = "";
     }
 }
+
