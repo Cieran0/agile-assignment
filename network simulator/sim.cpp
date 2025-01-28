@@ -44,50 +44,37 @@ static void thread_cleanup() {
 void handleSignal(int signal) {
     if (signal == SIGINT) {
         std::cout << "Shutting down server..." << std::endl;
-        serverRunning = false;
+        serverRunning.store(false);
         close(sockfd); // Close the main socket to stop accepting new connections
     }
 }
 
 void handleClient(SSL *ssl) {
     std::cout << "Handling new client connection" << std::endl;
-    sqlite3* db = nullptr;
-    if (initDatabaseConnection(db) != SQLITE_OK) {
-        std::cerr << "Failed to open database connection" << std::endl;
-        return;
-    }
 
     Transaction transaction;
     Response response;
-    const char okResponse[] = "OK";
-    int n;
 
     while (true) {
         std::memset(&transaction, 0, sizeof(transaction));
 
-        n = SSL_read(ssl, &transaction, sizeof(transaction));
+        int n = SSL_read(ssl, &transaction, sizeof(transaction));
         if (n <= 0) {
             std::cerr << "Client Disconnected" << std::endl;
             break;
         }
 
-        response = processTransaction(transaction, db);
+        std::future<Response> responseFuture = enqueueTransaction(transaction);
+
+        Response response = responseFuture.get();
 
         SSL_write(ssl, &response, sizeof(response));
-
-        // std::cout << "Response {" << std::endl;
-        // std::cout << "\tsucceeded: " << response.succeeded << std::endl;
-        // std::cout << "\tnew_balance: " << response.new_balance << std::endl;
-        // std::cout << "}" << std::endl;
 
         if (response.succeeded == 0) {
             log(transaction);
         }
-
-        SSL_write(ssl, okResponse, sizeof(okResponse));
     }
 
-    sqlite3_close(db);
     SSL_free(ssl);
     std::cout << "Client connection closed" << std::endl;
 }
@@ -164,7 +151,6 @@ void clientThreadFunction(SSL_CTX *ctx, int connfd) {
     }
 
     handleClient(ssl);
-    //SSL_free(ssl);
     close(connfd);
 }
 
@@ -195,7 +181,7 @@ int main() {
     thread_setup();
 
     log_txt.open("sim_log.txt", std::ios::app);
-    addLogger(DatabaseLogger);
+    //addLogger(DatabaseLogger);
     addLogger(ConsoleLogger);
     addLogger(txtLogger);
 
@@ -207,7 +193,7 @@ int main() {
         return -1;
     }
 
-    if (listen(sockfd, 5) != 0) {
+    if (listen(sockfd, 200) != 0) {
         std::cerr << "Failed to listen on socket" << std::endl;
         close(sockfd);
         SSL_CTX_free(ctx);
@@ -216,9 +202,11 @@ int main() {
     }
 
     std::vector<std::thread> threadPool;
-    for (int i = 0; i < MAX_THREADS; ++i) {
+    for (int i = 0; i < MAX_THREADS - 1; ++i) {
         threadPool.emplace_back(threadPoolWorker, ctx);
     }
+
+    threadPool.emplace_back(processTransactionQueue);
 
     while (serverRunning) {
         sockaddr_in cli = {0};

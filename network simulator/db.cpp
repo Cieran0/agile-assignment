@@ -2,8 +2,16 @@
 #include <iostream>
 #include <sstream>
 #include <format>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include "sim.hpp"
 
 typedef const unsigned char* sqlite_string; 
+
+std::queue<TransactionPromise> transactionQueue;
+std::mutex queueMutex;
+std::condition_variable queueCondition;
 
 Response processTransaction(Transaction transaction, sqlite3*& db) {
     Response response = {0};
@@ -63,6 +71,47 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
     return response;
 }
 
-int initDatabaseConnection(sqlite3*& db) {
-    return sqlite3_open("database.db", &db);
+std::future<Response> enqueueTransaction(Transaction transaction) {
+    std::promise<Response> promise;
+    std::future<Response> future = promise.get_future();
+    {
+        std::lock_guard<std::mutex> lock(queueMutex);
+        transactionQueue.emplace(transaction, std::move(promise));
+    }
+
+    queueCondition.notify_one();
+    return future;
+}
+
+void processTransactionQueue() {
+    sqlite3* db;
+
+    if (sqlite3_open("database.db", &db) != SQLITE_OK) {
+        std::cerr << "Failed to open the database in the worker thread: " 
+                  << sqlite3_errmsg(db) << std::endl;
+        return;
+    }
+
+    std::cout << "Database connection established in the thread." << std::endl;
+
+    while (serverRunning) {
+        TransactionPromise transactionPromisePair;
+        {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            queueCondition.wait(lock, [] { return !transactionQueue.empty() || !serverRunning; });
+            if (!serverRunning && transactionQueue.empty()) break;
+
+            transactionPromisePair = std::move(transactionQueue.front());
+            transactionQueue.pop();
+        }
+
+        Transaction transaction = transactionPromisePair.first;
+        std::promise<Response> promise = std::move(transactionPromisePair.second);
+
+        Response response = processTransaction(transaction, db);
+
+        promise.set_value(response);
+    }
+
+    sqlite3_close(db);
 }
