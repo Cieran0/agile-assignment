@@ -1,0 +1,292 @@
+[Tue Jan 28 13:24:54 2025
+]: Transaction ID 1804289383 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:54 2025
+]: Transaction ID 846930886 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:54 2025
+]: Transaction ID 1681692777 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:54 2025
+]: Transaction ID 1714636915 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:54 2025
+]: Transaction ID 1957747793 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:54 2025
+]: Transaction ID 424238335 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:54 2025
+]: Transaction ID 719885386 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:54 2025
+]: Transaction ID 1649760492 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:54 2025
+]: Transaction ID 596516649 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:54 2025
+]: Transaction ID 1189641421 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:55 2025
+]: Transaction ID 1025202362 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:55 2025
+]: Transaction ID 1350490027 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:55 2025
+]: Transaction ID 783368690 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:55 2025
+]: Transaction ID 1102520059 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:55 2025
+]: Transaction ID 2044897763 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:55 2025
+]: Transaction ID 1967513926 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:55 2025
+]: Transaction ID 1365180540 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:55 2025
+]: Transaction ID 1540383426 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:55 2025
+]: Transaction ID 304089172 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:55 2025
+]: Transaction ID 1303455736 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:56 2025
+]: Transaction ID 35005211 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:56 2025
+]: Transaction ID 521595368 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:56 2025
+]: Transaction ID 294702567 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:56 2025
+]: Transaction ID 1726956429 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:56 2025
+]: Transaction ID 336465782 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:56 2025
+]: Transaction ID 861021530 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:56 2025
+]: Transaction ID 278722862 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:56 2025
+]: Transaction ID 233665123 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:56 2025
+]: Transaction ID 2145174067 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:57 2025
+]: Transaction ID 468703135 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:57 2025
+]: Transaction ID 1101513929 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:57 2025
+]: Transaction ID 1801979802 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:57 2025
+]: Transaction ID 1315634022 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:57 2025
+]: Transaction ID 635723058 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:57 2025
+]: Transaction ID 1369133069 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:57 2025
+]: Transaction ID 1125898167 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:57 2025
+]: Transaction ID 1059961393 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:57 2025
+]: Transaction ID 2089018456 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:57 2025
+]: Transaction ID 628175011 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:58 2025
+]: Transaction ID 1656478042 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:58 2025
+]: Transaction ID 1131176229 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:58 2025
+]: Transaction ID 1653377373 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:58 2025
+]: Transaction ID 859484421 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:58 2025
+]: Transaction ID 1914544919 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:58 2025
+]: Transaction ID 608413784 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:58 2025
+]: Transaction ID 756898537 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:58 2025
+]: Transaction ID 1734575198 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:58 2025
+]: Transaction ID 1973594324 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:59 2025
+]: Transaction ID 149798315 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:59 2025
+]: Transaction ID 2038664370 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:59 2025
+]: Transaction ID 1129566413 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:59 2025
+]: Transaction ID 184803526 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:59 2025
+]: Transaction ID 412776091 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:59 2025
+]: Transaction ID 1424268980 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:59 2025
+]: Transaction ID 1911759956 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:59 2025
+]: Transaction ID 749241873 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:59 2025
+]: Transaction ID 137806862 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:24:59 2025
+]: Transaction ID 42999170 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:00 2025
+]: Transaction ID 982906996 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:00 2025
+]: Transaction ID 135497281 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:00 2025
+]: Transaction ID 511702305 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:00 2025
+]: Transaction ID 2084420925 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:00 2025
+]: Transaction ID 1937477084 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:00 2025
+]: Transaction ID 1827336327 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:00 2025
+]: Transaction ID 572660336 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:00 2025
+]: Transaction ID 1159126505 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:00 2025
+]: Transaction ID 805750846 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:01 2025
+]: Transaction ID 1632621729 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:01 2025
+]: Transaction ID 1100661313 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:01 2025
+]: Transaction ID 1433925857 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:01 2025
+]: Transaction ID 1141616124 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:01 2025
+]: Transaction ID 84353895 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:01 2025
+]: Transaction ID 939819582 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:01 2025
+]: Transaction ID 2001100545 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:01 2025
+]: Transaction ID 1998898814 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:01 2025
+]: Transaction ID 1548233367 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:01 2025
+]: Transaction ID 610515434 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:02 2025
+]: Transaction ID 1585990364 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:02 2025
+]: Transaction ID 1374344043 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:02 2025
+]: Transaction ID 760313750 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:02 2025
+]: Transaction ID 1477171087 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:02 2025
+]: Transaction ID 356426808 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:02 2025
+]: Transaction ID 945117276 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:02 2025
+]: Transaction ID 1889947178 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:02 2025
+]: Transaction ID 1780695788 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:02 2025
+]: Transaction ID 709393584 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:03 2025
+]: Transaction ID 491705403 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:03 2025
+]: Transaction ID 1918502651 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:03 2025
+]: Transaction ID 752392754 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:03 2025
+]: Transaction ID 1474612399 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:03 2025
+]: Transaction ID 2053999932 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:03 2025
+]: Transaction ID 1264095060 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:03 2025
+]: Transaction ID 1411549676 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:03 2025
+]: Transaction ID 1843993368 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:03 2025
+]: Transaction ID 943947739 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:03 2025
+]: Transaction ID 1984210012 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:04 2025
+]: Transaction ID 855636226 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:04 2025
+]: Transaction ID 1749698586 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:04 2025
+]: Transaction ID 1469348094 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:04 2025
+]: Transaction ID 1956297539 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:24 2025
+]: Transaction ID 1036140795 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:24 2025
+]: Transaction ID 463480570 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:24 2025
+]: Transaction ID 2040651434 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:24 2025
+]: Transaction ID 1975960378 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:24 2025
+]: Transaction ID 317097467 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:24 2025
+]: Transaction ID 1892066601 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:24 2025
+]: Transaction ID 1376710097 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:24 2025
+]: Transaction ID 927612902 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:24 2025
+]: Transaction ID 1330573317 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:24 2025
+]: Transaction ID 603570492 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:25 2025
+]: Transaction ID 1687926652 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:25 2025
+]: Transaction ID 660260756 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:25 2025
+]: Transaction ID 959997301 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:25 2025
+]: Transaction ID 485560280 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:25 2025
+]: Transaction ID 402724286 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:25 2025
+]: Transaction ID 593209441 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:25 2025
+]: Transaction ID 1194953865 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:25 2025
+]: Transaction ID 894429689 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:25 2025
+]: Transaction ID 364228444 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:25 2025
+]: Transaction ID 1947346619 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:26 2025
+]: Transaction ID 221558440 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:26 2025
+]: Transaction ID 270744729 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:26 2025
+]: Transaction ID 1063958031 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:26 2025
+]: Transaction ID 1633108117 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:26 2025
+]: Transaction ID 2114738097 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:26 2025
+]: Transaction ID 2007905771 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:26 2025
+]: Transaction ID 1469834481 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:26 2025
+]: Transaction ID 822890675 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:26 2025
+]: Transaction ID 1610120709 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:27 2025
+]: Transaction ID 791698927 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:27 2025
+]: Transaction ID 631704567 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:27 2025
+]: Transaction ID 498777856 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:27 2025
+]: Transaction ID 1255179497 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:27 2025
+]: Transaction ID 524872353 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:27 2025
+]: Transaction ID 327254586 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:27 2025
+]: Transaction ID 1572276965 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:27 2025
+]: Transaction ID 269455306 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:27 2025
+]: Transaction ID 1703964683 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:27 2025
+]: Transaction ID 352406219 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:28 2025
+]: Transaction ID 1600028624 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:28 2025
+]: Transaction ID 160051528 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:28 2025
+]: Transaction ID 2040332871 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:28 2025
+]: Transaction ID 112805732 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:28 2025
+]: Transaction ID 1120048829 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:28 2025
+]: Transaction ID 378409503 | withdrawal of £50 with card [1234567890123456] at ATM 1
+[Tue Jan 28 13:25:28 2025
+]: Transaction ID 515530019 | withdrawal of £50 with card [1234567890123456] at ATM 1
