@@ -21,8 +21,12 @@ public:
         SSL_load_error_strings();
         OpenSSL_add_all_algorithms();
         ctx = createSSLContext();
+        network_sim2_ip = network_sim_ip;
+        network_sim3_ip = network_sim_ip;
+        network_sim2_port = network_sim_port+1;
+        network_sim2_port = network_sim_port+2;
     }
-
+    
     ~TransactionSwitch() {
         SSL_CTX_free(ctx);
         EVP_cleanup();
@@ -85,7 +89,11 @@ public:
 
 private:
     const char* network_sim_ip;
+    const char* network_sim2_ip;
+    const char* network_sim3_ip;
     int network_sim_port;
+    int network_sim2_port;
+    int network_sim3_port;
     TransactionLogger logger;
     SSL_CTX *ctx;
     std::mutex logger_mutex; // Mutex for thread-safe access to logger
@@ -154,23 +162,23 @@ private:
     }
 
     Response sendNetworkMessage(Transaction message) {
-    const char* host;
-    const int port;
+    char* host;
+    int port;
 
     // get first digit
     char first_digit = message.cardNumber[0]; 
     
     if (first_digit >= '0' && first_digit <= '3') {
-        host = network_sim_ip;  // network_sim_ip will be used for network 1
+        host = (char*)network_sim_ip;  // network_sim_ip will be used for network 1
         port = network_sim_port; // port for network 1
     }
     else if (first_digit >= '4' && first_digit <= '6') {
-        host = network_sim2_ip;  // replace with the actual IP of network 2
+        host = (char*)network_sim2_ip;  // replace with the actual IP of network 2
         port = network_sim2_port;  // replace with the actual port of network 2
     }
     else {
-        host = network_sim3_ip;  // replace with actual IP of network 3
-        port = network_sim3_port; // replace with actual port of network 3
+        host = (char*)network_sim3_ip;  // replace with actual IP of network 3
+        port = network_sim2_port; // replace with actual port of network 3
     }
 
     Response response;
