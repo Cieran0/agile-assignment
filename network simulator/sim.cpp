@@ -15,36 +15,11 @@ const int PORT = 6668;
 std::atomic<bool> serverRunning(true);
 int sockfd = -1;
 
-// Thread-safe OpenSSL setup
-#include <pthread.h>
-static pthread_mutex_t *mutex_buf = nullptr;
-
-static void locking_function(int mode, int n, const char *file, int line) {
-    if (mode & CRYPTO_LOCK)
-        pthread_mutex_lock(&mutex_buf[n]);
-    else
-        pthread_mutex_unlock(&mutex_buf[n]);
-}
-
-static void thread_setup() {
-    mutex_buf = (pthread_mutex_t *)malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
-    for (int i = 0; i < CRYPTO_num_locks(); i++)
-        pthread_mutex_init(&mutex_buf[i], NULL);
-    CRYPTO_set_locking_callback(locking_function);
-}
-
-static void thread_cleanup() {
-    CRYPTO_set_locking_callback(NULL);
-    for (int i = 0; i < CRYPTO_num_locks(); i++)
-        pthread_mutex_destroy(&mutex_buf[i]);
-    free(mutex_buf);
-}
-
 // Signal handler for graceful shutdown
 void handleSignal(int signal) {
     if (signal == SIGINT) {
         std::cout << "Shutting down server..." << std::endl;
-        serverRunning.store(false);
+        serverRunning = false;
         close(sockfd); // Close the main socket to stop accepting new connections
     }
 }
@@ -173,12 +148,35 @@ void threadPoolWorker(SSL_CTX *ctx) {
     }
 }
 
+void joinThreads(std::vector<std::thread>& threadPool) {
+    queueCondition.notify_one();
+
+    const int maxRetries = 10;
+    const std::chrono::milliseconds retryInterval(100);  // Retry interval (100ms)
+    
+    for (std::thread& thread : threadPool) {
+        if (thread.joinable()) {
+            int retryCount = 0;
+            while (retryCount < maxRetries && thread.joinable()) {
+                thread.join();
+                std::this_thread::sleep_for(retryInterval);  // Wait before retrying
+                retryCount++;
+            }
+
+            // If thread is still joinable after retries, log a warning
+            if (retryCount == maxRetries && thread.joinable()) {
+                std::cerr << "Warning: thread didn't finish in time, force joining!" << std::endl;
+                thread.join();  // Forcefully join the thread if it doesn't finish
+            }
+        }
+    }
+
+    std::cout << "All threads joined!" << std::endl;
+}
+
 int main() {
     // Set up signal handling for graceful shutdown
     std::signal(SIGINT, handleSignal);
-
-    // Initialize thread-safe OpenSSL
-    thread_setup();
 
     log_txt.open("sim_log.txt", std::ios::app);
     //addLogger(DatabaseLogger);
@@ -189,7 +187,6 @@ int main() {
     sockaddr_in servaddr = {0};
 
     if (initSSLServer(ctx, sockfd, servaddr) != 0) {
-        thread_cleanup();
         return -1;
     }
 
@@ -197,7 +194,6 @@ int main() {
         std::cerr << "Failed to listen on socket" << std::endl;
         close(sockfd);
         SSL_CTX_free(ctx);
-        thread_cleanup();
         return -1;
     }
 
@@ -228,17 +224,12 @@ int main() {
 
     // Clean up
     cv.notify_all(); // Wake up all threads
-    for (std::thread &thread : threadPool) {
-        if (thread.joinable()) {
-            thread.join();
-        }
-    }
+    joinThreads(threadPool);
 
 
     close(sockfd);
     SSL_CTX_free(ctx);
     EVP_cleanup();
-    thread_cleanup();
 
     std::cout << "Server shutdown complete." << std::endl;
     return 0;
