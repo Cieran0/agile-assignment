@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
     screenInit();
     while (!WindowShouldClose()) {
         BeginDrawing();
+        drawAtmCasing();
         screenManager();
         EndDrawing();
     }

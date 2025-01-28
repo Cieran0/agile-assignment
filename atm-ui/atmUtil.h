@@ -7,6 +7,7 @@
 #include "raylib.h"
 #include <vector>
 #include <functional>
+#include <ctime>
 
 extern int screenWidth;  
 extern int screenHeight; 
@@ -20,6 +21,7 @@ using namespace std;
 #define ATM_BUTTON_BG CLITERAL(Color){ 77, 83, 110, 255 }     // Medium blue-gray
 #define ATM_BUTTON_HOVER CLITERAL(Color){ 137, 142, 163, 255 }
 #define ATM_TEXT CLITERAL(Color){ 33, 37, 41, 255 }           // Dark gray
+
 
 #define RAYGUI_BUTTON_BORDER_WIDTH   2
 #define RAYGUI_BUTTON_TEXT_PADDING   10
@@ -42,6 +44,7 @@ enum Currency {
     USD = 1,
     EUR = 2,
     MXN = 3
+
 };
 
 struct Button {
@@ -49,6 +52,13 @@ struct Button {
     const char *text;
     Screen nextScreen;
 };
+
+struct testAccount {
+std::string localPin;
+double testBalance;
+};
+
+extern testAccount a1;
 
 void handleInput(string buttonPressed);
 void updatePinDisplay();
@@ -60,6 +70,7 @@ void processingScreen(string messageToPrint);
 void screenInit();
 void drawKeypad(const std::function<void(const string&)>& handleInput);
 void drawPrintedReciept();
+
 void setCurrency(Currency currency);
 
 void handleInput(string buttonPressed);
@@ -74,6 +85,7 @@ void drawATMScreen(const char* text);
 void drawAtmCasing();
 void drawSideButtons();
 void drawKeypadAndCardBackground();
+
 void drawATM(const char* text);
 
 extern vector<string> inputs;
@@ -83,7 +95,7 @@ extern string withdrawlText;
 extern string pinDisplay;
 extern string enteredPIN;
 extern string input;
-extern string keyPad[4][4];
+extern string keyPad[5][3];
 extern std::string cardNumber;
 extern std::string expiryDate;
 extern char currencySymbol;
