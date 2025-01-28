@@ -9,11 +9,30 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-const std::string SERVER_IP = "172.17.0.1";
+const std::string SERVER_IP = "127.0.0.1";
 int NUMBER_OF_ATMS = 100;
-int SERVER_PORT = 6667;
+int SERVER_PORT = 6668;
 int TRANSACTIONS_PER_MINUTE = 2;
 int SIMULATION_DURATION_MINUTES = 5;
+
+struct Transaction {
+    char cardNumber[20];
+    char expiryDate[6];
+    uint64_t atmID;
+    uint64_t uniqueTransactionID;
+    char pinNo[5];
+    double withdrawalAmount;
+};
+
+#define TRANSACTION_SUCESS 0
+#define INSUFFICIENT_FUNDS 1
+#define DATABASE_ERROR 2
+#define INCORRECT_PIN 3
+
+struct Response {
+    int succeeded;
+    double new_balance;
+};
 
 // Initialize OpenSSL
 SSL_CTX* create_ssl_context() {
@@ -27,7 +46,7 @@ SSL_CTX* create_ssl_context() {
 }
 
 // ATM Client Function (TLS-secured)
-void atm_client(int atm_id, SSL_CTX *ctx) {
+void atm_client(int atm_id, SSL_CTX *ctx, Transaction transaction) {
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (client_socket == -1) {
         std::cerr << "ATM " << atm_id << ": Error creating socket\n";
@@ -62,16 +81,18 @@ void atm_client(int atm_id, SSL_CTX *ctx) {
     int total_transactions = TRANSACTIONS_PER_MINUTE * SIMULATION_DURATION_MINUTES;
 
     for (int i = 1; i <= total_transactions; ++i) {
-        std::string transaction = "ATM " + std::to_string(atm_id) + " Transaction " + std::to_string(i);
-        SSL_write(ssl, transaction.c_str(), transaction.size());
+        SSL_write(ssl, &transaction, sizeof(transaction));
 
-        char buffer[1024];
-        memset(buffer, 0, sizeof(buffer));
-        SSL_read(ssl, buffer, sizeof(buffer));
+        Response response;
+        SSL_read(ssl, &response, sizeof(response));
 
-        std::cout << "ATM " << atm_id << " received response: " << buffer << std::endl;
+        if(response.succeeded != 0) {
+            std::cout << "Transcation failed!" << std::endl;
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(60000 / TRANSACTIONS_PER_MINUTE));
+        transaction.withdrawalAmount *= -1;
+        transaction.uniqueTransactionID++;
     }
 
     SSL_shutdown(ssl);
@@ -80,13 +101,20 @@ void atm_client(int atm_id, SSL_CTX *ctx) {
     std::cout << "ATM " << atm_id << " finished transactions and disconnected\n";
 }
 
+std::vector<Transaction> getTranscations() {
+    std::vector<Transaction> transactions;
+    // Put transcations here
+    return transactions;
+}
+
 // Run Simulation
 void run_atm_simulation(int num_atms) {
     SSL_CTX *ctx = create_ssl_context();
     std::vector<std::thread> atm_threads;
+    std::vector<Transaction> transactions = getTranscations();
 
     for (int i = 1; i <= num_atms; ++i) {
-        atm_threads.emplace_back(atm_client, i, ctx);
+        atm_threads.emplace_back(atm_client, i, ctx, transactions[i]);
     }
 
     for (auto& t : atm_threads) {
@@ -119,10 +147,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
-
-
-
-
-
-
