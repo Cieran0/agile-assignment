@@ -12,8 +12,8 @@
 const std::string SERVER_IP = "127.0.0.1";
 int NUMBER_OF_ATMS = 100;
 int SERVER_PORT = 6668;
-int TRANSACTIONS_PER_MINUTE = 10;
-int SIMULATION_DURATION_MINUTES = 1;
+int TRANSACTIONS_PER_MINUTE = 2;
+int SIMULATION_DURATION_MINUTES = 5;
 
 struct Transaction {
     char cardNumber[20];
@@ -99,7 +99,6 @@ void atm_client(int atm_id, SSL_CTX *ctx, Transaction transaction) {
         close(client_socket);
 
 
-        // Prepare for next transaction
         transaction.uniqueTransactionID++;
         if(i != total_transactions) {
             std::this_thread::sleep_for(std::chrono::milliseconds(60000 / TRANSACTIONS_PER_MINUTE));

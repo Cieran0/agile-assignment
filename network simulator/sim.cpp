@@ -175,11 +175,10 @@ void joinThreads(std::vector<std::thread>& threadPool) {
 }
 
 int main() {
-    // Set up signal handling for graceful shutdown
     std::signal(SIGINT, handleSignal);
 
     log_txt.open("sim_log.txt", std::ios::app);
-    //addLogger(DatabaseLogger);
+    addLogger(DatabaseLogger);
     addLogger(ConsoleLogger);
     addLogger(txtLogger);
 

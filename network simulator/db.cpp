@@ -10,7 +10,9 @@
 typedef const unsigned char* sqlite_string; 
 
 std::queue<TransactionPromise> transactionQueue;
+std::queue<std::string> transactionLogs;
 std::mutex queueMutex;
+std::mutex transactionLogsMx;
 std::condition_variable queueCondition;
 
 Response processTransaction(Transaction transaction, sqlite3*& db) {
@@ -83,6 +85,33 @@ std::future<Response> enqueueTransaction(Transaction transaction) {
     return future;
 }
 
+void enqueueTransactionLog(std::string log_sql) {
+    {
+        std::lock_guard<std::mutex> lock(transactionLogsMx);
+        transactionLogs.emplace(log_sql);
+    }
+}
+
+void emptyTransactionLogs(sqlite3* db) {
+    while (!transactionLogs.empty()) {
+        std::string log_sql;
+        {
+            std::lock_guard<std::mutex> lock(transactionLogsMx);
+            log_sql = std::move(transactionLogs.front());
+            transactionLogs.pop();
+        }
+
+        char* errMsg = nullptr;
+        int rc = sqlite3_exec(db, log_sql.c_str(), nullptr, nullptr, &errMsg);
+        if (rc != SQLITE_OK) {
+            std::cerr << "Error executing log SQL: " << errMsg << std::endl;
+            sqlite3_free(errMsg);
+        } else {
+            std::cout << "Executed log SQL: " << log_sql << std::endl;
+        }
+    }
+}
+
 void processTransactionQueue() {
     sqlite3* db;
 
@@ -111,6 +140,8 @@ void processTransactionQueue() {
         Response response = processTransaction(transaction, db);
 
         promise.set_value(response);
+
+        emptyTransactionLogs(db);
     }
 
     sqlite3_close(db);
