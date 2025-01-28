@@ -3,7 +3,9 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/opt/homebrew/Cellar/raylib/5.5",
+                "/opt/homebrew/Cellar/raylib/5.5/include"
             ],
             "defines": [],
             "macFrameworkPath": [

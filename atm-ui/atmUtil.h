@@ -22,6 +22,7 @@ using namespace std;
 #define ATM_BUTTON_HOVER CLITERAL(Color){ 137, 142, 163, 255 }
 #define ATM_TEXT CLITERAL(Color){ 33, 37, 41, 255 }           // Dark gray
 
+
 #define RAYGUI_BUTTON_BORDER_WIDTH   2
 #define RAYGUI_BUTTON_TEXT_PADDING   10
 
@@ -72,6 +73,7 @@ void drawCardSlot();
 void drawATMScreen(const char* text);
 void drawAtmCasing();
 void drawSideButtons();
+void drawKeypadAndCardBackground();
 
 extern vector<string> inputs;
 extern string displayText;

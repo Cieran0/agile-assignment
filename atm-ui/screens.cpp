@@ -10,6 +10,10 @@
 void drawWaitingForCard() {
     drawATMScreen("Please Insert Card");
     drawCardSlot();
+    drawSideButtons();
+    drawKeypadAndCardBackground();
+    drawKeypad(handleInput);
+    drawCashSlot("INSERT CARD HERE");
 }
 
 void atmLayout() {
@@ -23,40 +27,71 @@ void atmLayout() {
         int textY = atmY + (atmHeight / 3); 
         DrawText(pinDisplay.c_str(), textX, textY, 75, ATM_TEXT); 
     }
+    drawSideButtons();
+    drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot("INSERT CARD HERE");
 }
 
 void displayTransactionChoices() {
     drawATMScreen("");
-    for (int i = 0; i < 4; i++) {
-        DrawRectangle(atmX + 203, atmY + 253 + i*80, 350, 60, DARKGRAY);
-    }
+
+    int buttonWidth = 350;
+    int buttonHeight = 60;
+    int buttonSpacing = 110; 
+
+    int totalButtonHeight = (4 * buttonHeight) + (3 * buttonSpacing);
+    int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
+    int startX = atmX + 50;
+
     vector<Button> buttons = {
-        {{(float)(atmX + 200), (float)(atmY + 250), 350, 60}, "Balance Inquiry", Balance},
-        {{(float)(atmX + 200), (float)(atmY + 330), 350, 60}, "Cash Withdrawal", Withdraw},
-        {{(float)(atmX + 200), (float)(atmY + 410), 350, 60}, "Deposit", Deposit},
-        {{(float)(atmX + 200), (float)(atmY + 490), 350, 60}, "Exit", WaitingForCard}
+        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, "Balance Inquiry", Balance},
+        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Cash Withdrawal", Withdraw},
+        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Deposit", Deposit},
+        {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Exit", WaitingForCard}
     };
-    drawButtons(buttons);
+
+    drawButtons(buttons); 
+    drawSideButtons();    
+    drawKeypadAndCardBackground();
+    drawKeypad(handleInput);
+    drawCashSlot("INSERT CARD HERE");
 }
+
 
 void drawWithdrawMenu() {
     drawATMScreen(withdrawlText.c_str());
     drawMoney(input);
+    drawSideButtons();
+    drawKeypadAndCardBackground();
+    drawCashSlot("INSERT CARD HERE");
     drawKeypad(handleWithdrawInput);
 }
 
 void drawBalanceChoices() {
     drawATMScreen("Select balance option");
+
+    int buttonWidth = 350;
+    int buttonHeight = 60;
+    int buttonSpacing = 110;
+
+    int totalButtonHeight = (4 * buttonHeight) + (3 * buttonSpacing);
+    int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
+    int startX = atmX + 50; 
+
     vector<Button> buttons = {
-        {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 300), 350.0f, 60.0f}, "View Balance", BalanceAmount},
-        {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 380), 350.0f, 60.0f}, "Print Balance", PrintBalance},
-        {{static_cast<float>(atmX + 200), static_cast<float>(atmY + 460), 350.0f, 60.0f}, "Back to Main Menu", MainMenu}
-    };    
+        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, "View Balance", BalanceAmount},
+        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Print Balance", PrintBalance},
+        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Back to Main Menu", MainMenu}
+    };
+
     drawButtons(buttons);
-    drawCashSlot("INSERTED CARD");
+    drawSideButtons();    
+    drawKeypadAndCardBackground();
+    drawKeypad(handleInput);
+    drawCashSlot("INSERT CARD HERE");
 }
+
 
 void viewBalance() {
     drawATMScreen("");
@@ -67,6 +102,10 @@ void viewBalance() {
         {{ static_cast<float>(atmX + 200), static_cast<float>(atmY + 450), 350.0f, 60.0f }, "Back to Main Menu", MainMenu }
     };
     drawButtons(buttons);
+    drawSideButtons();
+    drawKeypadAndCardBackground();
+    drawKeypad(handleInput);
+    drawCashSlot("INSERT CARD HERE");
 }
 
 void drawDepositMenu() {
@@ -74,6 +113,10 @@ void drawDepositMenu() {
     drawMoney(input);
     drawKeypad(handleDepositInput);
     drawCashSlot("INSERT CASH HERE");
+    drawSideButtons();
+    drawKeypadAndCardBackground();
+    drawKeypad(handleInput);
+    drawCashSlot("INSERT CARD HERE");
 }
 
 void printBalance() {
@@ -91,6 +134,10 @@ void printBalance() {
         drawButtons(buttons);
     }
     drawCashSlot("INSERTED CARD");
+    drawSideButtons();
+    drawKeypadAndCardBackground();
+    drawKeypad(handleInput);
+    drawCashSlot("INSERT CARD HERE");
 }
 
 void fontSizes(){
@@ -110,6 +157,6 @@ const std::unordered_map<Screen, std::function<void()>> screens = {
 };
 
 void screenManager() {
-    ClearBackground(GetColor(background));
+    ClearBackground(ATM_BACKGROUND);
     screens.at(screen)();
 }
