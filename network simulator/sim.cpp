@@ -10,6 +10,7 @@
 #include "log.hpp"
 #include "sim.hpp"
 #include <fstream>
+#include "Conversion.hpp"
 
 const int PORT = 6668;
 std::atomic<bool> serverRunning(true);

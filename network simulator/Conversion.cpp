@@ -37,9 +37,15 @@ int initConversionRates(sqlite3* db) {
     return 0;
 }
 
-int ConvertCurrency(Currency from, Currency to, int64_t amountBefore, int64_t& amountAfter) {
+// 0 = Success
+int ConvertCurrency(const Currency& from, const Currency& to, const int64_t& amountBefore, int64_t& amountAfter, const Rounding& rounding) {
     if(amountBefore == 0) {
         amountAfter = 0;
+        return 0;
+    }
+
+    if(from == to) {
+        amountAfter = amountBefore;
         return 0;
     }
 
@@ -60,7 +66,11 @@ int ConvertCurrency(Currency from, Currency to, int64_t amountBefore, int64_t& a
 
     double convertedAmount = adjustedAmountBefore * currencyConversionRates[from][to];
 
-    amountAfter = (ceil(convertedAmount * pow(10, toDotPosition)));
+    if(rounding == UP) {
+        amountAfter = (ceil(convertedAmount * pow(10, toDotPosition)));
+    } else {
+        amountAfter = (floor(convertedAmount * pow(10, toDotPosition)));
+    }
 
     return 0;
 }
