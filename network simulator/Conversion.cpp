@@ -1,13 +1,14 @@
 #include "Conversion.hpp"
 #include <sqlite3.h>
 #include <iostream>
+#include <cmath>
 
 std::unordered_map<Currency, ConversionRates> currencyConversionRates;
 
 int initConversionRates(sqlite3* db) {
     const char* query = "SELECT CurrencyFrom, CurrencyTo, ConversionRate FROM ConversionRate;";
     sqlite3_stmt* stmt;
-    
+
     if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
         std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
         return -1;
@@ -32,6 +33,34 @@ int initConversionRates(sqlite3* db) {
     }
 
     sqlite3_finalize(stmt);
+
+    return 0;
+}
+
+int ConvertCurrency(Currency from, Currency to, int64_t amountBefore, int64_t& amountAfter) {
+    if(amountBefore == 0) {
+        amountAfter = 0;
+        return 0;
+    }
+
+    if (currencyConversionRates.find(from) == currencyConversionRates.end()) {
+        std::cerr << "Error: Unsupported 'from' currency." << std::endl;
+        return -1;
+    }
+
+    if (currencyConversionRates[from].find(to) == currencyConversionRates[from].end()) {
+        std::cerr << "Error: Conversion rate not available for the specified currencies." << std::endl;
+        return -2;
+    }
+
+    int fromDotPosition = currencyDotPosition[from];
+    int toDotPosition = currencyDotPosition[to];
+
+    double adjustedAmountBefore = amountBefore / pow(10, fromDotPosition);
+
+    double convertedAmount = adjustedAmountBefore * currencyConversionRates[from][to];
+
+    amountAfter = (ceil(convertedAmount * pow(10, toDotPosition)));
 
     return 0;
 }

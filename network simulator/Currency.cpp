@@ -17,6 +17,19 @@ const std::unordered_map<std::string, Currency> currencyCodeToEnum = {
     {"NZD", NZD}
 };
 
+const std::unordered_map<Currency, std::string> enumToCurrencyCode = {
+    {GBP, "GBP"},
+    {USD, "USD"},
+    {JPY, "JPY"},
+    {EUR, "EUR"},
+    {AUD, "AUD"},
+    {CAD, "CAD"},
+    {CHF, "CHF"},
+    {CNH, "CNH"},
+    {HKD, "HKD"},
+    {NZD, "NZD"}
+};
+
 int initCurrencyPositions(sqlite3*& db) {
     const char* query = "SELECT CurrencyCode, DotPosition FROM Currencies;";
     sqlite3_stmt* stmt;
