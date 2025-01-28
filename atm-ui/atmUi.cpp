@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    setCurrency(USD);
     screenInit();
     while (!WindowShouldClose()) {
         BeginDrawing();

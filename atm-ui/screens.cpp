@@ -45,10 +45,12 @@ void displayTransactionChoices() {
     int startX = atmX + 50;
 
     vector<Button> buttons = {
+
         {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, "Balance Inquiry", Balance},
         {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Cash Withdrawal", Withdraw},
         {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Deposit", Deposit},
         {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Exit", WaitingForCard}
+
     };
 
     drawButtons(buttons); 
@@ -96,7 +98,7 @@ void drawBalanceChoices() {
 void viewBalance() {
     drawATMScreen("");
     DrawText("Your Current Balance:", atmX + 250, atmY + 100, 20, ATM_TEXT);
-    DrawText(("£" + to_string(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
+    DrawText((currencySymbol + to_string(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
 
     vector<Button> buttons = {
         {{ static_cast<float>(atmX + 200), static_cast<float>(atmY + 450), 350.0f, 60.0f }, "Back to Main Menu", MainMenu }
@@ -153,6 +155,7 @@ const std::unordered_map<Screen, std::function<void()>> screens = {
     {BalanceAmount, viewBalance},
     {Deposit, drawDepositMenu},
     {PrintBalance, printBalance},
+
     {displayOptions, fontSizes}
 };
 

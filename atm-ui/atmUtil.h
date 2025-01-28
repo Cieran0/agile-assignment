@@ -27,15 +27,24 @@ using namespace std;
 #define RAYGUI_BUTTON_TEXT_PADDING   10
 
 enum Screen {
-    WaitingForCard = 0,
-    EnterPin = 1,
-    MainMenu = 2,
-    Withdraw = 3,
-    Balance = 4,
-    BalanceAmount = 5,
-    Deposit = 6,
-    PrintBalance = 7,
-    displayOptions = 8 
+    WaitingForCard,
+    EnterPin,
+    MainMenu,
+    Withdraw,
+    Balance,
+    BalanceAmount,
+    Deposit,
+    PrintBalance,
+    displayOptions,
+    currencySelect
+};
+
+enum Currency {
+    GBP = 0,
+    USD = 1,
+    EUR = 2,
+    MXN = 3
+
 };
 
 struct Button {
@@ -62,6 +71,8 @@ void screenInit();
 void drawKeypad(const std::function<void(const string&)>& handleInput);
 void drawPrintedReciept();
 
+void setCurrency(Currency currency);
+
 void handleInput(string buttonPressed);
 void handleWithdrawInput(const string& buttonPressed); 
 void handleDepositInput(const string& buttonPressed);
@@ -75,6 +86,8 @@ void drawAtmCasing();
 void drawSideButtons();
 void drawKeypadAndCardBackground();
 
+void drawATM(const char* text);
+
 extern vector<string> inputs;
 extern string displayText;
 extern string balanceText;
@@ -85,8 +98,10 @@ extern string input;
 extern string keyPad[5][3];
 extern std::string cardNumber;
 extern std::string expiryDate;
+extern char currencySymbol;
 extern double balance;
 extern enum Screen screen;
+extern enum Currency currency;
 
 extern int atmWidth;
 extern int atmHeight;
