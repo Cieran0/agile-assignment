@@ -18,10 +18,13 @@ void atmLayout() {
     updatePinDisplay();
     // int textSize = MeasureText(pinDisplay.c_str(), 30);
     if (!pinDisplay.empty()) {
-        DrawText(pinDisplay.c_str(), ((atmX + atmWidth) / 2), atmHeight / 2, 75, ATM_TEXT);
+        int textWidth = MeasureText(pinDisplay.c_str(), 75);
+        int textX = atmX + (atmWidth - textWidth) / 2;
+        int textY = atmY + (atmHeight / 3); 
+        DrawText(pinDisplay.c_str(), textX, textY, 75, ATM_TEXT); 
     }
     drawKeypad(handleInput);
-    drawCashSlot("INSERTED CARD");
+    drawCashSlot("INSERT CARD HERE");
 }
 
 void displayTransactionChoices() {
