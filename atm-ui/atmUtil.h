@@ -83,7 +83,7 @@ void drawMoney(std::string str);
 void drawCardSlot();
 void drawATMScreen(const char* text);
 void drawAtmCasing();
-void drawSideButtons();
+void drawSideButtons(const vector<Button>& buttons);
 void drawKeypadAndCardBackground();
 
 void drawATM(const char* text);

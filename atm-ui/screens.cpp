@@ -10,7 +10,7 @@
 void drawWaitingForCard() {
     drawATMScreen("Please Insert Card");
     drawCardSlot();
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot("INSERT CARD HERE");
@@ -20,14 +20,13 @@ void atmLayout() {
     drawAtmCasing();
     drawATMScreen(displayText.c_str());
     updatePinDisplay();
-    // int textSize = MeasureText(pinDisplay.c_str(), 30);
     if (!pinDisplay.empty()) {
         int textWidth = MeasureText(pinDisplay.c_str(), 75);
         int textX = atmX + (atmWidth - textWidth) / 2;
         int textY = atmY + (atmHeight / 3); 
         DrawText(pinDisplay.c_str(), textX, textY, 75, ATM_TEXT); 
     }
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot("INSERT CARD HERE");
@@ -36,35 +35,23 @@ void atmLayout() {
 void displayTransactionChoices() {
     drawATMScreen("");
 
-    int buttonWidth = 350;
-    int buttonHeight = 60;
-    int buttonSpacing = 110; 
-
-    int totalButtonHeight = (4 * buttonHeight) + (3 * buttonSpacing);
-    int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
-    int startX = atmX + 50;
-
-    vector<Button> buttons = {
-
-        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, "Balance Inquiry", Balance},
-        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Cash Withdrawal", Withdraw},
-        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Deposit", Deposit},
-        {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Exit", WaitingForCard}
-
+    vector<Button> sideButtons = {
+        {{}, "Balance Inquiry", Balance},
+        {{}, "Cash Withdrawal", Withdraw},
+        {{}, "Deposit", Deposit},
+        {{}, "Exit", WaitingForCard}
     };
 
-    drawButtons(buttons); 
-    drawSideButtons();    
+    drawSideButtons(sideButtons);
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot("INSERT CARD HERE");
 }
 
-
 void drawWithdrawMenu() {
     drawATMScreen(withdrawlText.c_str());
     drawMoney(input);
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawCashSlot("INSERT CARD HERE");
     drawKeypad(handleWithdrawInput);
@@ -73,38 +60,24 @@ void drawWithdrawMenu() {
 void drawBalanceChoices() {
     drawATMScreen("Select balance option");
 
-    int buttonWidth = 350;
-    int buttonHeight = 60;
-    int buttonSpacing = 110;
-
-    int totalButtonHeight = (4 * buttonHeight) + (3 * buttonSpacing);
-    int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
-    int startX = atmX + 50; 
-
-    vector<Button> buttons = {
-        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, "View Balance", BalanceAmount},
-        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Print Balance", PrintBalance},
-        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Back to Main Menu", MainMenu}
+    vector<Button> sideButtons = {
+        {{}, "View Balance", BalanceAmount},
+        {{}, "Print Balance", PrintBalance},
+        {{}, "Back to Main Menu", MainMenu}
     };
 
-    drawButtons(buttons);
-    drawSideButtons();    
+    drawSideButtons(sideButtons);
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot("INSERT CARD HERE");
 }
-
 
 void viewBalance() {
     drawATMScreen("");
     DrawText("Your Current Balance:", atmX + 250, atmY + 100, 20, ATM_TEXT);
     DrawText((currencySymbol + to_string(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
 
-    vector<Button> buttons = {
-        {{ static_cast<float>(atmX + 200), static_cast<float>(atmY + 450), 350.0f, 60.0f }, "Back to Main Menu", MainMenu }
-    };
-    drawButtons(buttons);
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot("INSERT CARD HERE");
@@ -113,9 +86,9 @@ void viewBalance() {
 void drawDepositMenu() {
     drawATMScreen("Enter Deposit Amount:");
     drawMoney(input);
+    drawSideButtons({});
     drawKeypad(handleDepositInput);
     drawCashSlot("INSERT CASH HERE");
-    drawSideButtons();
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot("INSERT CARD HERE");
@@ -136,7 +109,7 @@ void printBalance() {
         drawButtons(buttons);
     }
     drawCashSlot("INSERTED CARD");
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot("INSERT CARD HERE");
