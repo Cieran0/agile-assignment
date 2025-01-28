@@ -6,7 +6,7 @@
 typedef const unsigned char* sqlite_string; 
 
 Response processTransaction(Transaction transaction, sqlite3*& db) {
-    Response response = {0};
+    Response response = {.succeeded = NETWORK_ERROR};
 
     std::string sql_string = std::format("SELECT Balance FROM Customer WHERE CardNumber = '{}' AND PIN = '{}';", transaction.cardNumber, transaction.pinNo);
 
@@ -33,20 +33,20 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
 
     std::cout << "Current balance: " << current_balance << std::endl;
     
-    if (transaction.withdrawalAmount == 0) {
-        response.new_balance = current_balance;
-        response.succeeded = TRANSACTION_SUCESS;
+    if (transaction.amount == 0) {
+        response.newBalance = current_balance;
+        response.succeeded = SUCCESS;
         sqlite3_finalize(stmt);
         return response;
     }
 
-    if (transaction.withdrawalAmount > current_balance) {
+    if (transaction.amount > current_balance) {
         response.succeeded = INSUFFICIENT_FUNDS;
         sqlite3_finalize(stmt);
         return response;
     }
 
-    double new_balance = current_balance - transaction.withdrawalAmount;
+    double new_balance = current_balance - transaction.amount;
     std::string update_sql = std::format("UPDATE Customer SET Balance = {} WHERE CardNumber = '{}';", new_balance, transaction.cardNumber);
 
     exitCode = sqlite3_exec(db, update_sql.c_str(), nullptr, nullptr, nullptr);
@@ -57,7 +57,7 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
         return response;
     }
     
-    response.new_balance = new_balance;
+    response.newBalance = new_balance;
 
     sqlite3_finalize(stmt);
     return response;
