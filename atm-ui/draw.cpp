@@ -10,6 +10,7 @@
 int screenWidth = GetMonitorWidth(0);  
 int screenHeight = GetMonitorHeight(0);
 char currencySymbol = ' ';
+Currency currentCurrency = GBP;
 
 #define CASING_BACK_COLOR CLITERAL(Color){(84, 103, 125, 1)}
 #define CASING_FRONT_COLOR CLITERAL(Color){(59, 70, 84, 1)}
@@ -219,22 +220,54 @@ void drawKeypad(const std::function<void(const string&)>& handleInput) {
     GuiSetStyle(BUTTON, BORDER_COLOR_PRESSED, ColorToInt(WHITE));
 }
 
- void setCurrency(Currency currency){
-    switch(currency){
-        case 0:
-            currencySymbol = '£';
+void setCurrency(Currency currency) {
+    switch (currency) {
+        case GBP:
+            currentCurrency = GBP;
+            currencySymbol = '\u00A3'; // Pound symbol (£)
             break;
-        case 1:
+        case USD:
+            currentCurrency = USD;
             currencySymbol = '$';
             break;
-        case 2:
-            currencySymbol = '€';
+        case JPY:
+            currentCurrency = JPY;
+            currencySymbol = '\u00A5'; // Yen symbol (¥)
             break;
-        case 3:
-            currencySymbol = '₱';
+        case EUR:
+            currentCurrency = EUR;
+            currencySymbol = '\u20AC'; // Euro symbol (€)
+            break;
+        case AUD:
+            currentCurrency = AUD;
+            currencySymbol = '$'; // Australian Dollar shares the Dollar symbol
+            break;
+        case CAD:
+            currentCurrency = CAD;
+            currencySymbol = '$'; // Canadian Dollar shares the Dollar symbol
+            break;
+        case CHF:
+            currentCurrency = CHF;
+            currencySymbol = 'F'; // Swiss Franc (not a standard symbol, placeholder "F")
+            break;
+        case CNH:
+            currentCurrency = CNH;
+            currencySymbol = '\u5143'; 
+            break;
+        case HKD:
+            currentCurrency = HKD;
+            currencySymbol = '$'; 
+            break;
+        case NZD:
+            currentCurrency = NZD;
+            currencySymbol = '$'; 
+            break;
+        default:
+            currentCurrency = USD;
+            currencySymbol = '$';
             break;
     }
- }
+}
 
 void screenInit() {
     InitWindow(0, 0, "raygui - NCR ATM");

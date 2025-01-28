@@ -8,6 +8,7 @@
 #include <vector>
 #include <functional>
 #include <ctime>
+#include "Currency.hpp"
 
 extern int screenWidth;  
 extern int screenHeight; 
@@ -39,13 +40,6 @@ enum Screen {
     currencySelect
 };
 
-enum Currency {
-    GBP = 0,
-    USD = 1,
-    EUR = 2,
-    MXN = 3
-
-};
 
 struct Button {
     Rectangle bounds; 
@@ -76,6 +70,7 @@ void setCurrency(Currency currency);
 void handleInput(string buttonPressed);
 void handleWithdrawInput(const string& buttonPressed); 
 void handleDepositInput(const string& buttonPressed);
+uint64_t rand_uint64();
 
 void drawCashSlot(const char* text);
 void drawButtons(vector<Button> buttons);
@@ -99,9 +94,11 @@ extern string keyPad[5][3];
 extern std::string cardNumber;
 extern std::string expiryDate;
 extern char currencySymbol;
+extern Currency currentCurrency;
 extern double balance;
 extern enum Screen screen;
 extern enum Currency currency;
+extern uint64_t atmID;
 
 extern int atmWidth;
 extern int atmHeight;
