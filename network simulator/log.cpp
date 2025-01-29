@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include "db.hpp"
 
 std::vector<std::function<void(const Transaction&)>> loggers;
 std::ofstream log_txt;
@@ -22,13 +23,6 @@ void log(const Transaction& transaction) {
 }
 
 void DatabaseLogger(const Transaction& transaction) {
-    sqlite3* db;
-    int exitCode = sqlite3_open("database.db", &db);
-    if (exitCode != SQLITE_OK) {
-        std::cerr << "Failed to open database: " << sqlite3_errmsg(db) << std::endl;
-        sqlite3_close(db);
-        return;
-    }
 
     std::string sql = std::format(
         "INSERT INTO Transactions (TransactionID, ATM_ID, WithdrawlAmount, CardNumber) "
@@ -39,14 +33,7 @@ void DatabaseLogger(const Transaction& transaction) {
         transaction.cardNumber
     );
 
-    char* errorMessage = nullptr;
-    exitCode = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errorMessage);
-    if (exitCode != SQLITE_OK) {
-        std::cerr << "SQL error: " << errorMessage << std::endl;
-        sqlite3_free(errorMessage);
-    }
-
-    sqlite3_close(db);
+    enqueueTransactionLog(sql);
 }
 
 void txtLogger(const Transaction& transaction){

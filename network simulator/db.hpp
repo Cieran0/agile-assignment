@@ -1,5 +1,7 @@
+#pragma once
 #include <sqlite3.h>
 #include <cstdint>
+#include <future>
 
 struct Transaction {
     char cardNumber[20];
@@ -20,5 +22,11 @@ struct Response {
     double new_balance;
 };
 
-Response processTransaction(Transaction transaction, sqlite3*& db);
-int initDatabaseConnection(sqlite3*& db);
+std::future<Response> enqueueTransaction(Transaction transaction);
+void processTransactionQueue();
+
+extern std::condition_variable queueCondition;
+
+using TransactionPromise = std::pair<Transaction, std::promise<Response>>;
+
+void enqueueTransactionLog(std::string log_sql);
