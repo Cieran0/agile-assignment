@@ -63,11 +63,3 @@ void setScreen(Screen s) {
     }
 }
 
-uint64_t rand_uint64() {
-    srand((unsigned int)time(NULL));
-    uint64_t r = 0;
-    for (int i = 0; i < 64; i += 15) {
-        r = r * ((uint64_t)RAND_MAX + 1) + rand();
-    }
-    return r % ((uint64_t)1 << 63);
-}

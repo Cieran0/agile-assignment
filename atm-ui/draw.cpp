@@ -9,7 +9,7 @@
 
 int screenWidth = GetMonitorWidth(0);  
 int screenHeight = GetMonitorHeight(0);
-char currencySymbol = ' ';
+std::string currencySymbol = "";
 Currency currentCurrency = GBP;
 
 #define CASING_BACK_COLOR CLITERAL(Color){(84, 103, 125, 1)}
@@ -224,47 +224,47 @@ void setCurrency(Currency currency) {
     switch (currency) {
         case GBP:
             currentCurrency = GBP;
-            currencySymbol = '\u00A3'; // Pound symbol (£)
+            currencySymbol = "\u00A3"; // Pound symbol (£)
             break;
         case USD:
             currentCurrency = USD;
-            currencySymbol = '$';
+            currencySymbol = "$";
             break;
         case JPY:
             currentCurrency = JPY;
-            currencySymbol = '\u00A5'; // Yen symbol (¥)
+            currencySymbol = "\u00A5"; // Yen symbol (¥)
             break;
         case EUR:
             currentCurrency = EUR;
-            currencySymbol = '\u20AC'; // Euro symbol (€)
+            currencySymbol = "\u20AC"; // Euro symbol (€)
             break;
         case AUD:
             currentCurrency = AUD;
-            currencySymbol = '$'; // Australian Dollar shares the Dollar symbol
+            currencySymbol = "$"; // Australian Dollar shares the Dollar symbol
             break;
         case CAD:
             currentCurrency = CAD;
-            currencySymbol = '$'; // Canadian Dollar shares the Dollar symbol
+            currencySymbol = "$"; // Canadian Dollar shares the Dollar symbol
             break;
         case CHF:
             currentCurrency = CHF;
-            currencySymbol = 'F'; // Swiss Franc (not a standard symbol, placeholder "F")
+            currencySymbol = "F"; // Swiss Franc (not a standard symbol, placeholder "F")
             break;
         case CNH:
             currentCurrency = CNH;
-            currencySymbol = '\u5143'; 
+            currencySymbol = "\u5143"; 
             break;
         case HKD:
             currentCurrency = HKD;
-            currencySymbol = '$'; 
+            currencySymbol = "$"; 
             break;
         case NZD:
             currentCurrency = NZD;
-            currencySymbol = '$'; 
+            currencySymbol = "$"; 
             break;
         default:
             currentCurrency = USD;
-            currencySymbol = '$';
+            currencySymbol = "$";
             break;
     }
 }
