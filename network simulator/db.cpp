@@ -2,19 +2,32 @@
 #include <iostream>
 #include <sstream>
 #include <format>
+#include "Conversion.hpp"
+#include <cmath>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include "sim.hpp"
 
 typedef const unsigned char* sqlite_string; 
+typedef int64_t BankCurrency;
+
+std::queue<TransactionPromise> transactionQueue;
+std::queue<std::string> transactionLogs;
+std::mutex queueMutex;
+std::mutex transactionLogsMx;
+std::condition_variable queueCondition;
 
 Response processTransaction(Transaction transaction, sqlite3*& db) {
-    Response response = {0};
+    Response response = {.succeeded = NETWORK_ERROR};
 
-    std::string sql_string = std::format("SELECT Balance FROM Customer WHERE CardNumber = '{}' AND PIN = '{}';", transaction.cardNumber, transaction.pinNo);
+    std::string sql_string = std::format("SELECT Balance, Currency FROM Customer WHERE CardNumber = '{}' AND PIN = '{}';", transaction.cardNumber, transaction.pinNo);
 
     sqlite3_stmt* stmt = nullptr;
     int exitCode = sqlite3_prepare_v2(db, sql_string.c_str(), -1, &stmt, nullptr);
 
     if (exitCode != SQLITE_OK) {
-        std::cerr << "Database error (prepare): " << sqlite3_errmsg(db) << std::endl; // Print error message
+        std::cerr << "Database error (prepare): " << sqlite3_errmsg(db) << std::endl;
         sqlite3_close(db);
 
         response.succeeded = DATABASE_ERROR;
@@ -22,47 +35,144 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
     }
 
     if (sqlite3_step(stmt) != SQLITE_ROW) {
-        std::cerr << "Database error (step): " << sqlite3_errmsg(db) << std::endl; // Print error message
+        std::cerr << "Database error (step): " << sqlite3_errmsg(db) << std::endl;
         sqlite3_finalize(stmt);
 
         response.succeeded = INCORRECT_PIN;
         return response;
     }
 
-    double current_balance = sqlite3_column_double(stmt, 0);
+    BankCurrency currentBankBalance = sqlite3_column_int64(stmt, 0);
+    sqlite_string bankCurrencyString = sqlite3_column_text(stmt, 1);
 
-    std::cout << "Current balance: " << current_balance << std::endl;
+    Currency bankCurrency = currencyCodeToEnum.at((const char*)bankCurrencyString);
+
+    //std::cout << "Current balance: " << currentBankBalance << std::endl;
+    //std::cout << "Bank Currency: " << bankCurrencyString << " | " << bankCurrency << std::endl;
     
-    if (transaction.withdrawalAmount == 0) {
-        response.new_balance = current_balance;
-        response.succeeded = TRANSACTION_SUCESS;
+    DecimalPosition dotPosition = currencyDotPosition.at(transaction.currency);
+    transaction.amount *= pow(10, dotPosition);
+
+    BankCurrency transactionAmount = 0;
+    if(ConvertCurrency(transaction.currency, bankCurrency, transaction.amount, transactionAmount, Rounding::UP)) {
+        response.succeeded = DATABASE_ERROR;
+        sqlite3_finalize(stmt);
+        return response;
+    } 
+
+
+    AtmCurrency newBalance;
+    if(ConvertCurrency(Currency::GBP, bankCurrency, transaction.amount, newBalance, Rounding::DOWN)) {
+        response.succeeded = DATABASE_ERROR;
         sqlite3_finalize(stmt);
         return response;
     }
 
-    if (transaction.withdrawalAmount > current_balance) {
+    if (transaction.type == PIN_CHECK || transaction.type == BALANCE_CHECK) {
+        response.newBalance = newBalance;
+        response.dotPosition = currencyDotPosition.at(transaction.currency);
+        response.succeeded = SUCCESS;
+        sqlite3_finalize(stmt);
+        return response;
+    }
+
+    if (transactionAmount > currentBankBalance) {
         response.succeeded = INSUFFICIENT_FUNDS;
+        response.dotPosition = currencyDotPosition.at(transaction.currency);
         sqlite3_finalize(stmt);
         return response;
     }
 
-    double new_balance = current_balance - transaction.withdrawalAmount;
-    std::string update_sql = std::format("UPDATE Customer SET Balance = {} WHERE CardNumber = '{}';", new_balance, transaction.cardNumber);
+    BankCurrency newBankBalance = currentBankBalance - transactionAmount;
+    std::string update_sql = std::format("UPDATE Customer SET Balance = {} WHERE CardNumber = '{}';", newBankBalance, transaction.cardNumber);
 
     exitCode = sqlite3_exec(db, update_sql.c_str(), nullptr, nullptr, nullptr);
     if (exitCode != SQLITE_OK) {
-        std::cerr << "Database error (exec): " << sqlite3_errmsg(db) << std::endl; // Print error message
+        std::cerr << "Database error (exec): " << sqlite3_errmsg(db) << std::endl;
         response.succeeded = DATABASE_ERROR;
         sqlite3_finalize(stmt);
         return response;
     }
     
-    response.new_balance = new_balance;
+    response.newBalance = newBalance;
+    response.dotPosition = currencyDotPosition.at(transaction.currency);
+    response.atmCurrency = transaction.currency;
+    response.succeeded = ResponseType::SUCCESS;
 
     sqlite3_finalize(stmt);
     return response;
 }
 
-int initDatabaseConnection(sqlite3*& db) {
-    return sqlite3_open("database.db", &db);
+std::future<Response> enqueueTransaction(Transaction transaction) {
+    std::promise<Response> promise;
+    std::future<Response> future = promise.get_future();
+    {
+        std::lock_guard<std::mutex> lock(queueMutex);
+        transactionQueue.emplace(transaction, std::move(promise));
+    }
+
+    queueCondition.notify_one();
+    return future;
+}
+
+void enqueueTransactionLog(std::string log_sql) {
+    {
+        std::lock_guard<std::mutex> lock(transactionLogsMx);
+        transactionLogs.emplace(log_sql);
+    }
+}
+
+void emptyTransactionLogs(sqlite3* db) {
+    while (!transactionLogs.empty()) {
+        std::string log_sql;
+        {
+            std::lock_guard<std::mutex> lock(transactionLogsMx);
+            log_sql = std::move(transactionLogs.front());
+            transactionLogs.pop();
+        }
+
+        char* errMsg = nullptr;
+        int rc = sqlite3_exec(db, log_sql.c_str(), nullptr, nullptr, &errMsg);
+        if (rc != SQLITE_OK) {
+            std::cerr << "Error executing log SQL: " << errMsg << std::endl;
+            sqlite3_free(errMsg);
+        } else {
+            std::cout << "Executed log SQL: " << log_sql << std::endl;
+        }
+    }
+}
+
+void processTransactionQueue() {
+    sqlite3* db;
+
+    if (sqlite3_open("database.db", &db) != SQLITE_OK) {
+        std::cerr << "Failed to open the database in the worker thread: " 
+                  << sqlite3_errmsg(db) << std::endl;
+        return;
+    }
+
+    std::cout << "Database connection established in the thread." << std::endl;
+
+    while (serverRunning) {
+        TransactionPromise transactionPromisePair;
+        {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            queueCondition.wait(lock, [] { return !transactionQueue.empty() || !serverRunning; });
+            if (!serverRunning && transactionQueue.empty()) break;
+
+            transactionPromisePair = std::move(transactionQueue.front());
+            transactionQueue.pop();
+        }
+
+        Transaction transaction = transactionPromisePair.first;
+        std::promise<Response> promise = std::move(transactionPromisePair.second);
+
+        Response response = processTransaction(transaction, db);
+
+        promise.set_value(response);
+
+        emptyTransactionLogs(db);
+    }
+
+    sqlite3_close(db);
 }

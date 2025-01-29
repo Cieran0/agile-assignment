@@ -1,24 +1,13 @@
+#pragma once
 #include <sqlite3.h>
-#include <cstdint>
 
-struct Transaction {
-    char cardNumber[20];
-    char expiryDate[6];
-    uint64_t atmID;
-    uint64_t uniqueTransactionID;
-    char pinNo[5];
-    double withdrawalAmount;
-};
+#include "Transaction.hpp"
 
-#define TRANSACTION_SUCESS 0
-#define INSUFFICIENT_FUNDS 1
-#define DATABASE_ERROR 2
-#define INCORRECT_PIN 3
+std::future<Response> enqueueTransaction(Transaction transaction);
+void processTransactionQueue();
 
-struct Response {
-    int succeeded;
-    double new_balance;
-};
+extern std::condition_variable queueCondition;
 
-Response processTransaction(Transaction transaction, sqlite3*& db);
-int initDatabaseConnection(sqlite3*& db);
+using TransactionPromise = std::pair<Transaction, std::promise<Response>>;
+
+void enqueueTransactionLog(std::string log_sql);
