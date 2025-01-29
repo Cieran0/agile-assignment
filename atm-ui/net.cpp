@@ -52,7 +52,7 @@ void cleanup_winsock() {
     #endif
 }
 
-Response forwardToSocket(TransactionType type, AtmID atmID, Currency currency, AtmCurrency amount, char cardNumber[20], char expiryDate[6], char pinNo[5]) {
+Response forwardToSocket(TransactionType type, AtmID atmID, Currency currency, AtmCurrency amount, const char cardNumber[20], const char expiryDate[6], const char pinNo[5]) {
     Response response;
 
     if (!initialize_winsock()) return NETWORK;

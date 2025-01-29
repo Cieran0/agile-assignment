@@ -37,7 +37,7 @@ void handleInput(string buttonPressed) {
             setScreen(MainMenu);
             balance = a1.testBalance;
         }
-         else {
+        else {
             displayText = "Incorrect pin. try again";
             input.clear();
             updatePinDisplay();
