@@ -12,14 +12,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-uint64_t rand_uint64() {
-    srand((unsigned int)time(NULL));
-    uint64_t r = 0;
-    for (int i = 0; i < 64; i += 15) {
-        r = r * ((uint64_t)RAND_MAX + 1) + rand();
-    }
-    return r % ((uint64_t)1 << 63);
-}
+
 
 const char *host;
 int port;
@@ -49,7 +42,7 @@ void cleanup_winsock() {
     #endif
 }
 
-Response forwardToSocket(TranscationType type, AtmID atmID, Currency currency, AtmCurrency amount, char cardNumber[20], char expiryDate[6], char pinNo[5]) {
+Response forwardToSocket(TransactionType type, AtmID atmID, Currency currency, AtmCurrency amount, const char cardNumber[20],const char expiryDate[6], char pinNo[5]) {
     Response response;
 
     if (!initialize_winsock()) return NETWORK;
