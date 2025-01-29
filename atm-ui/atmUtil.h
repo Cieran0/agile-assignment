@@ -54,7 +54,6 @@ double testBalance;
 
 extern testAccount a1;
 
-void handleInput(string buttonPressed);
 void updatePinDisplay();
 void screenManager();
 void resetGlobalTextVariables();
@@ -70,6 +69,7 @@ void setCurrency(Currency currency);
 void handleInput(string buttonPressed);
 void handleWithdrawInput(const string& buttonPressed); 
 void handleDepositInput(const string& buttonPressed);
+void doNothing(string buttonPressed);
 
 void drawCashSlot(const char* text);
 void drawButtons(vector<Button> buttons);
