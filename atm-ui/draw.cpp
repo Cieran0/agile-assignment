@@ -53,7 +53,7 @@ void drawCashSlot(const char* text) {
     };
 
     if (GuiButton(cashSlotButton, text)) {
-        setScreen(EnterPin); 
+        setScreen(LanguageSelect);
         resetGlobalTextVariables();
         displayText = "Please enter your PIN:";
     }
@@ -333,6 +333,8 @@ void drawSideButtons() {
     }
 }
 
+
+
 void drawATMScreen(const char* text) {
     DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
     DrawRectangleRoundedLines(
@@ -395,4 +397,24 @@ void processingScreen(string messageToPrint) {
             setScreen(MainMenu); 
         }
     }
+}
+
+void drawLanguages() {
+    int buttonWidth = 350;
+    int buttonHeight = 60;
+    int buttonSpacing = 110; 
+
+    int totalButtonHeight = (4 * buttonHeight) + (3 * buttonSpacing);
+    int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
+    int startX = atmX + 50;
+
+    vector<Button> buttons = {
+        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, "English", EnterPin},
+        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Spanish", EnterPin},
+        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "French", EnterPin},
+        {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "German", EnterPin}
+
+    };
+
+    drawButtons(buttons); 
 }

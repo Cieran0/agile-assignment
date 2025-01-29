@@ -29,6 +29,7 @@ using namespace std;
 
 enum Screen {
     WaitingForCard,
+    LanguageSelect,
     EnterPin,
     MainMenu,
     Withdraw,
@@ -77,6 +78,7 @@ void drawButtons(vector<Button> buttons);
 void drawMoney(std::string str);
 void drawCardSlot();
 void drawATMScreen(const char* text);
+void drawLanguages();
 void drawAtmCasing();
 void drawSideButtons();
 void drawKeypadAndCardBackground();

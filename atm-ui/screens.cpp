@@ -121,6 +121,14 @@ void drawDepositMenu() {
     drawCashSlot("INSERT CARD HERE");
 }
 
+void drawLanguageSelect() {
+    drawATMScreen("Select a language:");
+    drawLanguages();
+    drawSideButtons();
+    drawKeypadAndCardBackground();
+    drawKeypad(handleInput);
+}
+
 void printBalance() {
     static int counter = 0;
     if (counter < 60 * 5) { 
@@ -148,6 +156,7 @@ void fontSizes(){
 
 const std::unordered_map<Screen, std::function<void()>> screens = {
     {WaitingForCard, drawWaitingForCard},
+    {LanguageSelect, drawLanguageSelect},
     {EnterPin, atmLayout},
     {MainMenu, displayTransactionChoices},
     {Withdraw, drawWithdrawMenu},
@@ -155,7 +164,6 @@ const std::unordered_map<Screen, std::function<void()>> screens = {
     {BalanceAmount, viewBalance},
     {Deposit, drawDepositMenu},
     {PrintBalance, printBalance},
-
     {displayOptions, fontSizes}
 };
 
