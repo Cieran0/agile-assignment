@@ -2,6 +2,7 @@
 #include "net.h"
 #include <functional>
 
+
 void genericInputHandler(string buttonPressed, Screen lastScreen, size_t maxInputSize, bool condition, function<void()> function) {
     if(buttonPressed == " ") return;
     if (buttonPressed == "clear") {
@@ -26,12 +27,17 @@ void genericInputHandler(string buttonPressed, Screen lastScreen, size_t maxInpu
 void handleInput(string buttonPressed) {
     genericInputHandler(buttonPressed, WaitingForCard, 4, (input.size() == 4), [] {
         string temp = input;
-        Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, input, 0.0);
+        Response r = forwardToSocket(PIN_CHECK, atmID, currentCurrency, 0, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
         if(r.succeeded == 0) {
             setScreen(MainMenu);
-            balance = r.new_balance;
+            balance = r.newBalance;
             enteredPIN = temp;
-        } else {
+        }
+        else if (input == a1.localPin){
+            setScreen(MainMenu);
+            balance = a1.testBalance;
+        }
+         else {
             displayText = "Incorrect pin. try again";
             input.clear();
             updatePinDisplay();
@@ -42,14 +48,15 @@ void handleInput(string buttonPressed) {
 
 void handleWithdrawInput(const string& buttonPressed) {
     genericInputHandler(buttonPressed, MainMenu, 10, (!input.empty()), [] {
-        double amount = std::stof(input);
+        int amount = std::stof(input);
         if (amount > balance) {
             withdrawlText = "Insufficient funds";
             input.clear();
         } else {
-            Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, enteredPIN, amount);
+            Response r = forwardToSocket(WITHDRAWAL, atmID, currentCurrency, amount, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
+            // Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, enteredPIN, amount);
             if(r.succeeded == 0) {
-                balance = r.new_balance;
+                balance = r.newBalance;
                 input.clear();
                 setScreen(MainMenu);
             }
@@ -59,10 +66,11 @@ void handleWithdrawInput(const string& buttonPressed) {
 
 void handleDepositInput(const string& buttonPressed) {
     genericInputHandler(buttonPressed, MainMenu, 10, (!input.empty()), [] {
-        double amount = std::stof(input);
-        Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, enteredPIN, -amount);
+        int amount = std::stof(input);
+        Response r = forwardToSocket(DEPOSIT, atmID, currentCurrency, amount, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
+        // Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, enteredPIN, -amount);
         if(r.succeeded == 0) {
-            balance = r.new_balance;
+            balance = r.newBalance;
             input.clear();
             setScreen(MainMenu);
         }
