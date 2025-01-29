@@ -37,13 +37,34 @@ void DatabaseLogger(const Transaction& transaction) {
 }
 
 void txtLogger(const Transaction& transaction){
-    std::string message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
-        std::chrono::system_clock::now(),
-        transaction.uniqueTransactionID, 
-        transaction.withdrawalAmount,
-        transaction.cardNumber,
-        transaction.atmID
-    );
+    std::string message;
+    if(transaction.withdrawalAmount == 0){ 
+        message = std::format("[{}]: Transaction ID {} | Card number [{}] checked balance at ATM {} {}",
+            std::chrono::system_clock::now(),
+            transaction.uniqueTransactionID, 
+            transaction.withdrawalAmount,
+            transaction.cardNumber,
+            transaction.atmID
+        );
+    }
+    else if(transaction.withdrawalAmount < 0){   
+        message = std::format("[{}]: Transaction ID {} | Deposit of £{} with card [{}] at ATM {}",
+            std::chrono::system_clock::now(),
+            transaction.uniqueTransactionID, 
+            -transaction.withdrawalAmount,
+            transaction.cardNumber,
+            transaction.atmID
+        );
+    }
+    else{
+        message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
+            std::chrono::system_clock::now(),
+            transaction.uniqueTransactionID, 
+            transaction.withdrawalAmount,
+            transaction.cardNumber,
+            transaction.atmID
+        );
+    }
 
     if(log_txt.is_open()) {
         log_txt << message << std::endl;
