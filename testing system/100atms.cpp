@@ -17,23 +17,60 @@ int SERVER_PORT = 6668;
 int TRANSACTIONS_PER_MINUTE = 2;
 int SIMULATION_DURATION_MINUTES = 5;
 
-struct Transaction {
-    char cardNumber[20];
-    char expiryDate[6];
-    uint64_t atmID;
-    uint64_t uniqueTransactionID;
-    char pinNo[5];
-    double withdrawalAmount;
+enum ResponseType {
+    SUCCESS = 0,
+    INSUFFICIENT_FUNDS = 1,
+    DATABASE_ERROR = 2,
+    INCORRECT_PIN = 3,
+    NETWORK_ERROR = 4,
+    SYSTEM_MAINTENANCE = 5,
 };
 
-#define TRANSACTION_SUCESS 0
-#define INSUFFICIENT_FUNDS 1
-#define DATABASE_ERROR 2
-#define INCORRECT_PIN 3
+enum TranscationType {
+    PIN_CHECK,
+    BALANCE_CHECK,
+    WITHDRAWL,
+    DEPOSIT,
+    MOBILE_APROVED_DEPOSIT
+};
+
+typedef uint64_t DecimalPosition;
+
+enum Currency {
+    GBP,
+    USD,
+    JPY,
+    EUR,
+    AUD,
+    CAD,
+    CHF,
+    CNH,
+    HKD,
+    NZD
+};
+
+typedef int64_t AtmCurrency;
+typedef uint64_t AtmID;
+typedef uint64_t UniqueTranscationID;
+
+struct Transaction {
+    TranscationType type;
+    UniqueTranscationID id;
+
+    AtmID atmID;
+    Currency currency;
+    AtmCurrency amount;
+
+    char cardNumber[20];
+    char expiryDate[6];
+    char pinNo[5];
+};
 
 struct Response {
-    int succeeded;
-    double new_balance;
+    ResponseType succeeded;
+    Currency atmCurrency;
+    AtmCurrency newBalance;
+    DecimalPosition dotPosition;
 };
 
 SSL_CTX* create_ssl_context() {
@@ -54,7 +91,7 @@ void atm_client(int atm_id, SSL_CTX *ctx, Transaction transaction) {
     int total_transactions = TRANSACTIONS_PER_MINUTE * SIMULATION_DURATION_MINUTES;
 
     for (int i = 1; i <= total_transactions; ++i) {
-        transaction.withdrawalAmount *= -1;
+        transaction.type = transaction.type ==  DEPOSIT ? WITHDRAWL : DEPOSIT;
         int client_socket = socket(AF_INET, SOCK_STREAM, 0);
         if (client_socket == -1) {
             std::cerr << "ATM " << atm_id << ": Error creating socket\n";
@@ -107,7 +144,7 @@ void atm_client(int atm_id, SSL_CTX *ctx, Transaction transaction) {
         close(client_socket);
 
 
-        transaction.uniqueTransactionID++;
+        transaction.id++;
         if(i != total_transactions) {
             std::this_thread::sleep_for(std::chrono::milliseconds(60000 / TRANSACTIONS_PER_MINUTE));
         }

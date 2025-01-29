@@ -22,8 +22,8 @@ void TransactionLogger::logTransaction(const Transaction& transaction) {
     auto time = std::chrono::system_clock::to_time_t(now);
     std::stringstream transactionDetails;
     transactionDetails << "[" << std::ctime(&time) << "]: "
-                       << "Transaction ID " << transaction.uniquetransactionID
-                       << " | withdrawal of £" << transaction.withdrawalAmount
+                       << "Transaction ID " << transaction.id
+                       << " | withdrawal of £" << transaction.amount
                        << " with card [" << transaction.cardNumber
                        << "] at ATM " << transaction.atmID << "\n";
 

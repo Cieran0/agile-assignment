@@ -174,29 +174,16 @@ private:
     }
 
     void handleAtmRequest(SSL* ssl) {
-        for (int i = 0; i < 2; ++i) { // 2 transactions per minute
-            std::this_thread::sleep_for(std::chrono::seconds(30)); // Wait 30 seconds between transactions
+        Transaction transaction;
+        logger.logTransaction(transaction);
 
-            Transaction transaction = createTransaction();
-            logger.logTransaction(transaction);
-
-            if (SSL_write(ssl, &transaction, sizeof(Transaction)) <= 0) {
-                ERR_print_errors_fp(stderr);
-                return;
-            }
-
-            Response response;
-            if (SSL_read(ssl, &response, sizeof(response)) <= 0) {
-                ERR_print_errors_fp(stderr);
-                return;
-            }
-
-        
-            Response response = sendNetworkMessage(message); // destinattion = messsage.cardnumber[0-3]
-            SSL_write(ssl, &response, sizeof(Response));
-
-            
+        if (SSL_read(ssl, &transaction, sizeof(Transaction)) <= 0) {
+            ERR_print_errors_fp(stderr);
+            return;
         }
+ 
+        Response response = sendNetworkMessage(transaction); // destination = messsage.cardnumber[0-3]
+        SSL_write(ssl, &response, sizeof(Response));
     }
 
     Response sendNetworkMessage(Transaction message) {

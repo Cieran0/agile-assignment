@@ -2,22 +2,58 @@
 
 #include <cstdint>
 
-#define TRANSACTION_SUCESS 0
-#define INSUFFICIENT_FUNDS 1
-#define DATABASE_ERROR 2
-#define INCORRECT_PIN 3
-#define NETWORK_ERROR 4
+typedef uint64_t DecimalPosition;
+
+enum Currency {
+    GBP,
+    USD,
+    JPY,
+    EUR,
+    AUD,
+    CAD,
+    CHF,
+    CNH,
+    HKD,
+    NZD
+};
+
+enum TranscationType {
+    PIN_CHECK,
+    BALANCE_CHECK,
+    WITHDRAWL,
+    DEPOSIT,
+    MOBILE_APROVED_DEPOSIT
+};
+
+enum ResponseType {
+    SUCCESS = 0,
+    INSUFFICIENT_FUNDS = 1,
+    DATABASE_ERROR = 2,
+    INCORRECT_PIN = 3,
+    NETWORK_ERROR = 4,
+    SYSTEM_MAINTENANCE = 5,
+};
+
+typedef int64_t AtmCurrency;
+typedef uint64_t AtmID;
+typedef uint64_t UniqueTranscationID;
 
 struct Transaction {
+    TranscationType type;
+    UniqueTranscationID id;
+
+    AtmID atmID;
+    Currency currency;
+    AtmCurrency amount;
+
     char cardNumber[20];
     char expiryDate[6];
-    uint64_t atmID;
-    uint64_t uniquetransactionID;
     char pinNo[5];
-    double withdrawalAmount;
 };
 
 struct Response {
-    int succeeded;
-    double new_balance;
+    ResponseType succeeded;
+    Currency atmCurrency;
+    AtmCurrency newBalance;
+    DecimalPosition dotPosition;
 };
