@@ -70,7 +70,6 @@ void setCurrency(Currency currency);
 void handleInput(string buttonPressed);
 void handleWithdrawInput(const string& buttonPressed); 
 void handleDepositInput(const string& buttonPressed);
-uint64_t rand_uint64();
 
 void drawCashSlot(const char* text);
 void drawButtons(vector<Button> buttons);
