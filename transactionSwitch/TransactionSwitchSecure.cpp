@@ -74,8 +74,12 @@ public:
         SSL_load_error_strings();
         OpenSSL_add_all_algorithms();
         ctx = createSSLContext();
+        network_sim2_ip = network_sim_ip;
+        network_sim3_ip = network_sim_ip;
+        network_sim2_port = network_sim_port+1;
+        network_sim2_port = network_sim_port+2;
     }
-
+    
     ~TransactionSwitch() {
         SSL_CTX_free(ctx);
         EVP_cleanup();
@@ -101,7 +105,11 @@ public:
 
 private:
     const char* network_sim_ip;
+    const char* network_sim2_ip;
+    const char* network_sim3_ip;
     int network_sim_port;
+    int network_sim2_port;
+    int network_sim3_port;
     TransactionLogger logger;
     SSL_CTX* ctx;
     ThreadPool pool;
@@ -183,18 +191,97 @@ private:
                 return;
             }
 
-            std::cout << "Response received: " << response.succeeded << "\n";
+        
+            Response response = sendNetworkMessage(message); // destinattion = messsage.cardnumber[0-3]
+            SSL_write(ssl, &response, sizeof(Response));
+
+            
         }
     }
 
-    Transaction createTransaction() {
-        Transaction transaction = {};
-        strcpy(transaction.cardNumber, "1234567890123456");
-        strcpy(transaction.expiryDate, "0125");
-        transaction.atmID = 1;
-        transaction.uniquetransactionID = rand();
-        strcpy(transaction.pinNo, "1234");
-        transaction.withdrawalAmount = 50.0;
-        return transaction;
+    Response sendNetworkMessage(Transaction message) {
+    char* host;
+    int port;
+
+    // get first digit
+    char first_digit = message.cardNumber[0]; 
+    
+    if (first_digit >= '0' && first_digit <= '3') {
+        host = (char*)network_sim_ip;  // network_sim_ip will be used for network 1
+        port = network_sim_port; // port for network 1
     }
+    else if (first_digit >= '4' && first_digit <= '6') {
+        host = (char*)network_sim2_ip;  // replace with the actual IP of network 2
+        port = network_sim2_port;  // replace with the actual port of network 2
+    }
+    else {
+        host = (char*)network_sim3_ip;  // replace with actual IP of network 3
+        port = network_sim2_port; // replace with actual port of network 3
+    }
+
+    Response response;
+
+    SSL_CTX *client_ctx = SSL_CTX_new(TLS_client_method());
+    if (!client_ctx) {
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
+
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
+
+    sockaddr_in server_addr = {};
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+    if (inet_pton(AF_INET, host, &server_addr.sin_addr) <= 0) {
+        close(sock);
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
+
+    if (connect(sock, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        close(sock);
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
+
+    SSL *ssl = SSL_new(client_ctx);
+    SSL_set_fd(ssl, sock);
+
+    if (SSL_connect(ssl) <= 0) {
+        SSL_free(ssl);
+        close(sock);
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
+
+    if (SSL_write(ssl, &message, sizeof(message)) <= 0) {
+        SSL_free(ssl);
+        close(sock);
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
+
+    if (SSL_read(ssl, &response, sizeof(response)) <= 0) {
+        SSL_free(ssl);
+        close(sock);
+        SSL_CTX_free(client_ctx);
+        response.succeeded = NETWORK_ERROR;
+        return response;
+    }
+
+    SSL_free(ssl);
+    close(sock);
+    SSL_CTX_free(client_ctx);
+    return response;
+}
+
 };
