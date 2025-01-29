@@ -38,7 +38,7 @@ void handleInput(string buttonPressed) {
             balance = a1.testBalance;
         }
          else {
-            displayText = "Incorrect pin. try again";
+            displayText = getStringInLanguage("INCORRECT_PIN_TEXT");
             input.clear();
             updatePinDisplay();
             setScreen(EnterPin);
@@ -50,12 +50,12 @@ void handleWithdrawInput(const string& buttonPressed) {
     genericInputHandler(buttonPressed, MainMenu, 10, (!input.empty()), [] {
         int amount = std::stof(input);
         if (amount > balance) {
-            withdrawlText = "Insufficient funds";
+            withdrawlText = getStringInLanguage("INSUFFICIENT_FUNDS_TEXT");
             input.clear();
         } else {
             Response r = forwardToSocket(WITHDRAWAL, atmID, currentCurrency, amount, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
             // Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, enteredPIN, amount);
-            if(r.succeeded == 0) {
+            if (r.succeeded == 0) {
                 balance = r.newBalance;
                 input.clear();
                 setScreen(MainMenu);

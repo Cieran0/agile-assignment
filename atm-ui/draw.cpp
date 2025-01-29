@@ -29,11 +29,11 @@ int atmY;
 
 void drawATM(const char* text){
     drawATMScreen(text);
-    drawCashSlot("INSERTED CARD");
+    drawCashSlot(getStringInLanguage("INSERTED_CARD_TEXT").c_str());
     drawSideButtons();
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
-    drawCashSlot("INSERT CARD HERE");
+    drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
 }
 
 void accessabilityView(){
@@ -55,11 +55,11 @@ void drawCashSlot(const char* text) {
     if (GuiButton(cashSlotButton, text)) {
         setScreen(LanguageSelect);
         resetGlobalTextVariables();
-        displayText = "Please enter your PIN:";
+        displayText = getStringInLanguage("PIN_PROMPT");
     }
 
     DrawRectangle(startX, atmY + 720, slotWidth, slotHeight, DARKGRAY);
-    DrawText("TAKE YOUR RECEIPT", startX + 10, atmY + 730, 20, WHITE);
+    DrawText(getStringInLanguage("TAKE_RECEIPT_TEXT").c_str(), startX + 10, atmY + 730, 20, WHITE);
 }
 
 void drawButtons(vector<Button> buttons) {
@@ -125,7 +125,7 @@ void drawPrintedReciept() {
     int x = (screenWidth - recieptWidth) / 2;
     int y = screenHeight - recieptHeight - (screenHeight / 10);
 
-    std::string balanceString = "Account balance: " + std::to_string(a1.testBalance);
+    std::string balanceString = getStringInLanguage("BALANCE_TEXT") + std::to_string(a1.testBalance);
 
     Rectangle reciept = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(recieptWidth), static_cast<float>(recieptHeight)};
 
@@ -390,9 +390,9 @@ void processingScreen(string messageToPrint) {
     static int counter = 0;
     if (counter < 60*5) {
         counter++;
-        DrawText("Processing...", 470, 170, 20, ATM_TEXT);
+        DrawText(getStringInLanguage("PROCESSING_TEXT").c_str(), 470, 170, 20, ATM_TEXT);
     } else {
-        DrawText("Printing successful. ", 200, 500, 40, BLACK);
+        DrawText(getStringInLanguage("PRINTING_SUCCESSFUL_TEXT").c_str(), 200, 500, 40, BLACK);
         if (GuiButton({200, 600, 200, 50}, "Back")) {
             setScreen(MainMenu); 
         }
@@ -413,8 +413,18 @@ void drawLanguages() {
         {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Spanish", EnterPin},
         {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "French", EnterPin},
         {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "German", EnterPin}
-
     };
 
+    for(auto& button : buttons) {
+        if (GuiButton(button.bounds, button.text)) {
+            if (button.text == "English") setLanguage(ENGLISH);
+            else if (button.text == "Spanish") setLanguage(SPANISH);
+            else if (button.text == "French") setLanguage(FRENCH);
+            else if (button.text == "German") setLanguage(GERMAN);
+            setScreen(EnterPin); 
+        }
+    }
+
     drawButtons(buttons); 
+
 }
