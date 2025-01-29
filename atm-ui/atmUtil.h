@@ -93,7 +93,7 @@ extern string input;
 extern string keyPad[5][3];
 extern std::string cardNumber;
 extern std::string expiryDate;
-extern char currencySymbol;
+extern std::string currencySymbol;
 extern Currency currentCurrency;
 extern double balance;
 extern enum Screen screen;

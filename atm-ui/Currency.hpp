@@ -14,5 +14,4 @@ enum Currency {
     CNH,
     HKD,
     NZD
-
 };

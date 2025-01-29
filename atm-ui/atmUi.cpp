@@ -7,7 +7,6 @@
 
 using namespace std;
 
-string atmID;
 string transactionID;
 string pin;
 double withdrawalAmount;
