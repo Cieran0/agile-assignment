@@ -39,20 +39,20 @@ void DatabaseLogger(const Transaction& transaction) {
 void txtLogger(const Transaction& transaction){
 
     std::string message;
-    if(transaction.withdrawalAmount == 0){ 
+    if(transaction.type == BALANCE_CHECK){ 
         message = std::format("[{}]: Transaction ID {} | Card number [{}] checked balance at ATM {} {}",
             std::chrono::system_clock::now(),
-            transaction.uniqueTransactionID, 
-            transaction.withdrawalAmount,
+            transaction.id, 
+            transaction.amount,
             transaction.cardNumber,
             transaction.atmID
         );
     }
-    else if(transaction.withdrawalAmount < 0){   
+    else if(transaction.type == DEPOSIT){   
         message = std::format("[{}]: Transaction ID {} | Deposit of £{} with card [{}] at ATM {}",
             std::chrono::system_clock::now(),
-            transaction.uniqueTransactionID, 
-            -transaction.withdrawalAmount,
+            transaction.id, 
+            -transaction.amount,
             transaction.cardNumber,
             transaction.atmID
         );
@@ -60,8 +60,8 @@ void txtLogger(const Transaction& transaction){
     else{
         message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
             std::chrono::system_clock::now(),
-            transaction.uniqueTransactionID, 
-            transaction.withdrawalAmount,
+            transaction.id, 
+            transaction.amount,
             transaction.cardNumber,
             transaction.atmID
         );
