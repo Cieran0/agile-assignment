@@ -272,6 +272,7 @@ void setCurrency(Currency currency) {
 void screenInit() {
     InitWindow(0, 0, "raygui - NCR ATM");
     setupGuiStyle();
+    SetWindowSize(1920,1200);
     ToggleFullscreen();
     SetTargetFPS(60);
     screenWidth = GetMonitorWidth(0);  
@@ -398,6 +399,9 @@ void processingScreen(string messageToPrint) {
         }
     }
 }
+
+
+
 
 void drawLanguages() {
     int buttonWidth = 350;

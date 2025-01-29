@@ -83,6 +83,8 @@ void drawAtmCasing();
 void drawSideButtons();
 void drawKeypadAndCardBackground();
 
+
+
 void drawATM(const char* text);
 
 extern vector<string> inputs;
