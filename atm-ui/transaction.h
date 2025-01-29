@@ -3,7 +3,7 @@
 #include "Currency.hpp"
 
 
-enum TranscationType {
+enum TransactionType {
     PIN_CHECK,
     BALANCE_CHECK,
     WITHDRAWAL,
@@ -25,7 +25,7 @@ typedef uint64_t AtmID;
 typedef uint64_t UniqueTranscationID;
 
 struct Transaction {
-    TranscationType type;
+    TransactionType type;
     UniqueTranscationID id;
 
     AtmID atmID;
