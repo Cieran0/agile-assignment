@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <atomic>
+#include "raylib.h"
 
 const std::string SERVER_IP = "127.0.0.1";
 int NUMBER_OF_ATMS = 100;
@@ -34,7 +36,6 @@ struct Response {
     double new_balance;
 };
 
-// Initialize OpenSSL
 SSL_CTX* create_ssl_context() {
     SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
     if (!ctx) {
@@ -45,17 +46,21 @@ SSL_CTX* create_ssl_context() {
     return ctx;
 }
 
-// ATM Client Function (TLS-secured)
+std::atomic<int> passed = 0;
+std::atomic<int> failed = 0;
+
+
 void atm_client(int atm_id, SSL_CTX *ctx, Transaction transaction) {
     int total_transactions = TRANSACTIONS_PER_MINUTE * SIMULATION_DURATION_MINUTES;
 
     for (int i = 1; i <= total_transactions; ++i) {
         transaction.withdrawalAmount *= -1;
-        // Create socket and connect
         int client_socket = socket(AF_INET, SOCK_STREAM, 0);
         if (client_socket == -1) {
             std::cerr << "ATM " << atm_id << ": Error creating socket\n";
-            continue; // Skip to next transaction
+            failed.fetch_add(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(60000 / TRANSACTIONS_PER_MINUTE));
+            continue; 
         }
 
         sockaddr_in server_addr{};
@@ -66,10 +71,11 @@ void atm_client(int atm_id, SSL_CTX *ctx, Transaction transaction) {
         if (connect(client_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
             std::cerr << "ATM " << atm_id << ": Connection failed\n";
             close(client_socket);
-            continue; // Skip to next transaction
+            failed.fetch_add(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(60000 / TRANSACTIONS_PER_MINUTE));
+            continue;
         }
 
-        // Create SSL structure
         SSL *ssl = SSL_new(ctx);
         SSL_set_fd(ssl, client_socket);
 
@@ -78,22 +84,24 @@ void atm_client(int atm_id, SSL_CTX *ctx, Transaction transaction) {
             ERR_print_errors_fp(stderr);
             SSL_free(ssl);
             close(client_socket);
-            continue; // Skip to next transaction
+             failed.fetch_add(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(60000 / TRANSACTIONS_PER_MINUTE));
+            continue;
         }
 
         std::cout << "ATM " << atm_id << " connected to server securely\n";
 
-        // Send transaction data
         SSL_write(ssl, &transaction, sizeof(transaction));
 
         Response response;
         SSL_read(ssl, &response, sizeof(response));
 
         if (response.succeeded != 0) {
-            std::cout << "Transaction failed!" << std::endl;
+            failed.fetch_add(1);
+        } else {
+            passed.fetch_add(1);
         }
 
-        // Clean up after transaction
         SSL_shutdown(ssl);
         SSL_free(ssl);
         close(client_socket);
@@ -213,7 +221,6 @@ std::vector<Transaction> getTranscations() {
     return transactions;
 }
 
-// Run Simulation
 void run_atm_simulation(int num_atms) {
     SSL_CTX *ctx = create_ssl_context();
     std::vector<std::thread> atm_threads;
@@ -227,15 +234,89 @@ void run_atm_simulation(int num_atms) {
         if (t.joinable()) t.join();
     }
 
-    SSL_CTX_free(ctx);  // Cleanup SSL context
+    SSL_CTX_free(ctx);
     std::cout << "ATM simulation completed.\n";
 }
 
+void start(std::thread& simulation_thread) {
+    simulation_thread = std::thread(run_atm_simulation, NUMBER_OF_ATMS);
+}
+
 int main(int argc, char *argv[]) {
+    InitWindow(1920, 1210, "100 ATM - Test");
+    int start_len = MeasureText("Start", 66);
+    int running_len = MeasureText("Running", 66);
+    bool running = false;
+    int current_timepoint = 1;
+    int passed_at_seconds[600] = {0};
+    int failed_at_seconds[600] = {0};
+    std::chrono::time_point lastUpdateTime = std::chrono::steady_clock::now();
 
-    run_atm_simulation(NUMBER_OF_ATMS);
+    std::thread simulation_thread;
 
-    EVP_cleanup();
+
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        std::chrono::time_point currentTime = std::chrono::steady_clock::now();
+        int64_t elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastUpdateTime).count();
+
+        if (running && elapsedTime >= 500 && current_timepoint < 600) { 
+            passed_at_seconds[current_timepoint] = passed;
+            failed_at_seconds[current_timepoint] = failed;
+            current_timepoint++;
+            lastUpdateTime = currentTime;
+        }
+
+        ClearBackground(LIGHTGRAY);
+        DrawRectangle(0,0,60,1150, DARKGRAY);
+        DrawRectangle(0,1150,1920,60, DARKGRAY);
+        DrawRectangle(1920-60,0,60,1150, DARKGRAY);
+        DrawRectangle(0,0, 1920, (1080 * 0.125), DARKGRAY);
+        DrawRectangle(1920 - (256 + 64) - 5, (1080 * 0.125) / 4 - 5, 256 + 10, (1080 * 0.125) / 2 + 10, running ? GREEN : DARKGREEN);
+        DrawRectangle(1920 - (256 + 64), (1080 * 0.125) / 4, 256, (1080 * 0.125) / 2,  running ? DARKGREEN : GREEN);
+        if(running) {
+            DrawText("Running", 1920 - (256 + 64) + (256 - running_len)/2, (1080 * 0.125) / 4 , 66, BLACK);
+        } else {
+            DrawText("Start", 1920 - (256 + 64) + (256 - start_len)/2, (1080 * 0.125) / 4 , 66, BLACK);
+        }
+
+        for (int i = 0; i < 5*2; i++)
+        {
+            DrawLine(60 + i * (1800/10), 135, 60 + i * (1800/10), 1150, BLACK);
+        }
+        
+        if(!running && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            int x = GetMouseX();
+            int y = GetMouseY();    
+
+            if ((x >= 1920 - (256 + 64) && x <= (1920 - (256 + 64)) + (256)) 
+            && y >= (1080 * 0.125) / 4 && y <= ((1080 * 0.125) / 4) + ((1080 * 0.125) / 2)) {
+                running = true;
+                start(simulation_thread);
+            }
+
+        }
+
+
+        int passed_int = passed;
+        int failed_int = failed;
+        int total = passed_int+failed_int;
+
+        std::cout << passed_int << " : " << failed << " : " << total << std::endl;
+
+        const char* passed_string = TextFormat("%d/%d Passed", passed_int, total);
+        DrawText(passed_string, 192/5 , ((1080 * 0.125) / 4), 66, BLACK);
+
+        for(int i = 0; i < current_timepoint; i++) {
+            DrawRectangle((i-1)*3 + 60, 1150 - failed_at_seconds[i], 3, failed_at_seconds[i], RED);
+            DrawRectangle((i-1)*3 + 60, 1150 - passed_at_seconds[i], 3, passed_at_seconds[i], LIME);
+        }
+        EndDrawing();
+    }
+
+    CloseWindow();
+
+    simulation_thread.join();
 
     return 0;
 }
