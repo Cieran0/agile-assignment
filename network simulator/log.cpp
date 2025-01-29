@@ -27,9 +27,9 @@ void DatabaseLogger(const Transaction& transaction) {
     std::string sql = std::format(
         "INSERT INTO Transactions (TransactionID, ATM_ID, WithdrawlAmount, CardNumber) "
         "VALUES ({}, {}, {}, '{}');",
-        transaction.uniqueTransactionID,
+        transaction.id,
         transaction.atmID,
-        transaction.withdrawalAmount,
+        transaction.amount,
         transaction.cardNumber
     );
 
@@ -37,6 +37,7 @@ void DatabaseLogger(const Transaction& transaction) {
 }
 
 void txtLogger(const Transaction& transaction){
+
     std::string message;
     if(transaction.withdrawalAmount == 0){ 
         message = std::format("[{}]: Transaction ID {} | Card number [{}] checked balance at ATM {} {}",
@@ -74,8 +75,8 @@ void txtLogger(const Transaction& transaction){
 void ConsoleLogger(const Transaction& transaction) {
     std::string console_message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
         std::chrono::system_clock::now(),
-        transaction.uniqueTransactionID, 
-        transaction.withdrawalAmount,
+        transaction.id, 
+        transaction.amount,
         transaction.cardNumber,
         transaction.atmID
     );
