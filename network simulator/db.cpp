@@ -145,9 +145,14 @@ void emptyTransactionLogs(sqlite3* db) {
 void processTransactionQueue() {
     sqlite3* db;
 
-    if (sqlite3_open("database.db", &db) != SQLITE_OK) {
+    if (sqlite3_open(db_file, &db) != SQLITE_OK) {
         std::cerr << "Failed to open the database in the worker thread: " 
                   << sqlite3_errmsg(db) << std::endl;
+        return;
+    }
+
+    if(initConversionRates(db) != 0 || initCurrencyPositions(db) !=0){
+        std::cerr << "failed to initialise" << std::endl;
         return;
     }
 
