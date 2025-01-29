@@ -12,3 +12,5 @@ extern std::condition_variable queueCondition;
 using TransactionPromise = std::pair<Transaction, std::promise<Response>>;
 
 void enqueueTransactionLog(std::string log_sql);
+
+extern char* db_file;
