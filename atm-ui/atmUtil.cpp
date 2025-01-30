@@ -164,4 +164,5 @@ void setScreen(Screen s) {
 void setLanguage(Language language) {
     defaultLanguage = language;
     resetGlobalTextVariables();
+    setScreen(EnterPin); 
 }

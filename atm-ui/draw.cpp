@@ -356,7 +356,64 @@ void drawSideButtons(const vector<Button>& buttons) {
     }
 }
 
+void drawSideButtons(const vector<std::pair<string, std::function<void()>>>& buttonActions) {
+    int buttonWidth = 90;
+    int buttonHeight = 70;
+    int buttonSpacing = 50;
+    int verticalSpacing = 40;
+    int fontSize = 20;
+    Color textColor = BLACK;
 
+    int startXLeft = atmX - buttonWidth - 15;
+    int startXRight = atmX + atmWidth + 20;
+
+    int startY = atmY + 50;
+    
+    // Split buttons into halfs
+    for (int pairIndex = 0; pairIndex < (buttonActions.size() + 1) / 2; pairIndex++) {
+        float btnY = startY + pairIndex * (buttonHeight + verticalSpacing);
+
+        // Left button
+        int leftButtonIndex = pairIndex * 2;
+        if (leftButtonIndex < buttonActions.size()) {
+            Rectangle btnRectLeft = {
+                static_cast<float>(startXLeft),
+                btnY,
+                static_cast<float>(buttonWidth),
+                static_cast<float>(buttonHeight)
+            };
+
+            if (GuiButton(btnRectLeft, ">")) {
+                buttonActions[leftButtonIndex].second();
+            }
+            
+            int textWidth = MeasureText(buttonActions[leftButtonIndex].first.c_str(), fontSize);
+            float textXLeft = btnRectLeft.x + btnRectLeft.width + buttonSpacing;
+            float textY = btnRectLeft.y + (btnRectLeft.height / 2) - (fontSize / 2);
+            DrawText(buttonActions[leftButtonIndex].first.c_str(), textXLeft, textY, fontSize, textColor);
+        }
+
+        // Right button
+        int rightButtonIndex = pairIndex * 2 + 1;
+        if (rightButtonIndex < buttonActions.size()) {
+            Rectangle btnRectRight = {
+                static_cast<float>(startXRight),
+                btnY,
+                static_cast<float>(buttonWidth),
+                static_cast<float>(buttonHeight)
+            };
+
+            if (GuiButton(btnRectRight, "<")) {
+                buttonActions[rightButtonIndex].second();
+            }
+
+            int textWidth = MeasureText(buttonActions[rightButtonIndex].first.c_str(), fontSize);
+            float textXRight = btnRectRight.x - textWidth - buttonSpacing;
+            float textY = btnRectRight.y + (btnRectRight.height / 2) - (fontSize / 2);
+            DrawText(buttonActions[rightButtonIndex].first.c_str(), textXRight, textY, fontSize, textColor);
+        }
+    }
+}
 
 void drawATMScreen(const char* text) {
     DrawRectangle(atmX, atmY, atmWidth, atmHeight, ATM_BACKGROUND);
@@ -434,23 +491,12 @@ void drawLanguages() {
     int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
     int startX = atmX + 50;
 
-    vector<Button> buttons = {
-        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, "English", EnterPin},
-        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Español", EnterPin},
-        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Français", EnterPin},
-        {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Deutsch", EnterPin}
+    vector<std::pair<string, std::function<void()>>> sideButtons = {
+        {"English", []() { setLanguage(ENGLISH); }},
+        {"Español", []() { setLanguage(SPANISH); }},
+        {"Français", []() { setLanguage(FRENCH); }},
+        {"Deutsch", []() { setLanguage(GERMAN); }}
     };
 
-    for(auto& button : buttons) {
-        if (GuiButton(button.bounds, button.text)) {
-            if (button.text == "English") setLanguage(ENGLISH);
-            else if (button.text == "Español") setLanguage(SPANISH);
-            else if (button.text == "Français") setLanguage(FRENCH);
-            else if (button.text == "Deutsch") setLanguage(GERMAN);
-            setScreen(EnterPin); 
-        }
-    }
-
-    drawButtons(buttons); 
-
+    drawSideButtons(sideButtons);
 }
