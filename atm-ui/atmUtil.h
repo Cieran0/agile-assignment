@@ -79,9 +79,10 @@ struct Button {
     Screen nextScreen;
 };
 
-struct testAccount {
-std::string localPin;
-double testBalance;
+struct account {
+    std::string accountNo;
+    std::string expiryDate;
+    double balance;
 };
 
 
@@ -136,6 +137,9 @@ extern enum Currency currency;
 extern uint64_t atmID;
 extern std::map<std::string, std::string> englishStrings;
 extern enum Language defaultLanguage;
+extern account a1;
+extern account a2;
+extern account a3;
 
 extern int atmWidth;
 extern int atmHeight;

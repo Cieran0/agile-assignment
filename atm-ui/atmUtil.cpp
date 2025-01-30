@@ -15,9 +15,10 @@ uint64_t atmID = rand_uint64();
 enum Screen screen = WaitingForCard;
 enum Language defaultLanguage = ENGLISH;
 
-std::string cardNumber = "5030153826527268";
-std::string expiryDate = "06/28";
-double balance = 0;
+account a1 = {accountNo: "5030153826527268", expiryDate: "06/28", balance: 0.0};
+//a1.accountNo = "5030153826527268";
+//std::string expiryDate = "06/28";
+//double balance = 0;
 
 // shouldve probably used an enum here but too late
 std::map<std::string, std::string> englishStrings {
