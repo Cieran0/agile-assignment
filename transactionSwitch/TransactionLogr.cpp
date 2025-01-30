@@ -1,8 +1,7 @@
-// TransactionLogr.cpp
 #include "TransactionLogr.h"
 #include "Transaction.h"
 #include <iostream>
-#include <format>
+#include <sstream>
 #include <chrono>
 
 TransactionLogger::TransactionLogger() {
@@ -19,19 +18,19 @@ TransactionLogger::~TransactionLogger() {
 }
 
 void TransactionLogger::logTransaction(const Transaction& transaction) {
-   std::string transactionDetails = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}\n",
-        std::chrono::system_clock::now(),
-        transaction.uniquetransactionID, 
-        transaction.withdrawalAmount,
-        transaction.cardNumber,
-        transaction.atmID
-    );
-   
+    auto now = std::chrono::system_clock::now();
+    auto time = std::chrono::system_clock::to_time_t(now);
+    std::stringstream transactionDetails;
+    transactionDetails << "[" << std::ctime(&time) << "]: "
+                       << "Transaction ID " << transaction.id
+                       << " | withdrawal of £" << transaction.amount
+                       << " with card [" << transaction.cardNumber
+                       << "] at ATM " << transaction.atmID << "\n";
+
     if (logFile.is_open()) {
-        logFile << transactionDetails;
-        std::cout << transactionDetails;
-    }
-    else {
-        std::cerr << "Failed to log transaction: " << transactionDetails << std::endl;
+        logFile << transactionDetails.str();
+        std::cout << transactionDetails.str();
+    } else {
+        std::cerr << "Failed to log transaction: " << transactionDetails.str() << std::endl;
     }
 }

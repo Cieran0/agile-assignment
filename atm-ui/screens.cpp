@@ -1,4 +1,5 @@
 #include "atmUtil.h"
+#include "raygui.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -52,11 +53,12 @@ void displayTransactionChoices() {
         {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, getStringInLanguage("EXIT_BTN_TEXT").c_str(), WaitingForCard}
 
     };
+ 
 
     drawButtons(buttons); 
     drawSideButtons();    
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(doNothing);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
 }
 
@@ -89,8 +91,9 @@ void drawBalanceChoices() {
     drawButtons(buttons);
     drawSideButtons();    
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(doNothing);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
+
 }
 
 void viewBalance() {
@@ -104,18 +107,18 @@ void viewBalance() {
     drawButtons(buttons);
     drawSideButtons();
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(doNothing);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
+
 }
 
 void drawDepositMenu() {
     drawATMScreen(getStringInLanguage("DEPOSIT_TEXT").c_str());
     drawMoney(input);
-    drawKeypad(handleDepositInput);
     drawCashSlot("INSERT CASH HERE");
     drawSideButtons();
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(handleDepositInput);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
 }
 
@@ -151,7 +154,59 @@ void printBalance() {
 
 void fontSizes(){
     // guibutton
+    drawKeypad(doNothing);
+    drawCashSlot("INSERT CARD HERE");
 }
+
+
+void screenSizes(){
+
+    drawATMScreen("Select an option:");
+    int buttonWidth = 350;
+    int buttonHeight = 60;
+    int buttonSpacing = 110; 
+
+    int totalButtonHeight = (4 * buttonHeight) + (3 * buttonSpacing);
+    int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
+    int startX = atmX + 50;
+
+    vector<Button> sizeOptionbuttons = {
+
+        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, "Small", displayOptions},
+        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Medium", displayOptions},
+        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Big", displayOptions},
+        {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Exit", WaitingForCard}
+
+    }; 
+    for (auto&button : sizeOptionbuttons){
+        if (GuiButton(button.bounds, button.text)){
+            if (button.text == "Small"){
+              SetWindowSize(800,500);
+              atmHeight = 500;
+              atmWidth = 375;
+            }
+            else if (button.text == "Medium"){
+
+              SetWindowSize(1600,1000);
+              atmHeight = 1000;
+              atmWidth = 750;             
+            }
+            else if (button.text == "Big"){
+              SetWindowSize(1920,1200);
+              atmHeight = 1200;
+              atmWidth = 900;
+            }
+            else{
+                setScreen(WaitingForCard);
+            }
+
+        }
+    }
+    drawButtons(sizeOptionbuttons);
+     
+}
+
+
 
 const std::unordered_map<Screen, std::function<void()>> screens = {
     {WaitingForCard, drawWaitingForCard},
@@ -163,7 +218,7 @@ const std::unordered_map<Screen, std::function<void()>> screens = {
     {BalanceAmount, viewBalance},
     {Deposit, drawDepositMenu},
     {PrintBalance, printBalance},
-    {displayOptions, fontSizes}
+    {displayOptions, screenSizes}
 };
 
 void screenManager() {

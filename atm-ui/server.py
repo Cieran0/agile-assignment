@@ -106,8 +106,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     # TLS certificate and key files
-    certfile = 'server_cert.pem'
-    keyfile = 'server_key.pem'
+    certfile = 'server.crt'
+    keyfile = 'server.key'
 
     # Start the server on localhost:65432
     start_tls_server('localhost', 6667, certfile, keyfile)

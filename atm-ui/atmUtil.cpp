@@ -19,8 +19,6 @@ std::string cardNumber = "5030153826527268";
 std::string expiryDate = "06/28";
 double balance = 0;
 
-testAccount a1 = {localPin: "1234", testBalance : 1000};
-
 // shouldve probably used an enum here but too late
 std::map<std::string, std::string> englishStrings {
     {"PIN_PROMPT", "Please enter your PIN:"},
