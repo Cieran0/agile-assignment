@@ -50,7 +50,12 @@ void displayTransactionChoices() {
         {{}, "Balance Inquiry", Balance},
         {{}, "Cash Withdrawal", Withdraw},
         {{}, "Deposit", Deposit},
-        {{}, "Exit", WaitingForCard}
+        {{}, "Exit", WaitingForCard},
+        {{}, "", {}},
+        {{}, "", {}},
+        {{}, "", {}},
+        {{}, "", {}}
+
     };
 
     drawSideButtons(sideButtons);
@@ -82,7 +87,13 @@ void drawBalanceChoices() {
     vector<Button> sideButtons = {
         {{}, "View Balance", BalanceAmount},
         {{}, "Print Balance", PrintBalance},
-        {{}, "Back to Main Menu", MainMenu}
+        {{}, "Back to Main Menu", MainMenu},
+        {{}, "", {}},
+        {{}, "", {}},
+        {{}, "", {}},
+        {{}, "", {}},
+        {{}, "", {}},
+
     };
 
     drawSideButtons(sideButtons);
@@ -98,11 +109,21 @@ void viewBalance() {
     int textY = atmY + 40; 
 
     DrawTextB("Your Current Balance:", textX, textY, 30, ATM_TEXT);
+
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << balance;
-    DrawTextB((currencySymbol + ss.str()).c_str(), textX, textY + 100, 40, ATM_TEXT);
+    DrawTextB((currencySymbol + ss.str()).c_str(), textX + 40, textY + 100, 50, ATM_TEXT);
 
-
+    float buttonWidth  = 350;
+    float buttonHeight = 60;
+    float buttonX = atmX + (atmWidth - buttonWidth) / 2;
+    float buttonY = textY + 200;
+    
+    vector<Button> buttons = {
+        {{ buttonX, buttonY, buttonWidth, buttonHeight }, "Back to Main Menu", MainMenu}
+    };
+    
+    drawButtons(buttons);
     drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(doNothing);
@@ -114,7 +135,6 @@ void drawDepositMenu() {
     drawATMScreen(getStringInLanguage("DEPOSIT_TEXT").c_str());
     drawMoney(input);
     drawSideButtons({});
-    drawKeypad(handleDepositInput);
     drawCashSlot("INSERT CASH HERE");
     drawKeypadAndCardBackground();
     drawKeypad(handleDepositInput);

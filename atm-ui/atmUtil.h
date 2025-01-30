@@ -116,8 +116,6 @@ void drawAtmCasing();
 void drawSideButtons(const vector<Button>& buttons);
 void drawKeypadAndCardBackground();
 
-
-
 void drawATM(const char* text);
 
 extern vector<string> inputs;

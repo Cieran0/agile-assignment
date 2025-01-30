@@ -305,54 +305,50 @@ void drawSideButtons(const vector<Button>& buttons) {
 
     int startXLeft = atmX - buttonWidth - 15;
     int startXRight = atmX + atmWidth + 20;
-
     int startY = atmY + 50;
-    
-    // Split buttons into halfs
-    for (int pairIndex = 0; pairIndex < (buttons.size() + 1) / 2; pairIndex++) {
-        float btnY = startY + pairIndex * (buttonHeight + verticalSpacing);
 
-        // Left button
-        int leftButtonIndex = pairIndex * 2;
-        if (leftButtonIndex < buttons.size()) {
-            Rectangle btnRectLeft = {
-                static_cast<float>(startXLeft),
-                btnY,
-                static_cast<float>(buttonWidth),
-                static_cast<float>(buttonHeight)
-            };
+    int halfCount = (int)((buttons.size() + 1) / 2);
 
-            if (GuiButton(btnRectLeft, ">")) {
-                setScreen(buttons[leftButtonIndex].nextScreen);
-                break;
-            }
-            
-            int textWidth = MeasureText(buttons[leftButtonIndex].text, fontSize);
-            float textXLeft = btnRectLeft.x + btnRectLeft.width + buttonSpacing;
-            float textY = btnRectLeft.y + (btnRectLeft.height / 2) - (fontSize / 2);
-            DrawText(buttons[leftButtonIndex].text, textXLeft, textY, fontSize, textColor);
+    for (int i = 0; i < halfCount; i++) {
+        float btnY = startY + i * (buttonHeight + verticalSpacing);
+
+        Rectangle btnRectLeft = {
+            static_cast<float>(startXLeft),
+            btnY,
+            static_cast<float>(buttonWidth),
+            static_cast<float>(buttonHeight)
+        };
+
+        if (GuiButton(btnRectLeft, ">")) {
+            setScreen(buttons[i].nextScreen);
+            break; 
         }
 
-        // Right button
-        int rightButtonIndex = pairIndex * 2 + 1;
-        if (rightButtonIndex < buttons.size()) {
-            Rectangle btnRectRight = {
-                static_cast<float>(startXRight),
-                btnY,
-                static_cast<float>(buttonWidth),
-                static_cast<float>(buttonHeight)
-            };
+        int textWidth = MeasureText(buttons[i].text, fontSize);
+        float textXLeft = btnRectLeft.x + btnRectLeft.width + buttonSpacing;
+        float textY = btnRectLeft.y + (btnRectLeft.height / 2) - (fontSize / 2);
+        DrawText(buttons[i].text, textXLeft, textY, fontSize, textColor);
+    }
 
-            if (GuiButton(btnRectRight, "<")) {
-                setScreen(buttons[rightButtonIndex].nextScreen);
-                break;
-            }
+    for (int i = halfCount; i < (int)buttons.size(); i++) {
+        float btnY = startY + (i - halfCount) * (buttonHeight + verticalSpacing);
 
-            int textWidth = MeasureText(buttons[rightButtonIndex].text, fontSize);
-            float textXRight = btnRectRight.x - textWidth - buttonSpacing;
-            float textY = btnRectRight.y + (btnRectRight.height / 2) - (fontSize / 2);
-            DrawText(buttons[rightButtonIndex].text, textXRight, textY, fontSize, textColor);
+        Rectangle btnRectRight = {
+            static_cast<float>(startXRight),
+            btnY,
+            static_cast<float>(buttonWidth),
+            static_cast<float>(buttonHeight)
+        };
+
+        if (GuiButton(btnRectRight, "<")) {
+            setScreen(buttons[i].nextScreen);
+            break;
         }
+
+        int textWidth = MeasureText(buttons[i].text, fontSize);
+        float textXRight = btnRectRight.x - textWidth - buttonSpacing;
+        float textY = btnRectRight.y + (btnRectRight.height / 2) - (fontSize / 2);
+        DrawText(buttons[i].text, textXRight, textY, fontSize, textColor);
     }
 }
 
@@ -366,52 +362,48 @@ void drawSideButtons(const vector<std::pair<string, std::function<void()>>>& but
 
     int startXLeft = atmX - buttonWidth - 15;
     int startXRight = atmX + atmWidth + 20;
-
     int startY = atmY + 50;
-    
-    // Split buttons into halfs
-    for (int pairIndex = 0; pairIndex < (buttonActions.size() + 1) / 2; pairIndex++) {
-        float btnY = startY + pairIndex * (buttonHeight + verticalSpacing);
 
-        // Left button
-        int leftButtonIndex = pairIndex * 2;
-        if (leftButtonIndex < buttonActions.size()) {
-            Rectangle btnRectLeft = {
-                static_cast<float>(startXLeft),
-                btnY,
-                static_cast<float>(buttonWidth),
-                static_cast<float>(buttonHeight)
-            };
+    int halfCount = (int)((buttonActions.size() + 1) / 2);
 
-            if (GuiButton(btnRectLeft, ">")) {
-                buttonActions[leftButtonIndex].second();
-            }
-            
-            int textWidth = MeasureText(buttonActions[leftButtonIndex].first.c_str(), fontSize);
-            float textXLeft = btnRectLeft.x + btnRectLeft.width + buttonSpacing;
-            float textY = btnRectLeft.y + (btnRectLeft.height / 2) - (fontSize / 2);
-            DrawText(buttonActions[leftButtonIndex].first.c_str(), textXLeft, textY, fontSize, textColor);
+    for (int i = 0; i < halfCount; i++) {
+        float btnY = startY + i * (buttonHeight + verticalSpacing);
+
+        Rectangle btnRectLeft = {
+            (float)startXLeft,
+            btnY,
+            (float)buttonWidth,
+            (float)buttonHeight
+        };
+
+        if (GuiButton(btnRectLeft, ">")) {
+            buttonActions[i].second(); 
         }
 
-        // Right button
-        int rightButtonIndex = pairIndex * 2 + 1;
-        if (rightButtonIndex < buttonActions.size()) {
-            Rectangle btnRectRight = {
-                static_cast<float>(startXRight),
-                btnY,
-                static_cast<float>(buttonWidth),
-                static_cast<float>(buttonHeight)
-            };
+        int textWidth = MeasureText(buttonActions[i].first.c_str(), fontSize);
+        float textXLeft = btnRectLeft.x + btnRectLeft.width + buttonSpacing;
+        float textY = btnRectLeft.y + (btnRectLeft.height / 2) - (fontSize / 2);
+        DrawText(buttonActions[i].first.c_str(), textXLeft, textY, fontSize, textColor);
+    }
 
-            if (GuiButton(btnRectRight, "<")) {
-                buttonActions[rightButtonIndex].second();
-            }
+    for (int i = halfCount; i < (int)buttonActions.size(); i++) {
+        float btnY = startY + (i - halfCount) * (buttonHeight + verticalSpacing);
 
-            int textWidth = MeasureText(buttonActions[rightButtonIndex].first.c_str(), fontSize);
-            float textXRight = btnRectRight.x - textWidth - buttonSpacing;
-            float textY = btnRectRight.y + (btnRectRight.height / 2) - (fontSize / 2);
-            DrawText(buttonActions[rightButtonIndex].first.c_str(), textXRight, textY, fontSize, textColor);
+        Rectangle btnRectRight = {
+            (float)startXRight,
+            btnY,
+            (float)buttonWidth,
+            (float)buttonHeight
+        };
+
+        if (GuiButton(btnRectRight, "<")) {
+            buttonActions[i].second();
         }
+
+        int textWidth = MeasureText(buttonActions[i].first.c_str(), fontSize);
+        float textXRight = btnRectRight.x - textWidth - buttonSpacing;
+        float textY = btnRectRight.y + (btnRectRight.height / 2) - (fontSize / 2);
+        DrawText(buttonActions[i].first.c_str(), textXRight, textY, fontSize, textColor);
     }
 }
 
