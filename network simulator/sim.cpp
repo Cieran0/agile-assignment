@@ -10,11 +10,13 @@
 #include "log.hpp"
 #include "sim.hpp"
 #include <fstream>
+#include <filesystem>
 #include "Conversion.hpp"
 
-const int PORT = 6668;
+int PORT = 6668;
 std::atomic<bool> serverRunning(true);
 int sockfd = -1;
+char* db_file;
 
 // Signal handler for graceful shutdown
 void handleSignal(int signal) {
@@ -175,7 +177,39 @@ void joinThreads(std::vector<std::thread>& threadPool) {
     std::cout << "All threads joined!" << std::endl;
 }
 
-int main() {
+bool isInteger(const char* str, int& value) {
+    if (str == nullptr || *str == '\0') return false;
+
+    char* end;
+    long result = std::strtol(str, &end, 10);
+
+
+    if (*end != '\0') return false;
+
+
+    if (result < INT_MIN  || result > INT_MAX) return false;
+
+    value = static_cast<int>(result);
+    return true;
+}
+
+int main(int argc, char* argv[]) {
+    if(argc != 3){
+        std::cerr << "Please provide port and db file" << std::endl;
+        return 1;
+    }
+
+    if(!isInteger(argv[1], PORT)){
+        std::cerr << "PORT is not an integer" << std::endl;
+        return 1;
+    }
+
+    db_file = argv[2];
+    if(!std::filesystem::exists(db_file)){
+        std::cerr << "Database does not exist" << std::endl;
+        return 1;
+    }
+
     std::signal(SIGINT, handleSignal);
 
     log_txt.open("sim_log.txt", std::ios::app);

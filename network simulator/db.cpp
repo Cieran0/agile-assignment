@@ -62,7 +62,7 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
 
 
     AtmCurrency newBalance;
-    if(ConvertCurrency(Currency::GBP, bankCurrency, transaction.amount, newBalance, Rounding::DOWN)) {
+    if(ConvertCurrency(bankCurrency, transaction.currency, currentBankBalance, newBalance, Rounding::DOWN)) {
         response.succeeded = DATABASE_ERROR;
         sqlite3_finalize(stmt);
         return response;
@@ -76,11 +76,15 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
         return response;
     }
 
-    if (transactionAmount > currentBankBalance) {
+    if (transactionAmount > currentBankBalance && transaction.type == WITHDRAWL) {
         response.succeeded = INSUFFICIENT_FUNDS;
         response.dotPosition = currencyDotPosition.at(transaction.currency);
         sqlite3_finalize(stmt);
         return response;
+    }
+
+    if(transaction.type == DEPOSIT) {
+        transactionAmount *= -1;
     }
 
     BankCurrency newBankBalance = currentBankBalance - transactionAmount;
@@ -94,6 +98,12 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
         return response;
     }
     
+    if(ConvertCurrency(bankCurrency, transaction.currency, newBankBalance, newBalance, Rounding::DOWN)) {
+        response.succeeded = DATABASE_ERROR;
+        sqlite3_finalize(stmt);
+        return response;
+    }
+
     response.newBalance = newBalance;
     response.dotPosition = currencyDotPosition.at(transaction.currency);
     response.atmCurrency = transaction.currency;
@@ -145,9 +155,14 @@ void emptyTransactionLogs(sqlite3* db) {
 void processTransactionQueue() {
     sqlite3* db;
 
-    if (sqlite3_open("database.db", &db) != SQLITE_OK) {
+    if (sqlite3_open(db_file, &db) != SQLITE_OK) {
         std::cerr << "Failed to open the database in the worker thread: " 
                   << sqlite3_errmsg(db) << std::endl;
+        return;
+    }
+
+    if(initConversionRates(db) != 0 || initCurrencyPositions(db) !=0){
+        std::cerr << "failed to initialise" << std::endl;
         return;
     }
 
