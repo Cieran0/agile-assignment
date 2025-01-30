@@ -27,7 +27,7 @@ int atmY;
 #include <functional>
 
 void DrawTextB(const char *text, int posX, int posY, int fontSize, Color color) {
-    DrawTextEx(mainFont, text, (Vector2){ posX, posY }, fontSize, 1, color);
+    DrawTextEx(mainFont, text, (Vector2){ static_cast<float>(posX), static_cast<float>(posY) }, fontSize, 1, color);
 }
 
 void drawATM(const char* text){
