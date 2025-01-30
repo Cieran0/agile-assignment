@@ -9,6 +9,7 @@
 #include <functional>
 #include <ctime>
 #include "Currency.hpp"
+#include <map>
 
 extern int screenWidth;  
 extern int screenHeight; 
@@ -27,6 +28,13 @@ using namespace std;
 #define RAYGUI_BUTTON_BORDER_WIDTH   2
 #define RAYGUI_BUTTON_TEXT_PADDING   10
 
+enum Language {
+    ENGLISH,
+    SPANISH,
+    FRENCH,
+    GERMAN
+};
+
 enum Screen {
     WaitingForCard,
     LanguageSelect,
@@ -39,6 +47,29 @@ enum Screen {
     PrintBalance,
     displayOptions,
     currencySelect
+};
+
+// bad name probably but idk
+enum class StringType {
+    PIN_PROMPT,
+    WITHDRAWAL_PROMPT,
+    BALANCE_TEXT,
+    INSERTED_CARD_TEXT,
+    INSERT_HERE_TEXT,
+    PROCESSING_TEXT,
+    PRINTING_SUCCESSFUL_TEXT,
+    INCORRECT_PIN_TEXT,
+    INSUFFICIENT_FUNDS_TEXT,
+    VIEW_BALANCE_TEXT,
+    PRINT_BALANCE_TEXT,
+    MAIN_MENU_TEXT,
+    BALANCE_BTN_TEXT,
+    DEPOSIT_BTN_TEXT,
+    EXIT_BTN_TEXT,
+    TAKE_RECEIPT_TEXT,
+    WITHDRAWAL_TEXT,
+    DEPOSIT_TEXT,
+    BALANCE_OPTION_TEXT
 };
 
 
@@ -64,6 +95,8 @@ void processingScreen(string messageToPrint);
 void screenInit();
 void drawKeypad(const std::function<void(const string&)>& handleInput);
 void drawPrintedReciept();
+string getStringInLanguage(string prompt);
+void setLanguage(Language language);
 
 void setCurrency(Currency currency);
 
@@ -102,6 +135,8 @@ extern double balance;
 extern enum Screen screen;
 extern enum Currency currency;
 extern uint64_t atmID;
+extern std::map<std::string, std::string> englishStrings;
+extern enum Language defaultLanguage;
 
 extern int atmWidth;
 extern int atmHeight;
