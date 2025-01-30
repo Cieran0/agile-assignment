@@ -1,6 +1,6 @@
 # Compiler settings
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall
+CXXFLAGS = -std=c++11 -Wall -Wno-deprecated-declarations
 
 # Detect the operating system
 UNAME_S := $(shell uname -s)
@@ -15,8 +15,8 @@ else ifeq ($(UNAME_S),Darwin)
     RAYLIB_PATH = /opt/homebrew/Cellar/raylib
     RAYLIB_INCLUDE = $(shell find $(RAYLIB_PATH) -name include)
     RAYLIB_LIB = $(shell find $(RAYLIB_PATH) -name lib)
-    INCLUDES = -I$(RAYLIB_INCLUDE)
-    LDFLAGS = -L$(RAYLIB_LIB) -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -lcrypto -lssl
+    INCLUDES = -I$(RAYLIB_INCLUDE) -I/opt/homebrew/opt/openssl/include
+    LDFLAGS = -L$(RAYLIB_LIB) -L/opt/homebrew/opt/openssl/lib -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -lcrypto -lssl
 else ifeq ($(OS),Windows_NT)
     RAYLIB_PATH = C:/raylib
     OPENSSL_PATH = "C:/Program Files/OpenSSL-Win64"
@@ -34,3 +34,8 @@ all:
 # Clean
 clean:
 	rm -f ui
+
+help:
+	@echo "Available targets:"
+	@echo "  all   - Build the project"
+	@echo "  clean - Remove generated files"

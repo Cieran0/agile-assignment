@@ -318,9 +318,9 @@ int main(int argc, char *argv[]) {
         DrawRectangle(1920 - (256 + 64) - 5, (1080 * 0.125) / 4 - 5, 256 + 10, (1080 * 0.125) / 2 + 10, running ? GREEN : DARKGREEN);
         DrawRectangle(1920 - (256 + 64), (1080 * 0.125) / 4, 256, (1080 * 0.125) / 2,  running ? DARKGREEN : GREEN);
         if(running) {
-            DrawText("Running", 1920 - (256 + 64) + (256 - running_len)/2, (1080 * 0.125) / 4 , 66, BLACK);
+            DrawTextB("Running", 1920 - (256 + 64) + (256 - running_len)/2, (1080 * 0.125) / 4 , 66, BLACK);
         } else {
-            DrawText("Start", 1920 - (256 + 64) + (256 - start_len)/2, (1080 * 0.125) / 4 , 66, BLACK);
+            DrawTextB("Start", 1920 - (256 + 64) + (256 - start_len)/2, (1080 * 0.125) / 4 , 66, BLACK);
         }
 
         for (int i = 0; i < 5*2; i++)
@@ -348,7 +348,7 @@ int main(int argc, char *argv[]) {
         std::cout << passed_int << " : " << failed << " : " << total << std::endl;
 
         const char* passed_string = TextFormat("%d/%d Passed", passed_int, total);
-        DrawText(passed_string, 192/5 , ((1080 * 0.125) / 4), 66, BLACK);
+        DrawTextB(passed_string, 192/5 , ((1080 * 0.125) / 4), 66, BLACK);
 
         for(int i = 0; i < current_timepoint; i++) {
             DrawRectangle((i-1)*3 + 60, 1150 - failed_at_seconds[i], 3, failed_at_seconds[i], RED);

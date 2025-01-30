@@ -12,17 +12,21 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-uint64_t rand_uint64() {
+#include <cstring>
+
+
+const char *host;
+int port;
+
+
+uint64_t rand_uint64(){
     srand((unsigned int)time(NULL));
     uint64_t r = 0;
-    for (int i = 0; i < 64; i += 15) {
+    for(int i = 0; i < 64; i += 15){
         r = r * ((uint64_t)RAND_MAX + 1) + rand();
     }
     return r % ((uint64_t)1 << 63);
 }
-
-const char *host;
-int port;
 
 void close_socket(int sock) {
     #ifdef _WIN32
@@ -49,10 +53,10 @@ void cleanup_winsock() {
     #endif
 }
 
-Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_t atmID, std::string pin, double withdrawalAmount) {
+Response forwardToSocket(TransactionType type, AtmID atmID, Currency currency, AtmCurrency amount, const char cardNumber[20], const char expiryDate[6], const char pinNo[5]) {
     Response response;
 
-    if (!initialize_winsock()) return NETWORK_ERROR;
+    if (!initialize_winsock()) return NETWORK;
 
     SSL_library_init();
     SSL_load_error_strings();
@@ -62,7 +66,7 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_
     if (!ctx) {
         std::cerr << "Failed to create SSL context" << std::endl;
         cleanup_winsock();
-        return NETWORK_ERROR;
+        return NETWORK;
     }
 
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -70,7 +74,7 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_
         std::cerr << "Failed to create socket" << std::endl;
         SSL_CTX_free(ctx);
         cleanup_winsock();
-        return NETWORK_ERROR;
+        return NETWORK;
     }
 
     sockaddr_in server_addr;
@@ -82,7 +86,7 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_
         close_socket(sock);
         SSL_CTX_free(ctx);
         cleanup_winsock();
-        return NETWORK_ERROR;
+        return NETWORK;
     }
 
     if (connect(sock, (sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
@@ -90,7 +94,7 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_
         close_socket(sock);
         SSL_CTX_free(ctx);
         cleanup_winsock();
-        return NETWORK_ERROR;
+        return NETWORK;
     }
 
     SSL *ssl = SSL_new(ctx);
@@ -102,16 +106,19 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_
         close_socket(sock);
         SSL_CTX_free(ctx);
         cleanup_winsock();
-        return NETWORK_ERROR;
+        return NETWORK;
     }
 
-    Transaction transaction = {0};
-    strncpy(transaction.cardNumber, cardNumber.c_str(), sizeof(transaction.cardNumber) - 1);
-    strncpy(transaction.expiryDate, expiryDate.c_str(), sizeof(transaction.expiryDate) - 1);
-    strncpy(transaction.pinNo, pin.c_str(), sizeof(transaction.pinNo) - 1);
+    Transaction transaction;
+    memset(&transaction, 0, sizeof(transaction));
+    transaction.type = type;
+    transaction.id = rand_uint64();
     transaction.atmID = atmID;
-    transaction.uniqueTransactionID = rand_uint64();
-    transaction.withdrawalAmount = withdrawalAmount;
+    transaction.currency = currency;
+    transaction.amount = amount;
+    strncpy(transaction.cardNumber, cardNumber, sizeof(transaction.cardNumber));
+    strncpy(transaction.expiryDate, expiryDate, sizeof(transaction.expiryDate));
+    strncpy(transaction.pinNo, pinNo, sizeof(transaction.pinNo));
 
     if (SSL_write(ssl, &transaction, sizeof(transaction)) <= 0) {
         std::cerr << "Failed to send transaction to the server" << std::endl;
@@ -119,7 +126,7 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_
         close_socket(sock);
         SSL_CTX_free(ctx);
         cleanup_winsock();
-        return NETWORK_ERROR;
+        return NETWORK;
     }
 
     if (SSL_read(ssl, &response, sizeof(response)) <= 0) {
@@ -128,7 +135,7 @@ Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_
         close_socket(sock);
         SSL_CTX_free(ctx);
         cleanup_winsock();
-        return NETWORK_ERROR;
+        return NETWORK;
     }
 
     SSL_free(ssl);
