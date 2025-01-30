@@ -12,6 +12,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+#include <cstring>
 
 
 const char *host;
@@ -109,14 +110,15 @@ Response forwardToSocket(TransactionType type, AtmID atmID, Currency currency, A
     }
 
     Transaction transaction;
+    memset(&transaction, 0, sizeof(transaction));
     transaction.type = type;
     transaction.id = rand_uint64();
     transaction.atmID = atmID;
     transaction.currency = currency;
     transaction.amount = amount;
-    strncpy(transaction.cardNumber, cardNumber, sizeof(transaction.cardNumber) - 1);
-    strncpy(transaction.expiryDate, expiryDate, sizeof(transaction.expiryDate) - 1);
-    strncpy(transaction.pinNo, pinNo, sizeof(transaction.pinNo) - 1);
+    strncpy(transaction.cardNumber, cardNumber, sizeof(transaction.cardNumber));
+    strncpy(transaction.expiryDate, expiryDate, sizeof(transaction.expiryDate));
+    strncpy(transaction.pinNo, pinNo, sizeof(transaction.pinNo));
 
     if (SSL_write(ssl, &transaction, sizeof(transaction)) <= 0) {
         std::cerr << "Failed to send transaction to the server" << std::endl;
