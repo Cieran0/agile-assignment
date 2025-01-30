@@ -36,7 +36,7 @@ void atmLayout() {
 }
 
 void displayTransactionChoices() {
-    drawATMScreen("");
+    drawATMScreen("Select an option from below.");
 
     int buttonWidth = 350;
     int buttonHeight = 60;
@@ -122,7 +122,7 @@ void viewBalance() {
     vector<Button> buttons = {
         {{ buttonX, buttonY, buttonWidth, buttonHeight }, "Back to Main Menu", MainMenu}
     };
-    
+
     drawButtons(buttons);
     drawSideButtons({});
     drawKeypadAndCardBackground();
@@ -151,23 +151,35 @@ void drawLanguageSelect() {
 
 void printBalance() {
     static int counter = 0;
-    if (counter < 60 * 5) { 
+
+    bool finished = (counter >= 60 * 5);
+
+    drawATMScreen(finished ? "Please take your receipt" : "Processing....");
+
+    if (!finished) {
         counter++;
-        drawATMScreen("Processing....");
         printBalanceToFile(to_string(balance));
-    } else {
-        drawATMScreen("Please take your receipt");
-        drawPrintedReciept();
-        vector<Button> buttons = {
-            {{ static_cast<float>(atmX + 200), static_cast<float>(atmY + 450), 350.0f, 60.0f }, "Back to Main Menu", MainMenu }
-        };
-        drawButtons(buttons);
     }
+
     drawCashSlot("INSERTED CARD");
     drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
+
+    if (finished) {
+        drawPrintedReceipt(); 
+        float buttonWidth  = 350;
+        float buttonHeight = 60;
+        float buttonX = (atmX + (atmWidth - buttonWidth) / 2) - 25;
+        float buttonY = atmY + 250;
+    
+    vector<Button> buttons = {
+        {{ buttonX, buttonY, buttonWidth, buttonHeight }, "Back to Main Menu", MainMenu}
+    };
+
+    drawButtons(buttons);
+    }
 }
 
 void fontSizes(){

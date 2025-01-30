@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 #include <cstring>
 #include <random>
 #include <unordered_map>
@@ -112,7 +114,7 @@ void drawCardSlot() {
 time_t atmTime;
 bool timeInitialized = false;
 
-void drawPrintedReciept() {
+void drawPrintedReceipt() {
     if (!timeInitialized) {
         time(&atmTime);
         timeInitialized = true;
@@ -121,35 +123,43 @@ void drawPrintedReciept() {
     std::string dateTime = ctime(&atmTime);
     std::string date = dateTime.substr(0, 10) + " " + dateTime.substr(20, 4); 
     std::string time = dateTime.substr(11, 8);
-    std::string atmId = to_string(ATM_ID); 
+    std::string atmId = std::to_string(ATM_ID); 
 
-    int recieptWidth = screenWidth / 4;
+    int recieptWidth = screenWidth / 5;
     int recieptHeight = screenHeight / 4;
-    int x = (screenWidth - recieptWidth) / 2;
-    int y = screenHeight - recieptHeight - (screenHeight / 10);
+    int x = atmX + atmWidth + (atmWidth / 7);
+    int y = screenHeight - recieptHeight - (screenHeight / 50);
 
-    std::string balanceString = getStringInLanguage("BALANCE_TEXT") + std::to_string(balance);
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(2) << balance;
+    std::string balanceFormatted = oss.str();
 
-    Rectangle reciept = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(recieptWidth), static_cast<float>(recieptHeight)};
+    std::string balanceString = getStringInLanguage("BALANCE_TEXT") + balanceFormatted;
+
+    Rectangle reciept = {
+        static_cast<float>(x),
+        static_cast<float>(y),
+        static_cast<float>(recieptWidth),
+        static_cast<float>(recieptHeight)
+    };
 
     DrawRectangle(reciept.x, reciept.y, reciept.width, reciept.height, WHITE);
     DrawRectangleLines(reciept.x, reciept.y, reciept.width, reciept.height, BLACK);
 
-    int padding = recieptWidth / 20;
-    int textX = reciept.x + padding;
-    int textY = reciept.y + padding;
+    int padding   = recieptWidth / 20;
+    int textX     = reciept.x + padding;
+    int textY     = reciept.y + padding;
     int lineHeight = recieptHeight / 10;
 
     DrawTextB(("Date: " + date).c_str(), textX, textY, lineHeight, BLACK);
     textY += lineHeight + padding;
     DrawTextB(("Time: " + time).c_str(), textX, textY, lineHeight, BLACK);
     textY += lineHeight + padding;
-    DrawTextB(("ATM ID: " +  atmId).c_str(), textX, textY, lineHeight, BLACK);
+    DrawTextB(("ATM ID: " + atmId).c_str(), textX, textY, lineHeight, BLACK);
     textY += lineHeight + padding;
 
     DrawTextB(balanceString.c_str(), textX, textY, lineHeight, BLACK);
 }
-
 Font mainFont;
 
 void setupGuiStyle() {
@@ -299,13 +309,13 @@ void drawSideButtons(const vector<Button>& buttons) {
     int buttonWidth = 90;
     int buttonHeight = 70;
     int buttonSpacing = 50;
-    int verticalSpacing = screenHeight / 7;
+    int verticalSpacing = screenHeight / 10;
     int fontSize = DEFAULT_BUTTON_TEXT_SIZE;
     Color textColor = BLACK;
 
     int startXLeft = atmX - buttonWidth - 15;
     int startXRight = atmX + atmWidth + 20;
-    int startY = atmY + 50;
+    int startY = atmY + 100;
 
     int halfCount = (int)((buttons.size() + 1) / 2);
 
@@ -356,13 +366,13 @@ void drawSideButtons(const vector<std::pair<string, std::function<void()>>>& but
     int buttonWidth = 90;
     int buttonHeight = 70;
     int buttonSpacing = 50;
-    int verticalSpacing = screenHeight / 7;
+    int verticalSpacing = screenHeight / 10;
     int fontSize = DEFAULT_BUTTON_TEXT_SIZE;
     Color textColor = BLACK;
 
     int startXLeft = atmX - buttonWidth - 15;
     int startXRight = atmX + atmWidth + 20;
-    int startY = atmY + 50;
+    int startY = atmY + 100;
 
     int halfCount = (int)((buttonActions.size() + 1) / 2);
 

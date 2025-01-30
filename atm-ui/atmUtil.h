@@ -95,7 +95,7 @@ void printBalanceToFile(string balance);
 void processingScreen(string messageToPrint);
 void screenInit();
 void drawKeypad(const std::function<void(const string&)>& handleInput);
-void drawPrintedReciept();
+void drawPrintedReceipt();
 string getStringInLanguage(string prompt);
 void setLanguage(Language language);
 
