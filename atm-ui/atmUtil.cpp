@@ -133,6 +133,7 @@ string getStringInLanguage(string prompt) {
         case FRENCH:
             return frenchStrings.at(prompt);
     }
+    return "";
 }
 
 void resetGlobalTextVariables() {

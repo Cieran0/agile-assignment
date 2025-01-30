@@ -33,9 +33,8 @@ void handleInput(string buttonPressed) {
             balance = r.newBalance;
             enteredPIN = temp;
         }
-         else {
+        else {
             displayText = getStringInLanguage("INCORRECT_PIN_TEXT");
-         }
             input.clear();
             updatePinDisplay();
             setScreen(EnterPin);

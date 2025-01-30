@@ -26,6 +26,9 @@ int atmY;
 #include "raygui.h"
 #include <functional>
 
+void DrawTextB(const char *text, int posX, int posY, int fontSize, Color color) {
+    DrawTextEx(mainFont, text, (Vector2){ posX, posY }, fontSize, 1, color);
+}
 
 void drawATM(const char* text){
     drawATMScreen(text);
@@ -59,7 +62,7 @@ void drawCashSlot(const char* text) {
     }
 
     DrawRectangle(startX, atmY + 720, slotWidth, slotHeight, DARKGRAY);
-    DrawText(getStringInLanguage("TAKE_RECEIPT_TEXT").c_str(), startX + 10, atmY + 730, 20, WHITE);
+    DrawTextB(getStringInLanguage("TAKE_RECEIPT_TEXT").c_str(), startX + 10, atmY + 730, 20, WHITE);
 }
 
 void drawButtons(vector<Button> buttons) {
@@ -76,7 +79,7 @@ void drawMoney(std::string str) {
     int textWidth = MeasureText(str.c_str(), 75);
     int textX = atmX + (atmWidth - textWidth) / 2;
     int textY = atmY + (atmHeight / 3); 
-    DrawText((currencySymbol + str).c_str(), textX, textY, 75, ATM_TEXT);
+    DrawTextB((currencySymbol + str).c_str(), textX, textY, 75, ATM_TEXT);
 }
 
 void drawCardSlot() {
@@ -125,7 +128,7 @@ void drawPrintedReciept() {
     int x = (screenWidth - recieptWidth) / 2;
     int y = screenHeight - recieptHeight - (screenHeight / 10);
 
-    std::string balanceString = getStringInLanguage("BALANCE_TEXT") + std::to_string(a1.testBalance);
+    std::string balanceString = getStringInLanguage("BALANCE_TEXT") + std::to_string(balance);
 
     Rectangle reciept = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(recieptWidth), static_cast<float>(recieptHeight)};
 
@@ -137,16 +140,17 @@ void drawPrintedReciept() {
     int textY = reciept.y + padding;
     int lineHeight = recieptHeight / 10;
 
-    DrawText(("Date: " + date).c_str(), textX, textY, lineHeight, BLACK);
+    DrawTextB(("Date: " + date).c_str(), textX, textY, lineHeight, BLACK);
     textY += lineHeight + padding;
-    DrawText(("Time: " + time).c_str(), textX, textY, lineHeight, BLACK);
+    DrawTextB(("Time: " + time).c_str(), textX, textY, lineHeight, BLACK);
     textY += lineHeight + padding;
-    DrawText(("ATM ID: " +  atmId).c_str(), textX, textY, lineHeight, BLACK);
+    DrawTextB(("ATM ID: " +  atmId).c_str(), textX, textY, lineHeight, BLACK);
     textY += lineHeight + padding;
 
-    DrawText(balanceString.c_str(), textX, textY, lineHeight, BLACK);
+    DrawTextB(balanceString.c_str(), textX, textY, lineHeight, BLACK);
 }
 
+Font mainFont;
 
 void setupGuiStyle() {
     GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt(DARKGRAY));
@@ -164,6 +168,10 @@ void setupGuiStyle() {
     GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, ColorToInt(DARKGRAY));
     GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, ColorToInt(LIGHTGRAY));
     GuiSetStyle(BUTTON, BORDER_COLOR_PRESSED, ColorToInt(WHITE));
+
+    mainFont = LoadFontEx("Ubuntu-Bold.ttf", 80, 0, 250);
+
+    GuiSetFont(mainFont);
 
     background = GuiGetStyle(DEFAULT, BACKGROUND_COLOR);
 }
@@ -272,7 +280,7 @@ void setCurrency(Currency currency) {
 void screenInit() {
     InitWindow(0, 0, "raygui - NCR ATM");
     setupGuiStyle();
-    SetWindowSize(1920,1200);
+    //SetWindowSize(1920,1200);
     ToggleFullscreen();
     SetTargetFPS(60);
     screenWidth = GetMonitorWidth(0);  
@@ -354,7 +362,7 @@ void drawATMScreen(const char* text) {
     int textWidth = MeasureText(text, 30);
     int textX = atmX + (atmWidth - textWidth) / 2; 
     int textY = atmY + 40; 
-    DrawText(text, textX, textY, 30, ATM_TEXT);
+    DrawTextB(text, textX, textY, 30, ATM_TEXT);
 }
 
 void drawKeypadAndCardBackground() {
@@ -391,9 +399,9 @@ void processingScreen(string messageToPrint) {
     static int counter = 0;
     if (counter < 60*5) {
         counter++;
-        DrawText(getStringInLanguage("PROCESSING_TEXT").c_str(), 470, 170, 20, ATM_TEXT);
+        DrawTextB(getStringInLanguage("PROCESSING_TEXT").c_str(), 470, 170, 20, ATM_TEXT);
     } else {
-        DrawText(getStringInLanguage("PRINTING_SUCCESSFUL_TEXT").c_str(), 200, 500, 40, BLACK);
+        DrawTextB(getStringInLanguage("PRINTING_SUCCESSFUL_TEXT").c_str(), 200, 500, 40, BLACK);
         if (GuiButton({200, 600, 200, 50}, "Back")) {
             setScreen(MainMenu); 
         }

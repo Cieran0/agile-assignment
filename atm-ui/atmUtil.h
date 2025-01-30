@@ -84,7 +84,6 @@ std::string localPin;
 double testBalance;
 };
 
-extern testAccount a1;
 
 void updatePinDisplay();
 void screenManager();
@@ -147,4 +146,7 @@ extern int background;
 
 void setScreen(Screen s);
 
+extern Font mainFont;
+
+void DrawTextB(const char *text, int posX, int posY, int fontSize, Color color);
 #endif

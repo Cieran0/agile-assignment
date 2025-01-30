@@ -26,7 +26,7 @@ void atmLayout() {
         int textWidth = MeasureText(pinDisplay.c_str(), 75);
         int textX = atmX + (atmWidth - textWidth) / 2;
         int textY = atmY + (atmHeight / 3); 
-        DrawText(pinDisplay.c_str(), textX, textY, 75, ATM_TEXT); 
+        DrawTextB(pinDisplay.c_str(), textX, textY, 75, ATM_TEXT); 
     }
     drawSideButtons();
     drawKeypadAndCardBackground();
@@ -98,8 +98,8 @@ void drawBalanceChoices() {
 
 void viewBalance() {
     drawATMScreen("");
-    DrawText("Your Current Balance:", atmX + 250, atmY + 100, 20, ATM_TEXT);
-    DrawText((currencySymbol + to_string(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
+    DrawTextB("Your Current Balance:", atmX + 250, atmY + 100, 20, ATM_TEXT);
+    DrawTextB((currencySymbol + to_string(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
 
     vector<Button> buttons = {
         {{ static_cast<float>(atmX + 200), static_cast<float>(atmY + 450), 350.0f, 60.0f }, "Back to Main Menu", MainMenu }
