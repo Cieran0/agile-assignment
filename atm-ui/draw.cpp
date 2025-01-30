@@ -410,17 +410,17 @@ void drawLanguages() {
 
     vector<Button> buttons = {
         {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, "English", EnterPin},
-        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Spanish", EnterPin},
-        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "French", EnterPin},
-        {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "German", EnterPin}
+        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Español", EnterPin},
+        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Français", EnterPin},
+        {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Deutsch", EnterPin}
     };
 
     for(auto& button : buttons) {
         if (GuiButton(button.bounds, button.text)) {
             if (button.text == "English") setLanguage(ENGLISH);
-            else if (button.text == "Spanish") setLanguage(SPANISH);
-            else if (button.text == "French") setLanguage(FRENCH);
-            else if (button.text == "German") setLanguage(GERMAN);
+            else if (button.text == "Español") setLanguage(SPANISH);
+            else if (button.text == "Français") setLanguage(FRENCH);
+            else if (button.text == "Deutsch") setLanguage(GERMAN);
             setScreen(EnterPin); 
         }
     }

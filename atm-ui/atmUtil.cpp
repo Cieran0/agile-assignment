@@ -110,7 +110,6 @@ std::map<std::string, std::string> germanStrings {
     {"BALANCE_OPTION_TEXT",      "Wählen Sie die Saldooption"}
 };
 
-
 string keyPad[5][3] = {
     {"1", "2", "3"},
     {"4", "5", "6"},

@@ -141,6 +141,7 @@ void printBalance() {
         };
         drawButtons(buttons);
     }
+
     drawCashSlot("INSERT_HERE_TEXT");
     drawSideButtons();
     drawKeypadAndCardBackground();
@@ -149,7 +150,7 @@ void printBalance() {
 }
 
 void fontSizes(){
-
+    // guibutton
 }
 
 const std::unordered_map<Screen, std::function<void()>> screens = {
