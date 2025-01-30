@@ -36,19 +36,22 @@ double getFormattedBalance(Response r) {
 }
 
 void handleInput(string buttonPressed) {
+    displayText = getStringInLanguage("PIN_PROMPT");
     genericInputHandler(buttonPressed, WaitingForCard, 4, (input.size() == 4), [] {
         string temp = input;
         Response r = forwardToSocket(PIN_CHECK, atmID, currentCurrency, 0, cardNumber.c_str(), expiryDate.c_str(), temp.c_str());
+        cout << "********" << endl;
+        cout << r.succeeded << endl;
+        cout << "********" << endl;
         if(r.succeeded == 0) {
             setScreen(MainMenu);
             balance = getFormattedBalance(r);
             enteredPIN = temp;
         }
         else {
-            displayText = getStringInLanguage("INCORRECT_PIN_TEXT");
             input.clear();
+            displayText = getStringInLanguage("INCORRECT_PIN_TEXT");
             updatePinDisplay();
-            setScreen(EnterPin);
         }
     });
 }

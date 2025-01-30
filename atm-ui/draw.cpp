@@ -169,7 +169,7 @@ void setupGuiStyle() {
     GuiSetStyle(BUTTON, BORDER_COLOR_FOCUSED, ColorToInt(LIGHTGRAY));
     GuiSetStyle(BUTTON, BORDER_COLOR_PRESSED, ColorToInt(WHITE));
 
-    mainFont = LoadFontEx("Ubuntu-Bold.ttf", 80, 0, 250);
+    mainFont = LoadFontEx("Ubuntu-Bold.ttf", 120, 0, 250);
 
     GuiSetFont(mainFont);
 
@@ -299,8 +299,8 @@ void drawSideButtons(const vector<Button>& buttons) {
     int buttonWidth = 90;
     int buttonHeight = 70;
     int buttonSpacing = 50;
-    int verticalSpacing = screenHeight / 10;
-    int fontSize = 20;
+    int verticalSpacing = screenHeight / 7;
+    int fontSize = DEFAULT_BUTTON_TEXT_SIZE;
     Color textColor = BLACK;
 
     int startXLeft = atmX - buttonWidth - 15;
@@ -327,7 +327,7 @@ void drawSideButtons(const vector<Button>& buttons) {
         int textWidth = MeasureText(buttons[i].text, fontSize);
         float textXLeft = btnRectLeft.x + btnRectLeft.width + buttonSpacing;
         float textY = btnRectLeft.y + (btnRectLeft.height / 2) - (fontSize / 2);
-        DrawText(buttons[i].text, textXLeft, textY, fontSize, textColor);
+        DrawTextB(buttons[i].text, textXLeft, textY, fontSize, textColor);
     }
 
     for (int i = halfCount; i < (int)buttons.size(); i++) {
@@ -348,7 +348,7 @@ void drawSideButtons(const vector<Button>& buttons) {
         int textWidth = MeasureText(buttons[i].text, fontSize);
         float textXRight = btnRectRight.x - textWidth - buttonSpacing;
         float textY = btnRectRight.y + (btnRectRight.height / 2) - (fontSize / 2);
-        DrawText(buttons[i].text, textXRight, textY, fontSize, textColor);
+        DrawTextB(buttons[i].text, textXRight, textY, fontSize, textColor);
     }
 }
 
@@ -357,7 +357,7 @@ void drawSideButtons(const vector<std::pair<string, std::function<void()>>>& but
     int buttonHeight = 70;
     int buttonSpacing = 50;
     int verticalSpacing = screenHeight / 7;
-    int fontSize = 20;
+    int fontSize = DEFAULT_BUTTON_TEXT_SIZE;
     Color textColor = BLACK;
 
     int startXLeft = atmX - buttonWidth - 15;
@@ -383,7 +383,7 @@ void drawSideButtons(const vector<std::pair<string, std::function<void()>>>& but
         int textWidth = MeasureText(buttonActions[i].first.c_str(), fontSize);
         float textXLeft = btnRectLeft.x + btnRectLeft.width + buttonSpacing;
         float textY = btnRectLeft.y + (btnRectLeft.height / 2) - (fontSize / 2);
-        DrawText(buttonActions[i].first.c_str(), textXLeft, textY, fontSize, textColor);
+        DrawTextB(buttonActions[i].first.c_str(), textXLeft, textY, fontSize, textColor);
     }
 
     for (int i = halfCount; i < (int)buttonActions.size(); i++) {
@@ -403,7 +403,7 @@ void drawSideButtons(const vector<std::pair<string, std::function<void()>>>& but
         int textWidth = MeasureText(buttonActions[i].first.c_str(), fontSize);
         float textXRight = btnRectRight.x - textWidth - buttonSpacing;
         float textY = btnRectRight.y + (btnRectRight.height / 2) - (fontSize / 2);
-        DrawText(buttonActions[i].first.c_str(), textXRight, textY, fontSize, textColor);
+        DrawTextB(buttonActions[i].first.c_str(), textXRight, textY, fontSize, textColor);
     }
 }
 
