@@ -27,23 +27,23 @@ void genericInputHandler(string buttonPressed, Screen lastScreen, size_t maxInpu
 void handleInput(string buttonPressed) {
     genericInputHandler(buttonPressed, WaitingForCard, 4, (input.size() == 4), [] {
         string temp = input;
-        Response r = forwardToSocket(PIN_CHECK, atmID, currentCurrency, 0, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
+        Response r = forwardToSocket(PIN_CHECK, atmID, currentCurrency, 0, cardNumber.c_str(), expiryDate.c_str(), temp.c_str());
         if(r.succeeded == 0) {
             setScreen(MainMenu);
             balance = r.newBalance;
             enteredPIN = temp;
         }
-        else if (input == a1.localPin){
-            setScreen(MainMenu);
-            balance = a1.testBalance;
-        }
-         else {
+        else {
             displayText = "Incorrect pin. try again";
             input.clear();
             updatePinDisplay();
             setScreen(EnterPin);
         }
     });
+}
+
+void doNothing(string buttonPressed) {
+    return;
 }
 
 void handleWithdrawInput(const string& buttonPressed) {
@@ -53,6 +53,7 @@ void handleWithdrawInput(const string& buttonPressed) {
             withdrawlText = "Insufficient funds";
             input.clear();
         } else {
+            std::cout << "PIN: [" << enteredPIN.c_str() << "]" << std::endl;
             Response r = forwardToSocket(WITHDRAWAL, atmID, currentCurrency, amount, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
             // Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, enteredPIN, amount);
             if(r.succeeded == 0) {

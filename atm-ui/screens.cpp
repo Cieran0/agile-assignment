@@ -13,7 +13,7 @@ void drawWaitingForCard() {
     drawCardSlot();
     drawSideButtons();
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(doNothing);
     drawCashSlot("INSERT CARD HERE");
 }
 
@@ -58,7 +58,7 @@ void displayTransactionChoices() {
     drawButtons(buttons); 
     drawSideButtons();    
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(doNothing);
     drawCashSlot("INSERT CARD HERE");
 }
 
@@ -92,7 +92,7 @@ void drawBalanceChoices() {
     drawButtons(buttons);
     drawSideButtons();    
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(doNothing);
     drawCashSlot("INSERT CARD HERE");
 }
 
@@ -108,18 +108,17 @@ void viewBalance() {
     drawButtons(buttons);
     drawSideButtons();
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(doNothing);
     drawCashSlot("INSERT CARD HERE");
 }
 
 void drawDepositMenu() {
     drawATMScreen("Enter Deposit Amount:");
     drawMoney(input);
-    drawKeypad(handleDepositInput);
     drawCashSlot("INSERT CASH HERE");
     drawSideButtons();
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(handleDepositInput);
     drawCashSlot("INSERT CARD HERE");
 }
 
@@ -148,7 +147,7 @@ void printBalance() {
     drawCashSlot("INSERTED CARD");
     drawSideButtons();
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(doNothing);
     drawCashSlot("INSERT CARD HERE");
 }
 

@@ -10,35 +10,13 @@
 #include "log.hpp"
 #include "sim.hpp"
 #include <fstream>
+#include <filesystem>
+#include "Conversion.hpp"
 
-const int PORT = 6668;
+int PORT = 6668;
 std::atomic<bool> serverRunning(true);
 int sockfd = -1;
-
-// Thread-safe OpenSSL setup
-#include <pthread.h>
-static pthread_mutex_t *mutex_buf = nullptr;
-
-static void locking_function(int mode, int n, const char *file, int line) {
-    if (mode & CRYPTO_LOCK)
-        pthread_mutex_lock(&mutex_buf[n]);
-    else
-        pthread_mutex_unlock(&mutex_buf[n]);
-}
-
-static void thread_setup() {
-    mutex_buf = (pthread_mutex_t *)malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
-    for (int i = 0; i < CRYPTO_num_locks(); i++)
-        pthread_mutex_init(&mutex_buf[i], NULL);
-    CRYPTO_set_locking_callback(locking_function);
-}
-
-static void thread_cleanup() {
-    CRYPTO_set_locking_callback(NULL);
-    for (int i = 0; i < CRYPTO_num_locks(); i++)
-        pthread_mutex_destroy(&mutex_buf[i]);
-    free(mutex_buf);
-}
+char* db_file;
 
 // Signal handler for graceful shutdown
 void handleSignal(int signal) {
@@ -51,43 +29,30 @@ void handleSignal(int signal) {
 
 void handleClient(SSL *ssl) {
     std::cout << "Handling new client connection" << std::endl;
-    sqlite3* db = nullptr;
-    if (initDatabaseConnection(db) != SQLITE_OK) {
-        std::cerr << "Failed to open database connection" << std::endl;
-        return;
-    }
 
     Transaction transaction;
     Response response;
-    const char okResponse[] = "OK";
-    int n;
 
     while (true) {
         std::memset(&transaction, 0, sizeof(transaction));
 
-        n = SSL_read(ssl, &transaction, sizeof(transaction));
+        int n = SSL_read(ssl, &transaction, sizeof(transaction));
         if (n <= 0) {
             std::cerr << "Client Disconnected" << std::endl;
             break;
         }
 
-        response = processTransaction(transaction, db);
+        std::future<Response> responseFuture = enqueueTransaction(transaction);
+
+        Response response = responseFuture.get();
 
         SSL_write(ssl, &response, sizeof(response));
-
-        // std::cout << "Response {" << std::endl;
-        // std::cout << "\tsucceeded: " << response.succeeded << std::endl;
-        // std::cout << "\tnew_balance: " << response.new_balance << std::endl;
-        // std::cout << "}" << std::endl;
 
         if (response.succeeded == 0) {
             log(transaction);
         }
-
-        SSL_write(ssl, okResponse, sizeof(okResponse));
     }
 
-    sqlite3_close(db);
     SSL_free(ssl);
     std::cout << "Client connection closed" << std::endl;
 }
@@ -164,7 +129,6 @@ void clientThreadFunction(SSL_CTX *ctx, int connfd) {
     }
 
     handleClient(ssl);
-    //SSL_free(ssl);
     close(connfd);
 }
 
@@ -187,12 +151,66 @@ void threadPoolWorker(SSL_CTX *ctx) {
     }
 }
 
-int main() {
-    // Set up signal handling for graceful shutdown
-    std::signal(SIGINT, handleSignal);
+void joinThreads(std::vector<std::thread>& threadPool) {
+    queueCondition.notify_one();
 
-    // Initialize thread-safe OpenSSL
-    thread_setup();
+    const int maxRetries = 10;
+    const std::chrono::milliseconds retryInterval(100);  // Retry interval (100ms)
+    
+    for (std::thread& thread : threadPool) {
+        if (thread.joinable()) {
+            int retryCount = 0;
+            while (retryCount < maxRetries && thread.joinable()) {
+                thread.join();
+                std::this_thread::sleep_for(retryInterval);  // Wait before retrying
+                retryCount++;
+            }
+
+            // If thread is still joinable after retries, log a warning
+            if (retryCount == maxRetries && thread.joinable()) {
+                std::cerr << "Warning: thread didn't finish in time, force joining!" << std::endl;
+                thread.join();  // Forcefully join the thread if it doesn't finish
+            }
+        }
+    }
+
+    std::cout << "All threads joined!" << std::endl;
+}
+
+bool isInteger(const char* str, int& value) {
+    if (str == nullptr || *str == '\0') return false;
+
+    char* end;
+    long result = std::strtol(str, &end, 10);
+
+
+    if (*end != '\0') return false;
+
+
+    if (result < INT_MIN  || result > INT_MAX) return false;
+
+    value = static_cast<int>(result);
+    return true;
+}
+
+int main(int argc, char* argv[]) {
+    if(argc != 3){
+        std::cerr << "Please provide port and db file" << std::endl;
+        return 1;
+    }
+
+    if(!isInteger(argv[1], PORT)){
+        std::cerr << "PORT is not an integer" << std::endl;
+        return 1;
+    }
+
+    db_file = argv[2];
+    if(!std::filesystem::exists(db_file)){
+        std::cerr << "Database does not exist" << std::endl;
+        return 1;
+    }
+
+    std::signal(SIGINT, handleSignal);
 
     log_txt.open("sim_log.txt", std::ios::app);
     addLogger(DatabaseLogger);
@@ -203,22 +221,22 @@ int main() {
     sockaddr_in servaddr = {0};
 
     if (initSSLServer(ctx, sockfd, servaddr) != 0) {
-        thread_cleanup();
         return -1;
     }
 
-    if (listen(sockfd, 5) != 0) {
+    if (listen(sockfd, 200) != 0) {
         std::cerr << "Failed to listen on socket" << std::endl;
         close(sockfd);
         SSL_CTX_free(ctx);
-        thread_cleanup();
         return -1;
     }
 
     std::vector<std::thread> threadPool;
-    for (int i = 0; i < MAX_THREADS; ++i) {
+    for (int i = 0; i < MAX_THREADS - 1; ++i) {
         threadPool.emplace_back(threadPoolWorker, ctx);
     }
+
+    threadPool.emplace_back(processTransactionQueue);
 
     while (serverRunning) {
         sockaddr_in cli = {0};
@@ -240,17 +258,12 @@ int main() {
 
     // Clean up
     cv.notify_all(); // Wake up all threads
-    for (std::thread &thread : threadPool) {
-        if (thread.joinable()) {
-            thread.join();
-        }
-    }
+    joinThreads(threadPool);
 
 
     close(sockfd);
     SSL_CTX_free(ctx);
     EVP_cleanup();
-    thread_cleanup();
 
     std::cout << "Server shutdown complete." << std::endl;
     return 0;

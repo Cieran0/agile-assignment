@@ -12,17 +12,21 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-uint64_t rand_uint64() {
+#include <cstring>
+
+
+const char *host;
+int port;
+
+
+uint64_t rand_uint64(){
     srand((unsigned int)time(NULL));
     uint64_t r = 0;
-    for (int i = 0; i < 64; i += 15) {
+    for(int i = 0; i < 64; i += 15){
         r = r * ((uint64_t)RAND_MAX + 1) + rand();
     }
     return r % ((uint64_t)1 << 63);
 }
-
-const char *host;
-int port;
 
 void close_socket(int sock) {
     #ifdef _WIN32
@@ -49,7 +53,7 @@ void cleanup_winsock() {
     #endif
 }
 
-Response forwardToSocket(TranscationType type, AtmID atmID, Currency currency, AtmCurrency amount, const char cardNumber[20], const char expiryDate[6], const char pinNo[5]) {
+Response forwardToSocket(TransactionType type, AtmID atmID, Currency currency, AtmCurrency amount, const char cardNumber[20], const char expiryDate[6], const char pinNo[5]) {
     Response response;
 
     if (!initialize_winsock()) return NETWORK;
@@ -106,14 +110,15 @@ Response forwardToSocket(TranscationType type, AtmID atmID, Currency currency, A
     }
 
     Transaction transaction;
+    memset(&transaction, 0, sizeof(transaction));
     transaction.type = type;
     transaction.id = rand_uint64();
     transaction.atmID = atmID;
     transaction.currency = currency;
     transaction.amount = amount;
-    strncpy(transaction.cardNumber, cardNumber, sizeof(transaction.cardNumber) - 1);
-    strncpy(transaction.expiryDate, expiryDate, sizeof(transaction.expiryDate) - 1);
-    strncpy(transaction.pinNo, pinNo, sizeof(transaction.pinNo) - 1);
+    strncpy(transaction.cardNumber, cardNumber, sizeof(transaction.cardNumber));
+    strncpy(transaction.expiryDate, expiryDate, sizeof(transaction.expiryDate));
+    strncpy(transaction.pinNo, pinNo, sizeof(transaction.pinNo));
 
     if (SSL_write(ssl, &transaction, sizeof(transaction)) <= 0) {
         std::cerr << "Failed to send transaction to the server" << std::endl;

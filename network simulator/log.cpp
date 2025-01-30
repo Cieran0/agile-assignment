@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include "db.hpp"
 
 std::vector<std::function<void(const Transaction&)>> loggers;
 std::ofstream log_txt;
@@ -22,41 +23,49 @@ void log(const Transaction& transaction) {
 }
 
 void DatabaseLogger(const Transaction& transaction) {
-    sqlite3* db;
-    int exitCode = sqlite3_open("database.db", &db);
-    if (exitCode != SQLITE_OK) {
-        std::cerr << "Failed to open database: " << sqlite3_errmsg(db) << std::endl;
-        sqlite3_close(db);
-        return;
-    }
 
     std::string sql = std::format(
         "INSERT INTO Transactions (TransactionID, ATM_ID, WithdrawlAmount, CardNumber) "
         "VALUES ({}, {}, {}, '{}');",
-        transaction.uniqueTransactionID,
+        transaction.id,
         transaction.atmID,
-        transaction.withdrawalAmount,
+        transaction.amount,
         transaction.cardNumber
     );
 
-    char* errorMessage = nullptr;
-    exitCode = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errorMessage);
-    if (exitCode != SQLITE_OK) {
-        std::cerr << "SQL error: " << errorMessage << std::endl;
-        sqlite3_free(errorMessage);
-    }
-
-    sqlite3_close(db);
+    enqueueTransactionLog(sql);
 }
 
 void txtLogger(const Transaction& transaction){
-    std::string message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
-        std::chrono::system_clock::now(),
-        transaction.uniqueTransactionID, 
-        transaction.withdrawalAmount,
-        transaction.cardNumber,
-        transaction.atmID
-    );
+
+    std::string message;
+    if(transaction.type == BALANCE_CHECK){ 
+        message = std::format("[{}]: Transaction ID {} | Card number [{}] checked balance at ATM {} {}",
+            std::chrono::system_clock::now(),
+            transaction.id, 
+            transaction.amount,
+            transaction.cardNumber,
+            transaction.atmID
+        );
+    }
+    else if(transaction.type == DEPOSIT){   
+        message = std::format("[{}]: Transaction ID {} | Deposit of £{} with card [{}] at ATM {}",
+            std::chrono::system_clock::now(),
+            transaction.id, 
+            -transaction.amount,
+            transaction.cardNumber,
+            transaction.atmID
+        );
+    }
+    else{
+        message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
+            std::chrono::system_clock::now(),
+            transaction.id, 
+            transaction.amount,
+            transaction.cardNumber,
+            transaction.atmID
+        );
+    }
 
     if(log_txt.is_open()) {
         log_txt << message << std::endl;
@@ -66,8 +75,8 @@ void txtLogger(const Transaction& transaction){
 void ConsoleLogger(const Transaction& transaction) {
     std::string console_message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
         std::chrono::system_clock::now(),
-        transaction.uniqueTransactionID, 
-        transaction.withdrawalAmount,
+        transaction.id, 
+        transaction.amount,
         transaction.cardNumber,
         transaction.atmID
     );
