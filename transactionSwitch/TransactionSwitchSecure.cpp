@@ -68,16 +68,14 @@ private:
 // Update the TransactionSwitch class
 class TransactionSwitch {
 public:
-    TransactionSwitch(const char* network_sim_ip, int network_sim_port)
-        : logger(), network_sim_ip(network_sim_ip), network_sim_port(network_sim_port), pool(100) {
+    TransactionSwitch(std::vector<const char*> network_sim_ips, std::vector<int> network_sim_ports)
+        : logger(), network_sim_ips(network_sim_ips), network_sim_ports(network_sim_ports), pool(100) {
+
+        
         SSL_library_init();
         SSL_load_error_strings();
         OpenSSL_add_all_algorithms();
         ctx = createSSLContext();
-        network_sim2_ip = network_sim_ip;
-        network_sim3_ip = network_sim_ip;
-        network_sim2_port = network_sim_port+1;
-        network_sim2_port = network_sim_port+2;
     }
     
     ~TransactionSwitch() {
@@ -104,12 +102,8 @@ public:
     }
 
 private:
-    const char* network_sim_ip;
-    const char* network_sim2_ip;
-    const char* network_sim3_ip;
-    int network_sim_port;
-    int network_sim2_port;
-    int network_sim3_port;
+    std::vector<const char*> network_sim_ips;
+    std::vector<int> network_sim_ports;
     TransactionLogger logger;
     SSL_CTX* ctx;
     ThreadPool pool;
@@ -187,24 +181,24 @@ private:
     }
 
     Response sendNetworkMessage(Transaction message) {
-    char* host;
-    int port;
+
 
     // get first digit
     char first_digit = message.cardNumber[0]; 
+    int network = 0;
     
     if (first_digit >= '0' && first_digit <= '3') {
-        host = (char*)network_sim_ip;  // network_sim_ip will be used for network 1
-        port = network_sim_port; // port for network 1
+        network = 0;
     }
     else if (first_digit >= '4' && first_digit <= '6') {
-        host = (char*)network_sim2_ip;  // replace with the actual IP of network 2
-        port = network_sim2_port;  // replace with the actual port of network 2
+        network = 1;
     }
     else {
-        host = (char*)network_sim3_ip;  // replace with actual IP of network 3
-        port = network_sim2_port; // replace with actual port of network 3
+        network = 2;
     }
+
+    const char* host = network_sim_ips[network];
+    int port = network_sim_ports[network];
 
     Response response;
 
