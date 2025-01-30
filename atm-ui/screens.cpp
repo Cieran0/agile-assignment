@@ -44,15 +44,12 @@ void displayTransactionChoices() {
     int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
     int startX = atmX + 50;
 
-    vector<Button> buttons = {
-
-        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, getStringInLanguage("BALANCE_BTN_TEXT").c_str(), Balance},
-        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, getStringInLanguage("WITHDRAWAL_TEXT").c_str(), Withdraw},
-        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, getStringInLanguage("DEPOSIT_BTN_TEXT").c_str(), Deposit},
-        {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, getStringInLanguage("EXIT_BTN_TEXT").c_str(), WaitingForCard}
-
+    vector<Button> sideButtons = {
+        {{}, "Balance Inquiry", Balance},
+        {{}, "Cash Withdrawal", Withdraw},
+        {{}, "Deposit", Deposit},
+        {{}, "Exit", WaitingForCard}
     };
- 
 
     drawSideButtons(sideButtons);
     drawKeypadAndCardBackground();
@@ -80,10 +77,10 @@ void drawBalanceChoices() {
     int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
     int startX = atmX + 50; 
 
-    vector<Button> buttons = {
-        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, getStringInLanguage("VIEW_BALANCE_TEXT").c_str(), BalanceAmount},
-        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, getStringInLanguage("PRINT_BALANCE_TEXT").c_str(), PrintBalance},
-        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, getStringInLanguage("MAIN_MENU_TEXT").c_str(), MainMenu}
+    vector<Button> sideButtons = {
+        {{}, "View Balance", BalanceAmount},
+        {{}, "Print Balance", PrintBalance},
+        {{}, "Back to Main Menu", MainMenu}
     };
 
     drawSideButtons(sideButtons);
@@ -118,7 +115,7 @@ void drawDepositMenu() {
 void drawLanguageSelect() {
     drawATMScreen("Select a language:");
     drawLanguages();
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
 }

@@ -27,13 +27,13 @@ int atmY;
 #include <functional>
 
 void DrawTextB(const char *text, int posX, int posY, int fontSize, Color color) {
-    DrawTextEx(mainFont, text, (Vector2){ posX, posY }, fontSize, 1, color);
+    DrawTextEx(mainFont, text, (Vector2){ static_cast<float>(posX), static_cast<float>(posY) }, fontSize, 1, color);
 }
 
 void drawATM(const char* text){
     drawATMScreen(text);
     drawCashSlot(getStringInLanguage("INSERTED_CARD_TEXT").c_str());
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
