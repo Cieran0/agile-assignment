@@ -1,6 +1,8 @@
 #include "atmUtil.h"
 #include "raygui.h"
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -91,8 +93,15 @@ void drawBalanceChoices() {
 
 void viewBalance() {
     drawATMScreen("");
-    DrawTextB("Your Current Balance:", atmX + 250, atmY + 100, 20, ATM_TEXT);
-    DrawTextB((currencySymbol + to_string(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
+    int textWidth = MeasureText("Your Current Balance", 30);
+    int textX = atmX + (atmWidth - textWidth) / 2; 
+    int textY = atmY + 40; 
+
+    DrawTextB("Your Current Balance:", textX, textY, 30, ATM_TEXT);
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2) << balance;
+    DrawTextB((currencySymbol + ss.str()).c_str(), textX, textY + 100, 40, ATM_TEXT);
+
 
     drawSideButtons({});
     drawKeypadAndCardBackground();

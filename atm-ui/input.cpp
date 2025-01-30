@@ -30,7 +30,14 @@ void handleInput(string buttonPressed) {
         Response r = forwardToSocket(PIN_CHECK, atmID, currentCurrency, 0, cardNumber.c_str(), expiryDate.c_str(), temp.c_str());
         if(r.succeeded == 0) {
             setScreen(MainMenu);
-            balance = r.newBalance;
+            string rawBalance = to_string(r.newBalance);
+            int dotPos = static_cast<int>(r.dotPosition);
+            if (dotPos > 0 && dotPos < static_cast<int>(rawBalance.size())) {
+                rawBalance.insert(rawBalance.size() - dotPos, 1, '.');
+            }
+            double formattedBalance = stod(rawBalance);
+            formattedBalance = round(formattedBalance * 100.0) / 100.0;
+            balance = formattedBalance;
             enteredPIN = temp;
         }
         else {

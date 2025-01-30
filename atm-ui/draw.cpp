@@ -284,7 +284,7 @@ void setCurrency(Currency currency) {
 void screenInit() {
     InitWindow(0, 0, "raygui - NCR ATM");
     setupGuiStyle();
-    //SetWindowSize(1920,1200);
+    // SetWindowSize(1920,1200);
     ToggleFullscreen();
     SetTargetFPS(60);
     screenWidth = GetMonitorWidth(0);  
@@ -299,7 +299,7 @@ void drawSideButtons(const vector<Button>& buttons) {
     int buttonWidth = 90;
     int buttonHeight = 70;
     int buttonSpacing = 50;
-    int verticalSpacing = 40;
+    int verticalSpacing = screenHeight / 10;
     int fontSize = 20;
     Color textColor = BLACK;
 
@@ -360,7 +360,7 @@ void drawSideButtons(const vector<std::pair<string, std::function<void()>>>& but
     int buttonWidth = 90;
     int buttonHeight = 70;
     int buttonSpacing = 50;
-    int verticalSpacing = 40;
+    int verticalSpacing = screenHeight / 7;
     int fontSize = 20;
     Color textColor = BLACK;
 
@@ -495,7 +495,11 @@ void drawLanguages() {
         {"English", []() { setLanguage(ENGLISH); }},
         {"Español", []() { setLanguage(SPANISH); }},
         {"Français", []() { setLanguage(FRENCH); }},
-        {"Deutsch", []() { setLanguage(GERMAN); }}
+        {"Deutsch", []() { setLanguage(GERMAN); }},
+        {"", []() {  }},
+        {"", []() {  }},
+        {"", []() {  }},
+        {"", []() {  }}
     };
 
     drawSideButtons(sideButtons);
