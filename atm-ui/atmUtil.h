@@ -111,7 +111,7 @@ void drawCardSlot();
 void drawATMScreen(const char* text);
 void drawLanguages();
 void drawAtmCasing();
-void drawSideButtons();
+void drawSideButtons(const vector<Button>& buttons);
 void drawKeypadAndCardBackground();
 
 

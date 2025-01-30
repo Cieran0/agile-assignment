@@ -11,7 +11,7 @@
 void drawWaitingForCard() {
     drawATMScreen(getStringInLanguage("INSERT_HERE_TEXT").c_str());
     drawCardSlot();
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
@@ -21,14 +21,13 @@ void atmLayout() {
     drawAtmCasing();
     drawATMScreen(displayText.c_str());
     updatePinDisplay();
-    // int textSize = MeasureText(pinDisplay.c_str(), 30);
     if (!pinDisplay.empty()) {
         int textWidth = MeasureText(pinDisplay.c_str(), 75);
         int textX = atmX + (atmWidth - textWidth) / 2;
         int textY = atmY + (atmHeight / 3); 
         DrawTextB(pinDisplay.c_str(), textX, textY, 75, ATM_TEXT); 
     }
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
@@ -55,8 +54,7 @@ void displayTransactionChoices() {
     };
  
 
-    drawButtons(buttons); 
-    drawSideButtons();    
+    drawSideButtons(sideButtons);
     drawKeypadAndCardBackground();
     drawKeypad(doNothing);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
@@ -65,7 +63,7 @@ void displayTransactionChoices() {
 void drawWithdrawMenu() {
     drawATMScreen(withdrawlText.c_str());
     drawMoney(input);
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
     drawKeypad(handleWithdrawInput);
@@ -88,12 +86,10 @@ void drawBalanceChoices() {
         {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, getStringInLanguage("MAIN_MENU_TEXT").c_str(), MainMenu}
     };
 
-    drawButtons(buttons);
-    drawSideButtons();    
+    drawSideButtons(sideButtons);
     drawKeypadAndCardBackground();
     drawKeypad(doNothing);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
-
 }
 
 void viewBalance() {
@@ -101,11 +97,7 @@ void viewBalance() {
     DrawTextB("Your Current Balance:", atmX + 250, atmY + 100, 20, ATM_TEXT);
     DrawTextB((currencySymbol + to_string(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
 
-    vector<Button> buttons = {
-        {{ static_cast<float>(atmX + 200), static_cast<float>(atmY + 450), 350.0f, 60.0f }, "Back to Main Menu", MainMenu }
-    };
-    drawButtons(buttons);
-    drawSideButtons();
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(doNothing);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
@@ -115,8 +107,9 @@ void viewBalance() {
 void drawDepositMenu() {
     drawATMScreen(getStringInLanguage("DEPOSIT_TEXT").c_str());
     drawMoney(input);
+    drawSideButtons({});
+    drawKeypad(handleDepositInput);
     drawCashSlot("INSERT CASH HERE");
-    drawSideButtons();
     drawKeypadAndCardBackground();
     drawKeypad(handleDepositInput);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
@@ -144,9 +137,8 @@ void printBalance() {
         };
         drawButtons(buttons);
     }
-
-    drawCashSlot("INSERT_HERE_TEXT");
-    drawSideButtons();
+    drawCashSlot("INSERTED CARD");
+    drawSideButtons({});
     drawKeypadAndCardBackground();
     drawKeypad(handleInput);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());

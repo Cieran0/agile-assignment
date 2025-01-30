@@ -228,6 +228,10 @@ void drawKeypad(const std::function<void(const string&)>& handleInput) {
     GuiSetStyle(BUTTON, BORDER_COLOR_PRESSED, ColorToInt(WHITE));
 }
 
+// keeps throwing this error for me
+// draw.cpp:225:30: error: character too large for enclosing character literal type
+//  225 |             currencySymbol = '£';
+
 void setCurrency(Currency currency) {
     switch (currency) {
         case GBP:
@@ -291,53 +295,63 @@ void screenInit() {
     GuiSetStyle(DEFAULT, TEXT_SIZE, screenHeight/40);
 }
 
-void drawSideButtons() {
+void drawSideButtons(const vector<Button>& buttons) {
     int buttonWidth = 90;
     int buttonHeight = 70;
-    int buttonSpacing = 100;
+    int buttonSpacing = 50;
+    int verticalSpacing = 40;
+    int fontSize = 20;
+    Color textColor = BLACK;
 
     int startXLeft = atmX - buttonWidth - 15;
     int startXRight = atmX + atmWidth + 20;
 
-    int totalButtonHeight = (4 * buttonHeight) + (3 * buttonSpacing);
-    int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
+    int startY = atmY + 50;
+    
+    // Split buttons into halfs
+    for (int pairIndex = 0; pairIndex < (buttons.size() + 1) / 2; pairIndex++) {
+        float btnY = startY + pairIndex * (buttonHeight + verticalSpacing);
 
-    for (int i = 0; i < 4; i++) {
-        Rectangle btnRect = {
-            static_cast<float>(startXLeft),
-            static_cast<float>(startY + (i * (buttonHeight + buttonSpacing))),
-            static_cast<float>(buttonWidth),
-            static_cast<float>(buttonHeight)
-        };
+        // Left button
+        int leftButtonIndex = pairIndex * 2;
+        if (leftButtonIndex < buttons.size()) {
+            Rectangle btnRectLeft = {
+                static_cast<float>(startXLeft),
+                btnY,
+                static_cast<float>(buttonWidth),
+                static_cast<float>(buttonHeight)
+            };
 
-        GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(GRAY));
-        GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(LIGHTGRAY));
-        GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(WHITE));
-        GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
-        GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, ColorToInt(DARKGRAY));
-        GuiSetStyle(BUTTON, BORDER_WIDTH, 2);
-
-        if (GuiButton(btnRect, ">")) {
-            handleInput("");
+            if (GuiButton(btnRectLeft, ">")) {
+                setScreen(buttons[leftButtonIndex].nextScreen);
+                break;
+            }
+            
+            int textWidth = MeasureText(buttons[leftButtonIndex].text, fontSize);
+            float textXLeft = btnRectLeft.x + btnRectLeft.width + buttonSpacing;
+            float textY = btnRectLeft.y + (btnRectLeft.height / 2) - (fontSize / 2);
+            DrawText(buttons[leftButtonIndex].text, textXLeft, textY, fontSize, textColor);
         }
-    }
 
-    for (int i = 0; i < 4; i++) {
-        Rectangle btnRect = {
-            static_cast<float>(startXRight),
-            static_cast<float>(startY + (i * (buttonHeight + buttonSpacing))),
-            static_cast<float>(buttonWidth),
-            static_cast<float>(buttonHeight)
-        };
+        // Right button
+        int rightButtonIndex = pairIndex * 2 + 1;
+        if (rightButtonIndex < buttons.size()) {
+            Rectangle btnRectRight = {
+                static_cast<float>(startXRight),
+                btnY,
+                static_cast<float>(buttonWidth),
+                static_cast<float>(buttonHeight)
+            };
 
-        GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(LIGHTGRAY));
-        GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(WHITE));
-        GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
-        GuiSetStyle(BUTTON, BORDER_COLOR_NORMAL, ColorToInt(DARKGRAY));
-        GuiSetStyle(BUTTON, BORDER_WIDTH, 2);
+            if (GuiButton(btnRectRight, "<")) {
+                setScreen(buttons[rightButtonIndex].nextScreen);
+                break;
+            }
 
-        if (GuiButton(btnRect, "<")){
-            handleInput(""); 
+            int textWidth = MeasureText(buttons[rightButtonIndex].text, fontSize);
+            float textXRight = btnRectRight.x - textWidth - buttonSpacing;
+            float textY = btnRectRight.y + (btnRectRight.height / 2) - (fontSize / 2);
+            DrawText(buttons[rightButtonIndex].text, textXRight, textY, fontSize, textColor);
         }
     }
 }
