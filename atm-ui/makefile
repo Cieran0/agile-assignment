@@ -12,11 +12,21 @@ ifeq ($(UNAME_S),Linux)
     LDFLAGS = -L$(RAYLIB_PATH) -lraylib -lcrypto -lssl
     # Add any Linux-specific flags here
 else ifeq ($(UNAME_S),Darwin)
-    RAYLIB_PATH = /opt/homebrew/Cellar/raylib
+    # Detect Mac processor architecture
+    UNAME_M := $(shell uname -m)
+    ifeq ($(UNAME_M),arm64)
+        # M1/M2 Mac paths
+        RAYLIB_PATH = /opt/homebrew/Cellar/raylib
+        OPENSSL_PATH = /opt/homebrew/opt/openssl
+    else
+        # Intel Mac paths
+        RAYLIB_PATH = /usr/local/Cellar/raylib
+        OPENSSL_PATH = /usr/local/opt/openssl
+    endif
     RAYLIB_INCLUDE = $(shell find $(RAYLIB_PATH) -name include)
     RAYLIB_LIB = $(shell find $(RAYLIB_PATH) -name lib)
-    INCLUDES = -I$(RAYLIB_INCLUDE) -I/opt/homebrew/opt/openssl/include
-    LDFLAGS = -L$(RAYLIB_LIB) -L/opt/homebrew/opt/openssl/lib -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -lcrypto -lssl
+    INCLUDES = -I$(RAYLIB_INCLUDE) -I$(OPENSSL_PATH)/include
+    LDFLAGS = -L$(RAYLIB_LIB) -L$(OPENSSL_PATH)/lib -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -lcrypto -lssl
 else ifeq ($(OS),Windows_NT)
     RAYLIB_PATH = C:/raylib
     OPENSSL_PATH = "C:/Program Files/OpenSSL-Win64"
