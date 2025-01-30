@@ -24,20 +24,24 @@ void genericInputHandler(string buttonPressed, Screen lastScreen, size_t maxInpu
     }
 }
 
+double getFormattedBalance(Response r) {
+    string rawBalance = to_string(r.newBalance);
+    int dotPos = static_cast<int>(r.dotPosition);
+    if (dotPos > 0 && dotPos < static_cast<int>(rawBalance.size())) {
+        rawBalance.insert(rawBalance.size() - dotPos, 1, '.');
+    }
+    double formattedBalance = stod(rawBalance);
+    formattedBalance = round(formattedBalance * 100.0) / 100.0;
+    return formattedBalance;
+}
+
 void handleInput(string buttonPressed) {
     genericInputHandler(buttonPressed, WaitingForCard, 4, (input.size() == 4), [] {
         string temp = input;
         Response r = forwardToSocket(PIN_CHECK, atmID, currentCurrency, 0, cardNumber.c_str(), expiryDate.c_str(), temp.c_str());
         if(r.succeeded == 0) {
             setScreen(MainMenu);
-            string rawBalance = to_string(r.newBalance);
-            int dotPos = static_cast<int>(r.dotPosition);
-            if (dotPos > 0 && dotPos < static_cast<int>(rawBalance.size())) {
-                rawBalance.insert(rawBalance.size() - dotPos, 1, '.');
-            }
-            double formattedBalance = stod(rawBalance);
-            formattedBalance = round(formattedBalance * 100.0) / 100.0;
-            balance = formattedBalance;
+            balance = getFormattedBalance(r);
             enteredPIN = temp;
         }
         else {
@@ -64,7 +68,7 @@ void handleWithdrawInput(const string& buttonPressed) {
             Response r = forwardToSocket(WITHDRAWAL, atmID, currentCurrency, amount, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
             // Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, enteredPIN, amount);
             if (r.succeeded == 0) {
-                balance = r.newBalance;
+                balance = getFormattedBalance(r);
                 input.clear();
                 setScreen(MainMenu);
             }
@@ -78,7 +82,7 @@ void handleDepositInput(const string& buttonPressed) {
         Response r = forwardToSocket(DEPOSIT, atmID, currentCurrency, amount, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
         // Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, enteredPIN, -amount);
         if(r.succeeded == 0) {
-            balance = r.newBalance;
+            balance = getFormattedBalance(r);
             input.clear();
             setScreen(MainMenu);
         }

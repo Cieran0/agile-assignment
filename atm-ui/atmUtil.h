@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <cstdint>
 #include "raylib.h"
+#include "transaction.h"
 #include <vector>
 #include <functional>
 #include <ctime>
@@ -103,6 +104,7 @@ void handleInput(string buttonPressed);
 void handleWithdrawInput(const string& buttonPressed); 
 void handleDepositInput(const string& buttonPressed);
 void doNothing(string buttonPressed);
+double getFormattedBalance(Response r);
 
 void drawCashSlot(const char* text);
 void drawButtons(vector<Button> buttons);
