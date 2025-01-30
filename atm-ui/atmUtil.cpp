@@ -15,10 +15,14 @@ uint64_t atmID = rand_uint64();
 enum Screen screen = WaitingForCard;
 enum Language defaultLanguage = ENGLISH;
 
-account a1 = {accountNo: "5030153826527268", expiryDate: "06/28", balance: 0.0};
-//a1.accountNo = "5030153826527268";
-//std::string expiryDate = "06/28";
-//double balance = 0;
+BalanceMoney balance = {
+    .currency = currentCurrency,
+    .balance=0,
+    .dotPosition = 4
+};
+
+string cardNumber = "5030153826527268";
+string expiryDate = "06/28";
 
 // shouldve probably used an enum here but too late
 std::map<std::string, std::string> englishStrings {
@@ -40,7 +44,8 @@ std::map<std::string, std::string> englishStrings {
     {"TAKE_RECEIPT_TEXT", "TAKE YOUR RECEIPT"},
     {"WITHDRAWAL_TEXT", "Cash Withdrawal"},
     {"DEPOSIT_TEXT", "Enter Deposit Amount"},
-    {"BALANCE_OPTION_TEXT", "Select balance option"}
+    {"BALANCE_OPTION_TEXT", "Select balance option"},
+    {"NETWORK_ERROR",            "Sorry there was a network error, please try again."},
 };
 
 std::map<std::string, std::string> frenchStrings {
@@ -62,7 +67,8 @@ std::map<std::string, std::string> frenchStrings {
     {"TAKE_RECEIPT_TEXT",        "Prends ton reçu"},
     {"WITHDRAWAL_TEXT",          "Retrait en espèces"},
     {"DEPOSIT_TEXT",             "Entrez le montant du dépôt"},
-    {"BALANCE_OPTION_TEXT",      "Sélectionnez l'option de solde"}
+    {"BALANCE_OPTION_TEXT",      "Sélectionnez l'option de solde"},
+    {"NETWORK_ERROR",            "Désolé, une erreur réseau s'est produite, veuillez réessayer."},
 };
 
 std::map<std::string, std::string> spanishStrings {
@@ -84,7 +90,8 @@ std::map<std::string, std::string> spanishStrings {
     {"TAKE_RECEIPT_TEXT",        "Toma tu recibo"},
     {"WITHDRAWAL_TEXT",          "Retiro de efectivo"},
     {"DEPOSIT_TEXT",             "Ingrese el monto del depósito"},
-    {"BALANCE_OPTION_TEXT",      "Seleccione opción de saldo"}
+    {"BALANCE_OPTION_TEXT",      "Seleccione opción de saldo"},
+    {"NETWORK_ERROR",            "Lo sentimos, hubo un error de red, inténtelo de nuevo."},
 };
 
 std::map<std::string, std::string> germanStrings {
@@ -106,7 +113,8 @@ std::map<std::string, std::string> germanStrings {
     {"TAKE_RECEIPT_TEXT",        "Nehmen Sie Ihre Quittung"},
     {"WITHDRAWAL_TEXT",          "Bargeldauszahlung"},
     {"DEPOSIT_TEXT",             "Geben Sie den Einzahlungsbetrag ein"},
-    {"BALANCE_OPTION_TEXT",      "Wählen Sie die Saldooption"}
+    {"BALANCE_OPTION_TEXT",      "Wählen Sie die Saldooption"},
+    {"NETWORK_ERROR",            "Leider ist ein Netzwerkfehler aufgetreten. Bitte versuchen Sie es erneut."},
 };
 
 string keyPad[5][3] = {
@@ -148,9 +156,9 @@ void updatePinDisplay() {
     pinDisplay = string(input.size(), '*');
 }
 
-void printBalanceToFile(string balance){
+void printBalanceToFile(BalanceMoney balance){
     ofstream balancePrint("printedBalance.txt");
-    balancePrint << getStringInLanguage("BALANCE_TEXT") << balance << endl;
+    balancePrint << getStringInLanguage("BALANCE_TEXT") << balanceAsString(balance) << endl;
     balancePrint.close();
 }
 
@@ -165,4 +173,8 @@ void setScreen(Screen s) {
 void setLanguage(Language language) {
     defaultLanguage = language;
     resetGlobalTextVariables();
+}
+
+string balanceAsString(BalanceMoney balance) {
+    return "Money!";
 }

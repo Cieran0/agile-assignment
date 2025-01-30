@@ -128,7 +128,7 @@ void drawPrintedReciept() {
     int x = (screenWidth - recieptWidth) / 2;
     int y = screenHeight - recieptHeight - (screenHeight / 10);
 
-    std::string balanceString = getStringInLanguage("BALANCE_TEXT") + std::to_string(balance);
+    std::string balanceString = getStringInLanguage("BALANCE_TEXT") + balanceAsString(balance);
 
     Rectangle reciept = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(recieptWidth), static_cast<float>(recieptHeight)};
 

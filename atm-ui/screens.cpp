@@ -10,10 +10,10 @@
 
 void drawWaitingForCard() {
     drawATMScreen(getStringInLanguage("INSERT_HERE_TEXT").c_str());
-    drawCardSlot();
     drawSideButtons();
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawCardSlot();
+    drawKeypad(doNothing);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
 }
 
@@ -99,7 +99,7 @@ void drawBalanceChoices() {
 void viewBalance() {
     drawATMScreen("");
     DrawTextB("Your Current Balance:", atmX + 250, atmY + 100, 20, ATM_TEXT);
-    DrawTextB((currencySymbol + to_string(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
+    DrawTextB((currencySymbol + balanceAsString(balance)).c_str(), atmX + 250, atmY + 120, 40, ATM_TEXT);
 
     vector<Button> buttons = {
         {{ static_cast<float>(atmX + 200), static_cast<float>(atmY + 450), 350.0f, 60.0f }, "Back to Main Menu", MainMenu }
@@ -135,7 +135,7 @@ void printBalance() {
     if (counter < 60 * 5) { 
         counter++;
         drawATMScreen("Processing....");
-        printBalanceToFile(to_string(balance));
+        printBalanceToFile(balance);
     } else {
         drawATMScreen("Please take your receipt");
         drawPrintedReciept();

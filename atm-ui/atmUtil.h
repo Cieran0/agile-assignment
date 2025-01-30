@@ -10,6 +10,7 @@
 #include <ctime>
 #include "Currency.hpp"
 #include <map>
+#include "net.h"
 
 extern int screenWidth;  
 extern int screenHeight; 
@@ -82,7 +83,6 @@ struct Button {
 struct account {
     std::string accountNo;
     std::string expiryDate;
-    double balance;
 };
 
 
@@ -90,7 +90,7 @@ void updatePinDisplay();
 void screenManager();
 void resetGlobalTextVariables();
 void printBalance();
-void printBalanceToFile(string balance);
+void printBalanceToFile(BalanceMoney balance);
 void processingScreen(string messageToPrint);
 void screenInit();
 void drawKeypad(const std::function<void(const string&)>& handleInput);
@@ -131,7 +131,6 @@ extern std::string cardNumber;
 extern std::string expiryDate;
 extern std::string currencySymbol;
 extern Currency currentCurrency;
-extern double balance;
 extern enum Screen screen;
 extern enum Currency currency;
 extern uint64_t atmID;
@@ -153,4 +152,7 @@ void setScreen(Screen s);
 extern Font mainFont;
 
 void DrawTextB(const char *text, int posX, int posY, int fontSize, Color color);
+
+
+
 #endif

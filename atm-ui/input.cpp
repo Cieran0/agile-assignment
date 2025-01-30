@@ -30,7 +30,9 @@ void handleInput(string buttonPressed) {
         Response r = forwardToSocket(PIN_CHECK, atmID, currentCurrency, 0, cardNumber.c_str(), expiryDate.c_str(), temp.c_str());
         if(r.succeeded == 0) {
             setScreen(MainMenu);
-            balance = r.newBalance;
+            balance.balance = r.newBalance;
+            balance.dotPosition = r.dotPosition;
+            balance.currency = r.atmCurrency;
             enteredPIN = temp;
         }
         else {
@@ -49,18 +51,19 @@ void doNothing(string buttonPressed) {
 void handleWithdrawInput(const string& buttonPressed) {
     genericInputHandler(buttonPressed, MainMenu, 10, (!input.empty()), [] {
         int amount = std::stof(input);
-        if (amount > balance) {
+        Response r = forwardToSocket(WITHDRAWAL, atmID, currentCurrency, amount, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
+        if (r.succeeded == INSUFFICIENT_FUNDS) {
             withdrawlText = getStringInLanguage("INSUFFICIENT_FUNDS_TEXT");
             input.clear();
-        } else {
-            std::cout << "PIN: [" << enteredPIN.c_str() << "]" << std::endl;
-            Response r = forwardToSocket(WITHDRAWAL, atmID, currentCurrency, amount, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
-            // Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, enteredPIN, amount);
-            if (r.succeeded == 0) {
-                balance = r.newBalance;
+        } else if (r.succeeded == 0) {
+                balance.balance = r.newBalance;
+                balance.dotPosition = r.dotPosition;
+                balance.currency = r.atmCurrency;
                 input.clear();
-                setScreen(MainMenu);
-            }
+                setScreen(MainMenu);   
+        } else {
+            withdrawlText = getStringInLanguage("NETWORK_ERROR");
+            input.clear();
         }
     });
 }
@@ -71,7 +74,9 @@ void handleDepositInput(const string& buttonPressed) {
         Response r = forwardToSocket(DEPOSIT, atmID, currentCurrency, amount, cardNumber.c_str(), expiryDate.c_str(), enteredPIN.c_str());
         // Response r = forwardToSocket(cardNumber, expiryDate, ATM_ID, enteredPIN, -amount);
         if(r.succeeded == 0) {
-            balance = r.newBalance;
+            balance.balance = r.newBalance;
+            balance.dotPosition = r.dotPosition;
+            balance.currency = r.atmCurrency;
             input.clear();
             setScreen(MainMenu);
         }
