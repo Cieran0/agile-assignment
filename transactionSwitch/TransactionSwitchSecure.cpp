@@ -170,12 +170,13 @@ private:
 
     void handleAtmRequest(SSL* ssl) {
         Transaction transaction;
-        logger.logTransaction(transaction);
+        std::memset(&transaction, 0, sizeof(Transaction));
 
         if (SSL_read(ssl, &transaction, sizeof(Transaction)) <= 0) {
             ERR_print_errors_fp(stderr);
             return;
         }
+        logger.logTransaction(transaction);
  
         Response response = sendNetworkMessage(transaction); // destination = messsage.cardnumber[0-3]
         SSL_write(ssl, &response, sizeof(Response));
