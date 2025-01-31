@@ -28,7 +28,6 @@ void handleSignal(int signal) {
 }
 
 void handleClient(SSL *ssl) {
-    std::cout << "Handling new client connection" << std::endl;
 
     Transaction transaction;
     Response response;
@@ -54,7 +53,6 @@ void handleClient(SSL *ssl) {
     }
 
     SSL_free(ssl);
-    std::cout << "Client connection closed" << std::endl;
 }
 
 int initSSLServer(SSL_CTX *&ctx, int &sockfd, sockaddr_in &servaddr) {

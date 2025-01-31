@@ -19,6 +19,7 @@ enum ResponseType {
     INCORRECT_PIN = 3,
     NETWORK_ERROR = 4,
     SYSTEM_MAINTENANCE = 5,
+    CARD_BLOCKED = 6,
 };
 
 typedef int64_t AtmCurrency;

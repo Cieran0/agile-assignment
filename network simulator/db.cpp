@@ -21,7 +21,7 @@ std::condition_variable queueCondition;
 Response processTransaction(Transaction transaction, sqlite3*& db) {
     Response response = {.succeeded = NETWORK_ERROR};
 
-    std::string sql_string = std::format("SELECT Balance, Currency FROM Customer WHERE CardNumber = '{}' AND PIN = '{}';", transaction.cardNumber, transaction.pinNo);
+    std::string sql_string = std::format("SELECT Balance, Currency, blocked FROM Customer WHERE CardNumber = '{}' AND PIN = '{}';", transaction.cardNumber, transaction.pinNo);
 
     sqlite3_stmt* stmt = nullptr;
     int exitCode = sqlite3_prepare_v2(db, sql_string.c_str(), -1, &stmt, nullptr);
@@ -44,11 +44,16 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
 
     BankCurrency currentBankBalance = sqlite3_column_int64(stmt, 0);
     sqlite_string bankCurrencyString = sqlite3_column_text(stmt, 1);
+    int blocked = sqlite3_column_int(stmt, 2);
+
+    if(blocked != 0) {
+        response.succeeded = CARD_BLOCKED;
+        sqlite3_finalize(stmt);
+        return response;
+    }
 
     Currency bankCurrency = currencyCodeToEnum.at((const char*)bankCurrencyString);
 
-    //std::cout << "Current balance: " << currentBankBalance << std::endl;
-    //std::cout << "Bank Currency: " << bankCurrencyString << " | " << bankCurrency << std::endl;
     
     DecimalPosition dotPosition = currencyDotPosition.at(transaction.currency);
     transaction.amount *= pow(10, dotPosition);
@@ -144,10 +149,7 @@ void emptyTransactionLogs(sqlite3* db) {
         char* errMsg = nullptr;
         int rc = sqlite3_exec(db, log_sql.c_str(), nullptr, nullptr, &errMsg);
         if (rc != SQLITE_OK) {
-            std::cerr << "Error executing log SQL: " << errMsg << std::endl;
             sqlite3_free(errMsg);
-        } else {
-            std::cout << "Executed log SQL: " << log_sql << std::endl;
         }
     }
 }
