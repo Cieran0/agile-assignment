@@ -37,7 +37,6 @@ void handleClient(SSL *ssl) {
 
         int n = SSL_read(ssl, &transaction, sizeof(transaction));
         if (n <= 0) {
-            std::cerr << "Client Disconnected" << std::endl;
             break;
         }
 
