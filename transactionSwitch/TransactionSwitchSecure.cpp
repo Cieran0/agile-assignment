@@ -69,9 +69,10 @@ private:
 class TransactionSwitch {
 public:
     TransactionSwitch(std::vector<const char*> network_sim_ips, std::vector<int> network_sim_ports)
-        : logger(), network_sim_ips(network_sim_ips), network_sim_ports(network_sim_ports), pool(100) {
+        : logger(), pool(100) {
 
-        
+        this->network_sim_ips = network_sim_ips;
+        this->network_sim_ports = network_sim_ports;
         SSL_library_init();
         SSL_load_error_strings();
         OpenSSL_add_all_algorithms();

@@ -26,16 +26,10 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    // Create the server instances
-    std::vector<TransactionSwitch> servers;
-    for (size_t i = 0; i < ip_addresses.size(); ++i) {
-        servers.emplace_back(ip_addresses[i], ports[i]);
-    }
+    TransactionSwitch transactionSwitch(ip_addresses, ports);
 
     try {
-        for (auto& server : servers) {
-            server.startServer();
-        }
+       transactionSwitch.startServer();
     } catch (const std::exception &e) {
         std::cerr << "Error starting server: " << e.what() << std::endl;
     }
