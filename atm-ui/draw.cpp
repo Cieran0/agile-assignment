@@ -46,10 +46,12 @@ void accessabilityView(){
 }
 
 void drawCashSlot(const char* text) {
+    static bool selectingCard = false;
+
     int slotWidth = 400;
     int slotHeight = 40;
     int startX = atmX + atmWidth + (atmWidth / 7);
-    int slotY = atmY + 150;
+    int slotY = atmY + 60;
 
     Rectangle cashSlotButton = {
         static_cast<float>(startX),
@@ -58,14 +60,48 @@ void drawCashSlot(const char* text) {
         static_cast<float>(slotHeight)
     };
 
-    if (GuiButton(cashSlotButton, text)) {
-        setScreen(EnterPin);
-        resetGlobalTextVariables();
-        displayText = getStringInLanguage("PIN_PROMPT");
-    }
+    if (!selectingCard) {
+        if (GuiButton(cashSlotButton, text)) {
+            selectingCard = true;
+        }
 
-    DrawRectangle(startX, atmY + 720, slotWidth, slotHeight, DARKGRAY);
-    DrawTextB(getStringInLanguage("TAKE_RECEIPT_TEXT").c_str(), startX + 10, atmY + 730, 20, WHITE);
+       if (currentCard) {
+         DrawRectangle(startX, atmY + 720, slotWidth, slotHeight, DARKGRAY);
+         DrawTextB(getStringInLanguage("TAKE_RECEIPT_TEXT").c_str(), startX + 10, atmY + 730, 20, WHITE);
+       }
+    } else {
+        float buttonWidth = 350;
+        float buttonHeight = 40;
+        float buttonSpacing = 10;
+        float startY = cashSlotButton.y + cashSlotButton.height + 10;
+
+        DrawRectangle(cashSlotButton.x + 20, startY - 10, 
+                     buttonWidth + 20, 
+                     (buttonHeight + buttonSpacing) * cards.size() + 10,
+                     LIGHTGRAY);
+        DrawRectangleLines(cashSlotButton.x + 10, startY - 10, 
+                          buttonWidth + 20, 
+                          (buttonHeight + buttonSpacing) * cards.size() + 10, 
+                          DARKGRAY);
+
+        for (size_t i = 0; i < cards.size(); i++) {
+            string displayNumber = "****-****-****-" + cards[i].cardNumber.substr(12);
+            Rectangle bounds = {
+                cashSlotButton.x + 20,
+                startY + (buttonHeight + buttonSpacing) * i,
+                buttonWidth,
+                buttonHeight
+            };
+
+            if (GuiButton(bounds, displayNumber.c_str())) {
+                currentCard = &cards[i];
+                input.clear();
+                setScreen(EnterPin);
+                selectingCard = false;
+                return;
+            }
+        }
+    }
 }
 
 void drawButtons(vector<Button> buttons) {
@@ -131,11 +167,11 @@ void drawPrintedReceipt() {
     int x = atmX + atmWidth + (atmWidth / 7);
     int y = screenHeight - recieptHeight - (screenHeight / 50);
 
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(2) << balance;
-    std::string balanceFormatted = oss.str();
-
-    std::string balanceString = getStringInLanguage("BALANCE_TEXT") + balanceFormatted;
+    if(currentCard) {
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(2) << currentCard->balance;
+        DrawTextB(ss.str().c_str(), x + 150, y + 150, 20, BLACK);
+    }
 
     Rectangle reciept = {
         static_cast<float>(x),
@@ -158,8 +194,6 @@ void drawPrintedReceipt() {
     textY += lineHeight + padding;
     DrawTextB(("ATM ID: " + atmId).c_str(), textX, textY, lineHeight, BLACK);
     textY += lineHeight + padding;
-
-    DrawTextB(balanceString.c_str(), textX, textY, lineHeight, BLACK);
 }
 Font mainFont;
 
@@ -437,6 +471,12 @@ void drawATMScreen(const char* text) {
     int textX = atmX + (atmWidth - textWidth) / 2; 
     int textY = atmY + 40; 
     DrawTextB(text, textX, textY, 30, ATM_TEXT);
+
+    // Show selected card if available
+    if(currentCard) {
+        string cardDisplay = "Card: ****-****-****-" + currentCard->cardNumber.substr(12);
+        DrawTextB(cardDisplay.c_str(), atmX + 20, atmY + 20, 20, ATM_TEXT);
+    }
 }
 
 void drawKeypadAndCardBackground() {

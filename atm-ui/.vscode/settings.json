@@ -1,5 +1,8 @@
 {
     "files.associations": {
+        "*.page-template": "vue",
+        "*.layout-template": "vue",
+        "*.vue": "vue",
         "vector": "cpp",
         "__bit_reference": "cpp",
         "__config": "cpp",
@@ -48,6 +51,8 @@
         "ratio": "cpp",
         "sstream": "cpp",
         "variant": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "deque": "cpp",
+        "map": "cpp"
     }
 }

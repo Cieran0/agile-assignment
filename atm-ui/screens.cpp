@@ -11,11 +11,11 @@
 #include <unordered_map>
 
 void drawWaitingForCard() {
+    drawAtmCasing();
     drawATMScreen(getStringInLanguage("INSERT_CARD_TEXT").c_str());
-    drawCardSlot();
     drawSideButtons({});
     drawKeypadAndCardBackground();
-    drawKeypad(handleInput);
+    drawKeypad(doNothing);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
 }
 
@@ -23,11 +23,12 @@ void atmLayout() {
     drawAtmCasing();
     drawATMScreen(displayText.c_str());
     updatePinDisplay();
+
     if (!pinDisplay.empty()) {
         int textWidth = MeasureText(pinDisplay.c_str(), 75);
         int textX = atmX + (atmWidth - textWidth) / 2;
-        int textY = atmY + (atmHeight / 3); 
-        DrawTextB(pinDisplay.c_str(), textX, textY, 75, ATM_TEXT); 
+        int textY = atmY + (atmHeight / 3);
+        DrawTextB(pinDisplay.c_str(), textX, textY, 75, ATM_TEXT);
     }
     drawSideButtons({});
     drawKeypadAndCardBackground();
@@ -111,7 +112,7 @@ void viewBalance() {
     DrawTextB(getStringInLanguage("BALANCE_TEXT").c_str(), textX, textY, 30, ATM_TEXT);
 
     std::stringstream ss;
-    ss << std::fixed << std::setprecision(2) << balance;
+    ss << std::fixed << std::setprecision(2) << currentCard->balance;
     DrawTextB((currencySymbol + ss.str()).c_str(), textX + 40, textY + 100, 50, ATM_TEXT);
 
     float buttonWidth  = 350;
@@ -157,7 +158,7 @@ void printBalance() {
 
     if (!finished) {
         counter++;
-        printBalanceToFile(to_string(balance));
+        printBalanceToFile(to_string(currentCard->balance));
     }
 
     drawCashSlot("INSERTED CARD");

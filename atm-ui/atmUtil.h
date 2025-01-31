@@ -85,6 +85,14 @@ std::string localPin;
 double testBalance;
 };
 
+struct Card {
+    std::string cardNumber;
+    std::string expiryDate;
+    double balance;
+};
+
+extern std::vector<Card> cards;
+extern Card* currentCard;
 
 void updatePinDisplay();
 void screenManager();
@@ -132,7 +140,6 @@ extern std::string cardNumber;
 extern std::string expiryDate;
 extern std::string currencySymbol;
 extern Currency currentCurrency;
-extern double balance;
 extern enum Screen screen;
 extern enum Currency currency;
 extern uint64_t atmID;

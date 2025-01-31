@@ -15,9 +15,13 @@ uint64_t atmID = rand_uint64();
 enum Screen screen = LanguageSelect;
 enum Language defaultLanguage = ENGLISH;
 
-std::string cardNumber = "5030153826527268";
-std::string expiryDate = "06/28";
-double balance = 0;
+std::vector<Card> cards = {
+    {"5030153826527268", "06/28", 0},
+    {"1234567812345678", "12/25", 0},
+    {"9876543210987654", "03/27", 0}
+};
+
+Card* currentCard = NULL;
 
 // shouldve probably used an enum here but too late
 std::map<std::string, std::string> englishStrings {
@@ -165,14 +169,20 @@ void updatePinDisplay() {
 
 void printBalanceToFile(string balance){
     ofstream balancePrint("printedBalance.txt");
-    balancePrint << getStringInLanguage("BALANCE_TEXT") << balance << endl;
+    if(currentCard) {
+        balancePrint << getStringInLanguage("BALANCE_TEXT") 
+                   << currentCard->balance << endl;
+    }
     balancePrint.close();
 }
 
 void setScreen(Screen s) {
     screen = s;
     resetGlobalTextVariables();
-    if(s == Screen::EnterPin) {
+    if (s == WaitingForCard) {
+        currentCard = NULL;
+    }
+    if (s == Screen::EnterPin) {
         enteredPIN = "";
     }
 }
