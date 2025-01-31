@@ -21,8 +21,8 @@ struct ScreenButton {
 #define ATM_BUTTON_HOVER CLITERAL(Color){ 137, 142, 163, 255 }
 #define ATM_TEXT CLITERAL(Color){ 33, 37, 41, 255 }           // Dark gray
 
-#define CASING_BACK_COLOR CLITERAL(Color){(84, 103, 125, 1)}
-#define CASING_FRONT_COLOR CLITERAL(Color){(59, 70, 84, 1)}
+#define CASING_BACK_COLOR CLITERAL(Color){84, 103, 125, 1}
+#define CASING_FRONT_COLOR CLITERAL(Color){59, 70, 84, 1}
 
 
 extern std::string keyPad[5][3];
@@ -32,5 +32,11 @@ bool GuiButton(Rectangle r, std::string text, Color color, Color highlight);
 void drawKeypad(const std::function<void(const std::string&)>& handleInput);
 void drawKeypadAndCardBackground();
 void drawATMScreen(std::string primaryText, std::string secondaryText);
-void drawSideButtons();
+void drawSideButtons(const std::vector<ScreenButton>& screenButtons);
 void drawCardSlot(const char* text, std::function<void()> insertCardHandler);
+
+
+void drawPrintedReciept();
+void resetReciept();
+
+std::string balanceAsString();
