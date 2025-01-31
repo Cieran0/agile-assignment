@@ -18,12 +18,14 @@ std::vector<std::string> cardNumbers = {
     "5030153826527268", 
     "9307315805858911",
     "0832820726785104",
+    "6668897566235512",
 };
 
 std::vector<std::string> expiryDates = {
     "06/28",
     "08/26",
     "05/26",
+    "08/26",
 };
 
 const ScreenButton emptyButton = {
@@ -201,10 +203,10 @@ void drawWallet() {
 
     DrawRectangleRec(rect, BROWN);
     DrawRectangleLinesEx(rect, 1, BLACK);
-    Rectangle cards[3] = {0};
-    Color cardColors[3] = {RED, BLUE, LIME};
+    Rectangle cards[4] = {0};
+    Color cardColors[4] = {RED, BLUE, LIME, YELLOW};
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 4; i++)
     {
         int cardWidth = (rect.width*2)/3;
         int cardHeight = (cardWidth/2);
