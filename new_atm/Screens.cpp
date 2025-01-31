@@ -33,7 +33,7 @@ const ScreenButton emptyButton = {
 
 Transaction currentTransaction;
 
-AtmID atmID = 101;
+AtmID atmID;
 
 AtmCurrency balance = 0;
 DecimalPosition dotPosition = 0;
@@ -419,8 +419,9 @@ void customWithdrawalScreen() {
         } else if (str == inCurrentLanguage(LocalString::CLEAR)) {
             withdrawlAmount = "";
         } else if (str == inCurrentLanguage(LocalString::ENTER) && !enteredPin.empty()) {
-            screen = processingTransaction;
+            AtmCurrency amount = std::stol(withdrawlAmount);
             withdrawlAmount = "";
+            processTransaction(TransactionType::WITHDRAWAL, amount);
         }
     }, [](){});
 }
@@ -445,7 +446,6 @@ void depositScreen() {
         } else if (str == inCurrentLanguage(LocalString::CLEAR)) {
             depositAmount = "";
         } else if (str == inCurrentLanguage(LocalString::ENTER) && !enteredPin.empty()) {
-            screen = processingTransaction;
             AtmCurrency amount = std::stol(depositAmount);
             processTransaction(TransactionType::DEPOSIT, amount);
 
@@ -458,41 +458,45 @@ void processWithdrawal(AtmCurrency amount) {
     processTransaction(TransactionType::WITHDRAWAL, amount);
 }
 
+AtmCurrency getLocalValue(int amount) {
+    return (fastPower(10, 4 - dotPosition)) * amount;
+}
+
 void withdrawalScreen() {
 
     ScreenButton five = {
-        .text = currencySymbol + "5",
-        .func = [](){ processWithdrawal(5); }
+        .text = currencySymbol + std::to_string(getLocalValue(5)),
+        .func = [](){ processWithdrawal(getLocalValue(5)); }
     };
 
     ScreenButton ten = {
-        .text = currencySymbol + "10",
-        .func = [](){ processWithdrawal(10); }
+        .text = currencySymbol + std::to_string(getLocalValue(10)),
+        .func = [](){ processWithdrawal(getLocalValue(10)); }
     };
 
     ScreenButton twenty = {
-        .text = currencySymbol + "20",
-        .func = [](){ processWithdrawal(20); }
+        .text = currencySymbol + std::to_string(getLocalValue(20)),
+        .func = [](){ processWithdrawal(getLocalValue(20)); }
     };
 
     ScreenButton fifty = {
-        .text = currencySymbol + "50",
-        .func = [](){ processWithdrawal(50); }
+        .text = currencySymbol + std::to_string(getLocalValue(50)),
+        .func = [](){ processWithdrawal(getLocalValue(50)); }
     };
 
     ScreenButton hundred = {
-        .text = currencySymbol + "100",
-        .func = [](){ processWithdrawal(100); }
+        .text = currencySymbol + std::to_string(getLocalValue(100)),
+        .func = [](){ processWithdrawal(getLocalValue(100)); }
     };
 
     ScreenButton hundredFifty = {
-        .text = currencySymbol + "150",
-        .func = [](){ processWithdrawal(150); }
+        .text = currencySymbol + std::to_string(getLocalValue(150)),
+        .func = [](){ processWithdrawal(getLocalValue(150)); }
     };
 
     ScreenButton custom = {
         .text = inCurrentLanguage(LocalString::CUSTOM_AMOUNT),
-        .func = []() { withdrawlAmount = ""; }
+        .func = []() { withdrawlAmount = ""; screen = customWithdrawalScreen; }
     };
 
     ScreenButton backButton = {

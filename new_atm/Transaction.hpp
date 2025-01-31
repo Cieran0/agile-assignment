@@ -53,3 +53,5 @@ extern int port;
 
 Response forwardToSocket(Transaction transaction);
 uint64_t rand_uint64();
+
+extern AtmID atmID;
