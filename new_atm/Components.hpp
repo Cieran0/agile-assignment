@@ -3,6 +3,8 @@
 #include <functional>
 #include "raylib.h"
 
+void DrawTextFont(const char *text, int posX, int posY, int fontSize, Color color);
+
 extern int screenWidth;
 extern int screenHeight;
 extern int atmX;
@@ -25,6 +27,7 @@ struct ScreenButton {
 #define CASING_FRONT_COLOR CLITERAL(Color){59, 70, 84, 1}
 
 
+extern Font mainFont;
 extern std::string keyPad[5][3];
 
 bool inBounds(Rectangle r, int x, int y);

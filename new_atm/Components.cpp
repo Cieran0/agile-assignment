@@ -10,6 +10,12 @@
 #include <sstream>
 #include "Currency.hpp"
 
+Font mainFont;
+
+void DrawTextFont(const char *text, int posX, int posY, int fontSize, Color color) {
+    DrawTextEx(mainFont, text, (Vector2){static_cast<float>(posX), static_cast<float>(posY)}, static_cast<float>(fontSize), 1.0, color);
+}
+
 bool inBounds(Rectangle r, int x, int y) {
     return !(x < r.x || x > r.x + r.width || y < r.y || y > r.y + r.height);
 }
@@ -29,24 +35,24 @@ bool GuiButton(Rectangle r, std::string text, Color color, Color highlight) {
     DrawRectangleRec(r, hovering? highlight : color);
     DrawRectangleLinesEx(r, 1, BLACK);
     int fontSize = r.height;
-    int textSize = MeasureText(text.c_str(), fontSize);
+    int textSize = MeasureTextEx(mainFont, text.c_str(), fontSize, 1.0).x;
     int yOffset = 0;
 
     if(text.size() != 1) {
         //int len = text.length();
         fontSize = r.height / 2;
-        textSize = MeasureText(text.c_str(), fontSize);
+        textSize = MeasureTextEx(mainFont, text.c_str(), fontSize, 1.0).x;
         yOffset=r.height/4;
 
         if(textSize > r.width) {
             fontSize /= (((double)textSize * 1.05) / (double)r.width);
-            textSize = MeasureText(text.c_str(), fontSize);
+            textSize = MeasureTextEx(mainFont, text.c_str(), fontSize, 1.0).x;
             yOffset = (r.height - fontSize) / 2;
         }
 
     }
 
-    DrawText(text.c_str(), r.x + (r.width - textSize)/2, r.y + yOffset, fontSize, BLACK);
+    DrawTextFont(text.c_str(), r.x + (r.width - textSize)/2, r.y + yOffset, fontSize, BLACK);
 
     return IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && hovering;
 }
@@ -143,26 +149,26 @@ void drawATMScreen(std::string primaryText, std::string secondaryText) {
     ); 
     DrawRectangle(atmX + 10, atmY + 10, atmWidth - 20, atmHeight - 20, ATM_DISPLAY_BG);
 
-    int textWidth = MeasureText(primaryText.c_str(), PRIMARY_TEXT_SIZE);
+    int textWidth = MeasureTextEx(mainFont, primaryText.c_str(), PRIMARY_TEXT_SIZE, 1.0).x;
 
     if(textWidth > atmWidth) {
         PRIMARY_TEXT_SIZE /= (((double)textWidth * 1.05) / (double)atmWidth); 
-        textWidth = MeasureText(primaryText.c_str(), PRIMARY_TEXT_SIZE);
+        textWidth = MeasureTextEx(mainFont, primaryText.c_str(), PRIMARY_TEXT_SIZE, 1.0).x;
     }
 
     int textX = atmX + (atmWidth - textWidth) / 2; 
     int textY = atmY + 40; 
-    DrawText(primaryText.c_str(), textX, textY, PRIMARY_TEXT_SIZE, ATM_TEXT);
+    DrawTextFont(primaryText.c_str(), textX, textY, PRIMARY_TEXT_SIZE, ATM_TEXT);
 
     if (!secondaryText.empty()) {
-        int textWidth = MeasureText(secondaryText.c_str(), SECONDARY_TEXT_SIZE);
+        int textWidth = MeasureTextEx(mainFont, secondaryText.c_str(), SECONDARY_TEXT_SIZE, 1.0).x;
         if(textWidth > atmWidth) {
             SECONDARY_TEXT_SIZE /= (((double)textWidth * 1.05) / (double)atmWidth); 
-            textWidth = MeasureText(secondaryText.c_str(), SECONDARY_TEXT_SIZE);
+            textWidth = MeasureTextEx(mainFont, secondaryText.c_str(), SECONDARY_TEXT_SIZE, 1.0).x;
         }
         int textX = atmX + (atmWidth - textWidth) / 2;
         int textY = atmY + (atmHeight / 3); 
-        DrawText(secondaryText.c_str(), textX, textY, SECONDARY_TEXT_SIZE, ATM_TEXT); 
+        DrawTextFont(secondaryText.c_str(), textX, textY, SECONDARY_TEXT_SIZE, ATM_TEXT); 
     }
 }
 
@@ -286,12 +292,12 @@ void drawPrintedReciept() {
     int textY = reciept.y + padding;
     int lineHeight = recieptHeight / 10;
 
-    DrawText(("Date: " + date).c_str(), textX, textY, lineHeight, BLACK);
+    DrawTextFont(("Date: " + date).c_str(), textX, textY, lineHeight, BLACK);
     textY += lineHeight + padding;
-    DrawText(("Time: " + time).c_str(), textX, textY, lineHeight, BLACK);
+    DrawTextFont(("Time: " + time).c_str(), textX, textY, lineHeight, BLACK);
     textY += lineHeight + padding;
-    DrawText(("ATM ID: " +  atmId).c_str(), textX, textY, lineHeight, BLACK);
+    DrawTextFont(("ATM ID: " +  atmId).c_str(), textX, textY, lineHeight, BLACK);
     textY += lineHeight + padding;
 
-    DrawText(balanceString.c_str(), textX, textY, lineHeight, BLACK);
+    DrawTextFont(balanceString.c_str(), textX, textY, lineHeight, BLACK);
 }

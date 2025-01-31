@@ -218,11 +218,11 @@ void drawWallet() {
 
         DrawRectangle(cardX, cardY+(cardHeight/2 - cardHeight/8), cardWidth, cardHeight/4, BLACK);
 
-        int textLen = MeasureText(cardNumbers[i].c_str(), cardHeight/5);
-        DrawText(cardNumbers[i].c_str(), cardX + (cardWidth - textLen)/2,  cardY+(cardHeight/2 - cardHeight/8) + (cardHeight/4 - cardHeight/5)/2, cardHeight/5, WHITE);
+        int textLen = MeasureTextEx(mainFont, cardNumbers[i].c_str(), cardHeight/5, 1.0).x;
+        DrawTextFont(cardNumbers[i].c_str(), cardX + (cardWidth - textLen)/2,  cardY+(cardHeight/2 - cardHeight/8) + (cardHeight/4 - cardHeight/5)/2, cardHeight/5, WHITE);
     
         if(cardNumber == cardNumbers[i]) {
-            DrawText("X", cardX + cardHeight/10, cardY + cardHeight/10, cardHeight/5, BLACK);
+            DrawTextFont("X", cardX + cardHeight/10, cardY + cardHeight/10, cardHeight/5, BLACK);
         }
 
         cards[i] = card;
