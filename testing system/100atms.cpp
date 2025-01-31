@@ -11,7 +11,7 @@
 #include <atomic>
 #include "raylib.h"
 
-const std::string SERVER_IP = "127.0.0.1";
+std::string SERVER_IP = "127.0.0.1";
 int NUMBER_OF_ATMS = 100;
 int SERVER_PORT = 6667;
 int TRANSACTIONS_PER_MINUTE = 2;
@@ -287,6 +287,10 @@ void start(std::thread& simulation_thread) {
 }
 
 int main(int argc, char *argv[]) {
+    if(argc > 1) {
+        SERVER_IP = argv[1];
+    }
+
     InitWindow(1920, 1210, "100 ATM - Test");
     int start_len = MeasureText("Start", 66);
     int running_len = MeasureText("Running", 66);
