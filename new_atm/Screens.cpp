@@ -211,8 +211,8 @@ void drawWallet() {
         int cardWidth = (rect.width)/2;
         int cardHeight = (cardWidth/2);
         int cardX = rect.x + (rect.width-cardWidth)/2;
-        int totalHeight = cardHeight + (((cardHeight*2)/3 + 10)*4); 
-        int cardY = rect.y + (rect.height + (((cardHeight*2)/3 + 10)*i)) / 2;
+        int totalHeight = cardHeight + (((cardHeight*2)/3 + 10)*3); 
+        int cardY = rect.y + ((rect.height - totalHeight) / 2) + (((cardHeight*2)/3 + 10)*i);
 
         Rectangle card = {static_cast<float>(cardX), static_cast<float>(cardY), static_cast<float>(cardWidth), static_cast<float>(cardHeight)};
 
@@ -238,7 +238,7 @@ void drawWallet() {
     int mouseX = GetMouseX();
     int mouseY = GetMouseY();
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 4; i++)
     {
         if(inBounds(cards[i], mouseX, mouseY)) {
             cardNumber = cardNumbers[i];
