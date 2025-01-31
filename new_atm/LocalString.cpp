@@ -33,7 +33,8 @@ const std::unordered_map<LocalString, std::string> englishStrings = {
     {GENERIC_ERROR_MSG, "Network Error"},
     {INSUFFICIENT_FUNDS_MSG, "Insufficient Funds"},
     {INCORRECT_PIN_MSG, "Incorrect PIN"},
-    {CASH, "Cash"},
+    {CASH, "Take your reciept"},
+    {CARD_BLOCKED_MSG, "Your Card is blocked"}
 };
 
 const std::unordered_map<LocalString, std::string> frenchStrings = {
@@ -65,7 +66,8 @@ const std::unordered_map<LocalString, std::string> frenchStrings = {
     { GENERIC_ERROR_MSG, "Erreur réseau" },
     { INSUFFICIENT_FUNDS_MSG, "Fonds insuffisants" },
     { INCORRECT_PIN_MSG, "Code PIN incorrect" },
-    { CASH, "Espèces" },
+    { CASH, "Prenez votre reçu" },
+    {CARD_BLOCKED_MSG, "Votre carte est bloquée"},
 };
 
 const std::unordered_map<LocalString, std::string> spanishStrings = {
@@ -97,7 +99,8 @@ const std::unordered_map<LocalString, std::string> spanishStrings = {
     { GENERIC_ERROR_MSG, "Error de red" },
     { INSUFFICIENT_FUNDS_MSG, "Fondos insuficientes" },
     { INCORRECT_PIN_MSG, "PIN incorrecto" },
-    { CASH, "Efectivo" },
+    { CASH, "Toma tu recibo" },
+    {CARD_BLOCKED_MSG, "Tu tarjeta está bloqueada"}
 };
 
 const std::unordered_map<LocalString, std::string> germanStrings = {
@@ -129,7 +132,8 @@ const std::unordered_map<LocalString, std::string> germanStrings = {
     { GENERIC_ERROR_MSG, "Netzwerkfehler" },
     { INSUFFICIENT_FUNDS_MSG, "Unzureichende Mittel" },
     { INCORRECT_PIN_MSG, "Falsche PIN" },
-    { CASH, "Bargeld" },
+    { CASH, "Nehmen Sie Ihre Quittung" },
+    {CARD_BLOCKED_MSG, "Ihre Karte ist gesperrt"}
 };
 
 const std::unordered_map<Language, std::unordered_map<LocalString, std::string>> languageStrings = {

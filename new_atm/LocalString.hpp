@@ -38,6 +38,7 @@ enum LocalString {
     INSUFFICIENT_FUNDS_MSG,
     INCORRECT_PIN_MSG,
     CASH,
+    CARD_BLOCKED_MSG,
 };
 
 std::string inCurrentLanguage(LocalString str);
