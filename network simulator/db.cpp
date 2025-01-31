@@ -27,7 +27,6 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
     int exitCode = sqlite3_prepare_v2(db, sql_string.c_str(), -1, &stmt, nullptr);
 
     if (exitCode != SQLITE_OK) {
-        std::cerr << "Database error (prepare): " << sqlite3_errmsg(db) << std::endl;
         sqlite3_close(db);
 
         response.succeeded = DATABASE_ERROR;
@@ -35,7 +34,6 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
     }
 
     if (sqlite3_step(stmt) != SQLITE_ROW) {
-        std::cerr << "Database error (step): " << sqlite3_errmsg(db) << std::endl;
         sqlite3_finalize(stmt);
 
         response.succeeded = INCORRECT_PIN;
@@ -97,7 +95,6 @@ Response processTransaction(Transaction transaction, sqlite3*& db) {
 
     exitCode = sqlite3_exec(db, update_sql.c_str(), nullptr, nullptr, nullptr);
     if (exitCode != SQLITE_OK) {
-        std::cerr << "Database error (exec): " << sqlite3_errmsg(db) << std::endl;
         response.succeeded = DATABASE_ERROR;
         sqlite3_finalize(stmt);
         return response;
