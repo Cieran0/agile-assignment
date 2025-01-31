@@ -5,13 +5,18 @@
 #include <iostream>
 #include "Components.hpp"
 #include "Screens.hpp"
+#include "Currency.hpp"
+#include "Transaction.hpp"
 
 int screenWidth = 1920;
-int screenHeight = 1080;
+int screenHeight = 1200;
 int atmX;
 int atmY;
 int atmWidth = 1200;
 int atmHeight = 900;
+
+int port = 6667;
+const char* host = "127.0.0.1";
 
 std::function<void()> screen;
 
@@ -33,8 +38,11 @@ int main(int argc, char const *argv[])
     atmY = (screenHeight - atmHeight) / 2;
 
     InitWindow(screenWidth, screenHeight, "test");
+    SetTargetFPS(60);
 
-    screen = insertCardScreen;
+    setCurrency(Currency::CNH);
+
+    screen = selectLanguageScreen;
 
     while (!WindowShouldClose())
     {
