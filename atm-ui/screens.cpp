@@ -174,66 +174,104 @@ void printBalance() {
         float buttonY = atmY + 250;
     
     vector<Button> buttons = {
-        {{ buttonX, buttonY, buttonWidth, buttonHeight }, "Back to Main Menu", MainMenu}
+        {{ buttonX, buttonY, buttonWidth, buttonHeight }, getStringInLanguage("MAIN_MENU_TEXT").c_str(), MainMenu}
     };
 
     drawButtons(buttons);
     }
 }
 
-void fontSizes(){
-    // guibutton
-    drawKeypad(doNothing);
-    drawCashSlot("INSERT CARD HERE");
+void setFontSize(string size)
+{
+    UnloadFont(mainFont);
+
+    int fontSize = 30;
+    if (size == "SMALL")  fontSize = 15;
+    if (size == "MEDIUM") fontSize = 30;
+    if (size == "LARGE")  fontSize = 60;
+
+    mainFont = LoadFontEx("Ubuntu-Bold.ttf", fontSize, nullptr, 250);
+
+    GuiSetFont(mainFont);
+
+    defaultButtonTextSize = fontSize;
 }
 
 
-void screenSizes(){
+// void screenSizes() {
+//     drawATMScreen(getStringInLanguage("SELECT_OPTION_TEXT").c_str());
 
-    drawATMScreen(getStringInLanguage("SELECT_OPTION_TEXT").c_str());
-    int buttonWidth = 350;
-    int buttonHeight = 60;
-    int buttonSpacing = 110; 
+//     int buttonWidth = 350;
+//     int buttonHeight = 60;
+//     int buttonSpacing = 110; 
 
-    int totalButtonHeight = (4 * buttonHeight) + (3 * buttonSpacing);
-    int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
-    int startX = atmX + 50;
+//     int totalButtonHeight = (4 * buttonHeight) + (3 * buttonSpacing);
+//     int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
+//     int startX = atmX + 50;
 
-    vector<Button> sizeOptionbuttons = {
+//     vector<std::pair<string, std::function<void()>>> sideButtons = {
+//         {"Small",  []() { setFontSize("SMALL"); }},
+//         {"Medium", []() { setFontSize("MEDIUM"); }},
+//         {"Large",  []() { setFontSize("LARGE"); }},
+//         {"Exit",   []() { setScreen(EnterPin);   }},
+//         {"",       []() {}},
+//         {"",       []() {}},
+//         {"",       []() {}},
+//         {"",       []() {}}
+//     };
 
-        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, "Small", displayOptions},
-        {{(float)startX, (float)(startY + (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Medium", displayOptions},
-        {{(float)startX, (float)(startY + 2 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Big", displayOptions},
-        {{(float)startX, (float)(startY + 3 * (buttonHeight + buttonSpacing)), (float)buttonWidth, (float)buttonHeight}, "Exit", WaitingForCard}
+//     /*
+//     vector<Button> sizeOptionButtons = {
+//         {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, 
+//          "Small", displayOptions},
+        
+//         {{(float)startX, 
+//           (float)(startY + (buttonHeight + buttonSpacing)), 
+//           (float)buttonWidth, 
+//           (float)buttonHeight}, 
+//          "Medium", displayOptions},
 
-    }; 
-    for (auto&button : sizeOptionbuttons){
-        if (GuiButton(button.bounds, button.text)){
-            if (button.text == "Small"){
-              SetWindowSize(800,500);
-              atmHeight = 500;
-              atmWidth = 375;
-            }
-            else if (button.text == "Medium"){
+//         {{(float)startX, 
+//           (float)(startY + 2 * (buttonHeight + buttonSpacing)), 
+//           (float)buttonWidth, 
+//           (float)buttonHeight}, 
+//          "Big", displayOptions},
 
-              SetWindowSize(1600,1000);
-              atmHeight = 1000;
-              atmWidth = 750;             
-            }
-            else if (button.text == "Big"){
-              SetWindowSize(1920,1200);
-              atmHeight = 1200;
-              atmWidth = 900;
-            }
-            else{
-                setScreen(WaitingForCard);
-            }
+//         {{(float)startX, 
+//           (float)(startY + 3 * (buttonHeight + buttonSpacing)), 
+//           (float)buttonWidth, 
+//           (float)buttonHeight}, 
+//          "Exit", WaitingForCard}
+//     };
 
-        }
-    }
-    drawButtons(sizeOptionbuttons);
-     
-}
+//     // Example of how the old approach was handled:
+//     for (auto &button : sizeOptionButtons) {
+//         if (GuiButton(button.bounds, button.text.c_str())) {
+//             if (button.text == "Small") {
+//                 SetWindowSize(800, 500);
+//                 atmHeight = 500;
+//                 atmWidth = 375;
+//             } 
+//             else if (button.text == "Medium") {
+//                 SetWindowSize(1600, 1000);
+//                 atmHeight = 1000;
+//                 atmWidth = 750;
+//             } 
+//             else if (button.text == "Big") {
+//                 SetWindowSize(1920, 1200);
+//                 atmHeight = 1200;
+//                 atmWidth = 900;
+//             } 
+//             else {
+//                 setScreen(WaitingForCard);
+//             }
+//         }
+//     }
+//     */
+
+    
+//     drawSideButtons(sideButtons);
+// }
 
 
 
@@ -247,7 +285,7 @@ const std::unordered_map<Screen, std::function<void()>> screens = {
     {BalanceAmount, viewBalance},
     {Deposit, drawDepositMenu},
     {PrintBalance, printBalance},
-    {displayOptions, screenSizes}
+    {displayOptions, drawSizingOptions}
 };
 
 void screenManager() {

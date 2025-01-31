@@ -115,6 +115,8 @@ void drawLanguages();
 void drawAtmCasing();
 void drawSideButtons(const vector<Button>& buttons);
 void drawKeypadAndCardBackground();
+void setFontSize(string size);
+void drawSizingOptions();
 
 void drawATM(const char* text);
 

@@ -507,3 +507,78 @@ void drawLanguages() {
 
     drawSideButtons(sideButtons);
 }
+
+void drawSizingOptions() {
+    drawATMScreen(getStringInLanguage("SELECT_OPTION_TEXT").c_str());
+
+    int buttonWidth = 350;
+    int buttonHeight = 60;
+    int buttonSpacing = 110; 
+
+    int totalButtonHeight = (4 * buttonHeight) + (3 * buttonSpacing);
+    int startY = atmY + ((atmHeight - totalButtonHeight) / 2);
+    int startX = atmX + 50;
+
+    vector<std::pair<string, std::function<void()>>> sideButtons = {
+        {"Small",  []() { setFontSize("SMALL"); }},
+        {"Medium", []() { setFontSize("MEDIUM"); }},
+        {"Large",  []() { setFontSize("LARGE"); }},
+        {"Exit",   []() { setScreen(EnterPin);   }},
+        {"",       []() {}},
+        {"",       []() {}},
+        {"",       []() {}},
+        {"",       []() {}}
+    };
+
+    /*
+    vector<Button> sizeOptionButtons = {
+        {{(float)startX, (float)startY, (float)buttonWidth, (float)buttonHeight}, 
+         "Small", displayOptions},
+        
+        {{(float)startX, 
+          (float)(startY + (buttonHeight + buttonSpacing)), 
+          (float)buttonWidth, 
+          (float)buttonHeight}, 
+         "Medium", displayOptions},
+
+        {{(float)startX, 
+          (float)(startY + 2 * (buttonHeight + buttonSpacing)), 
+          (float)buttonWidth, 
+          (float)buttonHeight}, 
+         "Big", displayOptions},
+
+        {{(float)startX, 
+          (float)(startY + 3 * (buttonHeight + buttonSpacing)), 
+          (float)buttonWidth, 
+          (float)buttonHeight}, 
+         "Exit", WaitingForCard}
+    };
+
+    // Example of how the old approach was handled:
+    for (auto &button : sizeOptionButtons) {
+        if (GuiButton(button.bounds, button.text.c_str())) {
+            if (button.text == "Small") {
+                SetWindowSize(800, 500);
+                atmHeight = 500;
+                atmWidth = 375;
+            } 
+            else if (button.text == "Medium") {
+                SetWindowSize(1600, 1000);
+                atmHeight = 1000;
+                atmWidth = 750;
+            } 
+            else if (button.text == "Big") {
+                SetWindowSize(1920, 1200);
+                atmHeight = 1200;
+                atmWidth = 900;
+            } 
+            else {
+                setScreen(WaitingForCard);
+            }
+        }
+    }
+    */
+
+    
+    drawSideButtons(sideButtons);
+}
