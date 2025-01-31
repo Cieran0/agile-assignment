@@ -15,7 +15,7 @@ void setCurrency(Currency currency) {
             break;
         case EUR:
             currentCurrency = EUR;
-            currencySymbol = "€";
+            currencySymbol = "EUR ";
             break;
         case AUD:
             currentCurrency = AUD;
@@ -27,7 +27,7 @@ void setCurrency(Currency currency) {
             break;
         case CHF:
             currentCurrency = CHF;
-            currencySymbol = "CHF";
+            currencySymbol = "CHF ";
             break;
         case CNH:
             currentCurrency = CNH;

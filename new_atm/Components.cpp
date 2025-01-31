@@ -275,10 +275,10 @@ void drawPrintedReciept() {
 
     std::string atmId = "201"; 
 
-    int recieptWidth = screenWidth / 4;
+    int recieptWidth = 380;
     int recieptHeight = screenHeight / 4;
-    int x = (screenWidth - recieptWidth) / 2;
-    int y = screenHeight - recieptHeight - (screenHeight / 10);
+    int x = atmX + atmWidth + atmWidth/7 + 10;
+    int y = screenHeight - recieptHeight - (screenHeight / 50);
 
     std::string balanceString = inCurrentLanguage(YOUR_BALANCE) + balanceAsString();
 

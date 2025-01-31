@@ -313,9 +313,9 @@ void printBalanceScreen() {
         .func = [](){ screen = mainMenu; counter = 0; resetReciept(); }
     };
 
-    drawScreen(counter > 200 ? complete : processing, "", {emptyButton, emptyButton, emptyButton, backButton}, [](std::string str){}, [](){});
+    drawScreen(counter > 150 ? complete : processing, "", {emptyButton, emptyButton, emptyButton, backButton}, [](std::string str){}, [](){});
 
-    if(counter > 200 ){
+    if(counter > 150 ){
         drawPrintedReciept();
     } else {
         counter++;
@@ -341,6 +341,7 @@ void processingTransaction() {
     std::string genericError = inCurrentLanguage(LocalString::GENERIC_ERROR_MSG);
     std::string insufficient_funds = inCurrentLanguage(LocalString::INSUFFICIENT_FUNDS_MSG);
     std::string incorrectPin = inCurrentLanguage(LocalString::INCORRECT_PIN_MSG);
+    std::string cardBlocked = inCurrentLanguage(LocalString::CARD_BLOCKED_MSG);
     std::vector<ScreenButton> buttons;
     std::string text = processing;
 
@@ -392,6 +393,9 @@ void processingTransaction() {
         } else if (response.succeeded == ResponseType::INCORRECT_PIN) {
             text = incorrectPin;
             buttons = {emptyButton, emptyButton, emptyButton, retryButton};
+        } else if (response.succeeded == ResponseType::CARD_BLOCKED) {
+            text = cardBlocked;
+            buttons = {emptyButton, emptyButton, emptyButton, exitButton};
         } else {
             text = genericError;
             buttons = {emptyButton, emptyButton, emptyButton, exitButton};

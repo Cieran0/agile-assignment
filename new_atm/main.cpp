@@ -64,7 +64,7 @@ int main(int argc, char const *argv[]) {
 
     InitWindow(screenWidth, screenHeight, "ATM");
 
-    mainFont = LoadFontEx("Ubuntu-Bold.ttf", 80, 0, 250);
+    mainFont = LoadFontEx("Ubuntu-Bold.ttf", 80, 0, 500);
 
     ToggleFullscreen();
 
