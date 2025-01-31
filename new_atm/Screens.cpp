@@ -211,7 +211,8 @@ void drawWallet() {
         int cardWidth = (rect.width)/2;
         int cardHeight = (cardWidth/2);
         int cardX = rect.x + (rect.width-cardWidth)/2;
-        int cardY = (rect.y + rect.height/50) + (((cardHeight*2)/3 + 10)*i);
+        int totalHeight = cardHeight + (((cardHeight*2)/3 + 10)*4); 
+        int cardY = rect.y + (rect.height + (((cardHeight*2)/3 + 10)*i)) / 2;
 
         Rectangle card = {static_cast<float>(cardX), static_cast<float>(cardY), static_cast<float>(cardWidth), static_cast<float>(cardHeight)};
 
