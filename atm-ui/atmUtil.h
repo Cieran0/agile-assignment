@@ -28,7 +28,6 @@ using namespace std;
 
 #define RAYGUI_BUTTON_BORDER_WIDTH   2
 #define RAYGUI_BUTTON_TEXT_PADDING   10
-#define DEFAULT_BUTTON_TEXT_SIZE 30
 
 enum Language {
     ENGLISH,
@@ -142,6 +141,7 @@ extern int atmWidth;
 extern int atmHeight;
 extern int atmX;
 extern int atmY;
+extern int defaultButtonTextSize;
 
 extern int background;
 

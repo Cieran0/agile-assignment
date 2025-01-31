@@ -12,7 +12,7 @@ bool validatedPIN = false;
 
 string input = "";
 uint64_t atmID = rand_uint64();
-enum Screen screen = WaitingForCard;
+enum Screen screen = LanguageSelect;
 enum Language defaultLanguage = ENGLISH;
 
 std::string cardNumber = "5030153826527268";
@@ -22,6 +22,7 @@ double balance = 0;
 // shouldve probably used an enum here but too late
 std::map<std::string, std::string> englishStrings {
     {"PIN_PROMPT", "Please enter your PIN:"},
+    {"INSERT_CARD_TEXT", "Please insert your card."},
     {"WITHDRAWAL_PROMPT", "Enter amount for withdrawal:"},
     {"BALANCE_TEXT", "Account balance:"},
     {"INSERTED_CARD_TEXT", "Inserted card:"},
@@ -39,11 +40,15 @@ std::map<std::string, std::string> englishStrings {
     {"TAKE_RECEIPT_TEXT", "TAKE YOUR RECEIPT"},
     {"WITHDRAWAL_TEXT", "Cash Withdrawal"},
     {"DEPOSIT_TEXT", "Enter Deposit Amount"},
-    {"BALANCE_OPTION_TEXT", "Select balance option"}
+    {"BALANCE_OPTION_TEXT", "Select balance option"},
+    {"TAKE_RECEIPT_TEXT", "Please take your receipt:"},
+    {"SELECT_OPTION_TEXT", "Select an option from below."},
+    {"VISIBILITY_OPTIONS_TEXT", "Visibility Options"}
 };
 
 std::map<std::string, std::string> frenchStrings {
     {"PIN_PROMPT",               "Veuillez saisir votre code PIN :"},
+    {"INSERT_CARD_TEXT",         "Veuillez insérer votre carte."},
     {"WITHDRAWAL_PROMPT",        "Entrez le montant du retrait :"},
     {"BALANCE_TEXT",             "Solde du compte :"},
     {"INSERTED_CARD_TEXT",       "Carte insérée :"},
@@ -61,11 +66,15 @@ std::map<std::string, std::string> frenchStrings {
     {"TAKE_RECEIPT_TEXT",        "Prends ton reçu"},
     {"WITHDRAWAL_TEXT",          "Retrait en espèces"},
     {"DEPOSIT_TEXT",             "Entrez le montant du dépôt"},
-    {"BALANCE_OPTION_TEXT",      "Sélectionnez l'option de solde"}
+    {"BALANCE_OPTION_TEXT",      "Sélectionnez l'option de solde"},
+    {"TAKE_RECEIPT_TEXT", "Veuillez prendre votre reçu:"},
+    {"SELECT_OPTION_TEXT", "Sélectionnez une option ci-dessous."},
+    {"VISIBILITY_OPTIONS_TEXT", "Options de visibilité"}
 };
 
 std::map<std::string, std::string> spanishStrings {
     {"PIN_PROMPT",               "Por favor, introduzca su PIN:"},
+    {"INSERT_CARD_TEXT",         "Por favor inserte su tarjeta."},
     {"WITHDRAWAL_PROMPT",        "Ingrese la cantidad a retirar:"},
     {"BALANCE_TEXT",             "Saldo de la cuenta:"},
     {"INSERTED_CARD_TEXT",       "Tarjeta insertada:"},
@@ -76,18 +85,22 @@ std::map<std::string, std::string> spanishStrings {
     {"INSUFFICIENT_FUNDS_TEXT",  "Fondos insuficientes..."},
     {"VIEW_BALANCE_TEXT",        "Ver saldo"},
     {"PRINT_BALANCE_TEXT",       "Imprimir saldo"},
-    {"MAIN_MENU_TEXT",           "Volver al menú principal"},
+    {"MAIN_MENU_TEXT",           "Volver al menu principal"},
     {"BALANCE_BTN_TEXT",         "Consulta de saldo"},
     {"DEPOSIT_BTN_TEXT",         "Depósito"},
     {"EXIT_BTN_TEXT",            "Salir"},
     {"TAKE_RECEIPT_TEXT",        "Toma tu recibo"},
     {"WITHDRAWAL_TEXT",          "Retiro de efectivo"},
     {"DEPOSIT_TEXT",             "Ingrese el monto del depósito"},
-    {"BALANCE_OPTION_TEXT",      "Seleccione opción de saldo"}
+    {"BALANCE_OPTION_TEXT",      "Seleccione opción de saldo"},
+    {"SELECT_OPTION_TEXT", "Seleccione una opción de las siguientes."},
+    {"VISIBILITY_OPTIONS_TEXT", "Opciones de visibilidad"},
+    {"TAKE_RECEIPT_TEXT", "Por favor, tome su recibo:"}
 };
 
 std::map<std::string, std::string> germanStrings {
     {"PIN_PROMPT",               "Bitte geben Sie Ihre PIN ein:"},
+    {"INSERT_CARD_TEXT",         "Bitte stecken Sie Ihre Karte ein."},
     {"WITHDRAWAL_PROMPT",        "Betrag für Auszahlung eingeben:"},
     {"BALANCE_TEXT",             "Kontostand:"},
     {"INSERTED_CARD_TEXT",       "Eingelegte Karte:"},
@@ -105,7 +118,10 @@ std::map<std::string, std::string> germanStrings {
     {"TAKE_RECEIPT_TEXT",        "Nehmen Sie Ihre Quittung"},
     {"WITHDRAWAL_TEXT",          "Bargeldauszahlung"},
     {"DEPOSIT_TEXT",             "Geben Sie den Einzahlungsbetrag ein"},
-    {"BALANCE_OPTION_TEXT",      "Wählen Sie die Saldooption"}
+    {"BALANCE_OPTION_TEXT",      "Wählen Sie die Saldooption"},
+    {"TAKE_RECEIPT_TEXT", "Bitte nehmen Sie Ihren Beleg mit:"},
+    {"SELECT_OPTION_TEXT", "Wählen Sie unten eine Option aus."},
+    {"VISIBILITY_OPTIONS_TEXT", "Sichtbarkeitsoptionen"}
 };
 
 string keyPad[5][3] = {
@@ -164,5 +180,5 @@ void setScreen(Screen s) {
 void setLanguage(Language language) {
     defaultLanguage = language;
     resetGlobalTextVariables();
-    setScreen(EnterPin); 
+    setScreen(WaitingForCard); 
 }

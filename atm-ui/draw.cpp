@@ -13,6 +13,7 @@ int screenWidth = GetMonitorWidth(0);
 int screenHeight = GetMonitorHeight(0);
 std::string currencySymbol = "";
 Currency currentCurrency = GBP;
+int defaultButtonTextSize = 30;
 
 #define CASING_BACK_COLOR CLITERAL(Color){(84, 103, 125, 1)}
 #define CASING_FRONT_COLOR CLITERAL(Color){(59, 70, 84, 1)}
@@ -58,7 +59,7 @@ void drawCashSlot(const char* text) {
     };
 
     if (GuiButton(cashSlotButton, text)) {
-        setScreen(LanguageSelect);
+        setScreen(EnterPin);
         resetGlobalTextVariables();
         displayText = getStringInLanguage("PIN_PROMPT");
     }
@@ -79,7 +80,7 @@ void drawButtons(vector<Button> buttons) {
 void drawMoney(std::string str) {
     if(str.empty()) str = "0";
     int textWidth = MeasureText(str.c_str(), 75);
-    int textX = atmX + (atmWidth - textWidth) / 2;
+    int textX = atmX + ((atmWidth - textWidth) / 2) - 20; 
     int textY = atmY + (atmHeight / 3); 
     DrawTextB((currencySymbol + str).c_str(), textX, textY, 75, ATM_TEXT);
 }
@@ -101,7 +102,7 @@ void drawCardSlot() {
         static_cast<float>(visibilityBtnHeight)
     };
 
-    if (GuiButton(visibilityBtn, "Visibility Options")) {
+    if (GuiButton(visibilityBtn, getStringInLanguage("VISIBILITY_OPTIONS_TEXT").c_str())) {
         setScreen(displayOptions);
         resetGlobalTextVariables();
         displayText = "Choose from the sizing options below:";
@@ -310,7 +311,7 @@ void drawSideButtons(const vector<Button>& buttons) {
     int buttonHeight = 70;
     int buttonSpacing = 50;
     int verticalSpacing = screenHeight / 10;
-    int fontSize = DEFAULT_BUTTON_TEXT_SIZE;
+    int fontSize = defaultButtonTextSize;
     Color textColor = BLACK;
 
     int startXLeft = atmX - buttonWidth - 15;
@@ -367,7 +368,7 @@ void drawSideButtons(const vector<std::pair<string, std::function<void()>>>& but
     int buttonHeight = 70;
     int buttonSpacing = 50;
     int verticalSpacing = screenHeight / 10;
-    int fontSize = DEFAULT_BUTTON_TEXT_SIZE;
+    int fontSize = defaultButtonTextSize;
     Color textColor = BLACK;
 
     int startXLeft = atmX - buttonWidth - 15;

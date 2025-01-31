@@ -11,7 +11,7 @@
 #include <unordered_map>
 
 void drawWaitingForCard() {
-    drawATMScreen(getStringInLanguage("INSERT_HERE_TEXT").c_str());
+    drawATMScreen(getStringInLanguage("INSERT_CARD_TEXT").c_str());
     drawCardSlot();
     drawSideButtons({});
     drawKeypadAndCardBackground();
@@ -36,7 +36,7 @@ void atmLayout() {
 }
 
 void displayTransactionChoices() {
-    drawATMScreen("Select an option from below.");
+    drawATMScreen(getStringInLanguage("SELECT_OPTION_TEXT").c_str());
 
     int buttonWidth = 350;
     int buttonHeight = 60;
@@ -47,10 +47,10 @@ void displayTransactionChoices() {
     int startX = atmX + 50;
 
     vector<Button> sideButtons = {
-        {{}, "Balance Inquiry", Balance},
-        {{}, "Cash Withdrawal", Withdraw},
-        {{}, "Deposit", Deposit},
-        {{}, "Exit", WaitingForCard},
+        {{}, getStringInLanguage("BALANCE_BTN_TEXT").c_str(), Balance},
+        {{}, getStringInLanguage("WITHDRAWAL_TEXT").c_str(), Withdraw},
+        {{}, getStringInLanguage("DEPOSIT_BTN_TEXT").c_str(), Deposit},
+        {{}, getStringInLanguage("EXIT_BTN_TEXT").c_str(), WaitingForCard},
         {{}, "", {}},
         {{}, "", {}},
         {{}, "", {}},
@@ -85,9 +85,9 @@ void drawBalanceChoices() {
     int startX = atmX + 50; 
 
     vector<Button> sideButtons = {
-        {{}, "View Balance", BalanceAmount},
-        {{}, "Print Balance", PrintBalance},
-        {{}, "Back to Main Menu", MainMenu},
+        {{}, getStringInLanguage("VIEW_BALANCE_TEXT").c_str(), BalanceAmount},
+        {{}, getStringInLanguage("PRINT_BALANCE_TEXT").c_str(), PrintBalance},
+        {{}, getStringInLanguage("MAIN_MENU_TEXT").c_str(), MainMenu},
         {{}, "", {}},
         {{}, "", {}},
         {{}, "", {}},
@@ -104,11 +104,11 @@ void drawBalanceChoices() {
 
 void viewBalance() {
     drawATMScreen("");
-    int textWidth = MeasureText("Your Current Balance", 30);
+    int textWidth = MeasureText(getStringInLanguage("BALANCE_TEXT").c_str(), 30);
     int textX = atmX + (atmWidth - textWidth) / 2; 
     int textY = atmY + 40; 
 
-    DrawTextB("Your Current Balance:", textX, textY, 30, ATM_TEXT);
+    DrawTextB(getStringInLanguage("BALANCE_TEXT").c_str(), textX, textY, 30, ATM_TEXT);
 
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << balance;
@@ -120,7 +120,7 @@ void viewBalance() {
     float buttonY = textY + 200;
     
     vector<Button> buttons = {
-        {{ buttonX, buttonY, buttonWidth, buttonHeight }, "Back to Main Menu", MainMenu}
+        {{ buttonX, buttonY, buttonWidth, buttonHeight }, getStringInLanguage("MAIN_MENU_TEXT").c_str(), MainMenu}
     };
 
     drawButtons(buttons);
@@ -135,7 +135,6 @@ void drawDepositMenu() {
     drawATMScreen(getStringInLanguage("DEPOSIT_TEXT").c_str());
     drawMoney(input);
     drawSideButtons({});
-    drawCashSlot("INSERT CASH HERE");
     drawKeypadAndCardBackground();
     drawKeypad(handleDepositInput);
     drawCashSlot(getStringInLanguage("INSERT_HERE_TEXT").c_str());
@@ -154,7 +153,7 @@ void printBalance() {
 
     bool finished = (counter >= 60 * 5);
 
-    drawATMScreen(finished ? "Please take your receipt" : "Processing....");
+    drawATMScreen(finished ? getStringInLanguage("TAKE_RECEIPT_TEXT").c_str() : getStringInLanguage("PROCESSING_TEXT").c_str());
 
     if (!finished) {
         counter++;
@@ -191,7 +190,7 @@ void fontSizes(){
 
 void screenSizes(){
 
-    drawATMScreen("Select an option:");
+    drawATMScreen(getStringInLanguage("SELECT_OPTION_TEXT").c_str());
     int buttonWidth = 350;
     int buttonHeight = 60;
     int buttonSpacing = 110; 
