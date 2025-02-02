@@ -1,26 +1,13 @@
 #pragma once
-
 #include <cstdint>
+#include <string>
+#include "Currency.hpp"
 
-typedef uint64_t DecimalPosition;
 
-enum Currency {
-    GBP,
-    USD,
-    JPY,
-    EUR,
-    AUD,
-    CAD,
-    CHF,
-    CNH,
-    HKD,
-    NZD
-};
-
-enum TranscationType {
+enum TransactionType {
     PIN_CHECK,
     BALANCE_CHECK,
-    WITHDRAWL,
+    WITHDRAWAL,
     DEPOSIT,
     MOBILE_APROVED_DEPOSIT
 };
@@ -40,7 +27,7 @@ typedef uint64_t AtmID;
 typedef uint64_t UniqueTranscationID;
 
 struct Transaction {
-    TranscationType type;
+    TransactionType type;
     UniqueTranscationID id;
 
     AtmID atmID;
@@ -58,3 +45,14 @@ struct Response {
     AtmCurrency newBalance;
     DecimalPosition dotPosition;
 };
+
+
+#define NETWORK (Response){.succeeded = ResponseType::NETWORK_ERROR}
+
+extern const char* host;
+extern int port;
+
+Response forwardToSocket(Transaction transaction);
+uint64_t rand_uint64();
+
+extern AtmID atmID;

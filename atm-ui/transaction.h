@@ -1,26 +1,12 @@
 #pragma once
-
 #include <cstdint>
+#include "Currency.hpp"
 
-typedef uint64_t DecimalPosition;
 
-enum Currency {
-    GBP,
-    USD,
-    JPY,
-    EUR,
-    AUD,
-    CAD,
-    CHF,
-    CNH,
-    HKD,
-    NZD
-};
-
-enum TranscationType {
+enum TransactionType {
     PIN_CHECK,
     BALANCE_CHECK,
-    WITHDRAWL,
+    WITHDRAWAL,
     DEPOSIT,
     MOBILE_APROVED_DEPOSIT
 };
@@ -40,7 +26,7 @@ typedef uint64_t AtmID;
 typedef uint64_t UniqueTranscationID;
 
 struct Transaction {
-    TranscationType type;
+    TransactionType type;
     UniqueTranscationID id;
 
     AtmID atmID;

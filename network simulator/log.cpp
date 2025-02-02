@@ -7,9 +7,18 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include "db.hpp"
 
 std::vector<std::function<void(const Transaction&)>> loggers;
 std::ofstream log_txt;
+
+const std::unordered_map<TranscationType, std::string> enumToTransactionTypeString = {
+    {WITHDRAWL, "Withdrawal"},
+    {PIN_CHECK, "PIN Check"},
+    {BALANCE_CHECK, "Balance Check"},
+    {DEPOSIT, "Deposit"},
+    {MOBILE_APROVED_DEPOSIT, "Mobile Deposit"},
+};
 
 void addLogger(const std::function<void(const Transaction&)>& logger) {
     loggers.push_back(logger);
@@ -22,54 +31,79 @@ void log(const Transaction& transaction) {
 }
 
 void DatabaseLogger(const Transaction& transaction) {
-    sqlite3* db;
-    int exitCode = sqlite3_open("database.db", &db);
-    if (exitCode != SQLITE_OK) {
-        std::cerr << "Failed to open database: " << sqlite3_errmsg(db) << std::endl;
-        sqlite3_close(db);
-        return;
-    }
-
     std::string sql = std::format(
-        "INSERT INTO Transactions (TransactionID, ATM_ID, WithdrawlAmount, CardNumber) "
-        "VALUES ({}, {}, {}, '{}');",
-        transaction.uniqueTransactionID,
+        "INSERT INTO Transactions (TransactionID, ATM_ID, CardNumber, Type, Amount, Time, Currency) "
+        "VALUES ({}, {}, '{}', '{}', {}, '{}', '{}');",
+        transaction.id,
         transaction.atmID,
-        transaction.withdrawalAmount,
-        transaction.cardNumber
+        transaction.cardNumber,
+        enumToTransactionTypeString.at(transaction.type),
+        transaction.amount,
+        std::chrono::system_clock::now(),
+        enumToCurrencyCode.at(transaction.currency)
     );
 
-    char* errorMessage = nullptr;
-    exitCode = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errorMessage);
-    if (exitCode != SQLITE_OK) {
-        std::cerr << "SQL error: " << errorMessage << std::endl;
-        sqlite3_free(errorMessage);
-    }
-
-    sqlite3_close(db);
+    enqueueTransactionLog(sql);
 }
 
-void txtLogger(const Transaction& transaction){
-    std::string message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
-        std::chrono::system_clock::now(),
-        transaction.uniqueTransactionID, 
-        transaction.withdrawalAmount,
-        transaction.cardNumber,
-        transaction.atmID
-    );
 
+std::string transactionToString(const Transaction& transaction) {
+    std::string message;
+    if(transaction.type == BALANCE_CHECK){ 
+        message = std::format("[{}]: Transaction ID {} | Card number [{}] checked balance at ATM {} {}",
+            std::chrono::system_clock::now(),
+            transaction.id, 
+            transaction.amount,
+            transaction.cardNumber,
+            transaction.atmID
+        );
+    }
+    else if(transaction.type == DEPOSIT){   
+        message = std::format("[{}]: Transaction ID {} | Deposit of {} {} with card [{}] at ATM {}",
+            std::chrono::system_clock::now(),
+            transaction.id, 
+            transaction.amount,
+            enumToCurrencyCode.at(transaction.currency),
+            transaction.cardNumber,
+            transaction.atmID
+        );
+    } else if (transaction.type == WITHDRAWL) {
+        message = std::format("[{}]: Transaction ID {} | withdrawal of {} {} with card [{}] at ATM {}",
+            std::chrono::system_clock::now(),
+            transaction.id, 
+            transaction.amount,
+            enumToCurrencyCode.at(transaction.currency),
+            transaction.cardNumber,
+            transaction.atmID
+        );
+
+    } else if (transaction.type == TranscationType::PIN_CHECK) {
+        message = std::format("[{}]: Transaction ID {} | pin check with card [{}] at ATM {}",
+            std::chrono::system_clock::now(),
+            transaction.id, 
+            transaction.cardNumber,
+            transaction.atmID
+        );
+    }
+    else{
+        message = std::format("[{}]: Transaction ID {} | transaction of {} {} with card [{}] at ATM {}",
+            std::chrono::system_clock::now(),
+            transaction.id, 
+            transaction.amount,
+            enumToCurrencyCode.at(transaction.currency),
+            transaction.cardNumber,
+            transaction.atmID
+        );
+    }
+    return message;
+} 
+
+void txtLogger(const Transaction& transaction){
     if(log_txt.is_open()) {
-        log_txt << message << std::endl;
+        log_txt << transactionToString(transaction) << std::endl;
     }
 }
 
 void ConsoleLogger(const Transaction& transaction) {
-    std::string console_message = std::format("[{}]: Transaction ID {} | withdrawal of £{} with card [{}] at ATM {}",
-        std::chrono::system_clock::now(),
-        transaction.uniqueTransactionID, 
-        transaction.withdrawalAmount,
-        transaction.cardNumber,
-        transaction.atmID
-    );
-    std::cout << console_message << std::endl;
+    std::cout << transactionToString(transaction) << std::endl;
 }

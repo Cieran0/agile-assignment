@@ -1,49 +1,107 @@
-#!/usr/bin/env python3
+
 
 import sqlite3
-import random
-import string
-from datetime import datetime, timedelta
+import shutil
 
-# Function to generate random data for the Customer table
-def generate_customer_data():
-    account_number = ''.join(random.choices(string.digits, k=10))
-    sort_code = ''.join(random.choices(string.digits, k=6))
-    card_number = ''.join(random.choices(string.digits, k=16))
-    cvv = random.randint(100, 999)
-    expire_date = (datetime.now() + timedelta(days=random.randint(365, 1825))).strftime('%m/%y')
-    pin = random.randint(1000, 9999)
-    balance = round(random.uniform(100.0, 10000.0), 2)
+# Database names
+db_names = ["db1.db", "db2.db", "db3.db"]
 
-    return (account_number, sort_code, card_number, cvv, expire_date, pin, balance)
+# Create the databases and tables
+def create_database(db_name):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    
+    # Create tables
+    cursor.executescript('''
+    CREATE TABLE IF NOT EXISTS ConversionRate (
+        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        CurrencyFrom TEXT,
+        CurrencyTo TEXT,
+        ConversionRate REAL
+    );
+    
+    CREATE TABLE IF NOT EXISTS Currencies (
+        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        CurrencyCode TEXT UNIQUE,
+        DotPosition INTEGER
+    );
+    
+    CREATE TABLE IF NOT EXISTS Customer (
+        AccountNumber TEXT PRIMARY KEY,
+        SortCode TEXT NOT NULL CHECK(LENGTH(SortCode) = 6),
+        CardNumber TEXT NOT NULL UNIQUE,
+        CVV TEXT NOT NULL CHECK(LENGTH(CAST(CVV AS TEXT)) = 3),
+        ExpireDate TEXT NOT NULL CHECK(LENGTH(ExpireDate) = 5 AND SUBSTR(ExpireDate, 3, 1) = '/'),
+        PIN TEXT NOT NULL CHECK(LENGTH(CAST(PIN AS TEXT)) = 4),
+        Currency TEXT NOT NULL DEFAULT 'GBP',
+        Balance BIGINT,
+        FOREIGN KEY(Currency) REFERENCES Currencies(CurrencyCode)
+    );
+    
+    CREATE TABLE IF NOT EXISTS Transactions (
+        TransactionID INTEGER PRIMARY KEY,
+        ATM_ID INTEGER,
+        WithdrawlAmount REAL,
+        CardNumber TEXT,
+        FOREIGN KEY(CardNumber) REFERENCES Customer(CardNumber)
+    );
+    ''')
+    
+    conn.commit()
+    conn.close()
 
-# Function to populate the database with random customers
-def populate_database(db_name, num_customers):
-    connection = sqlite3.connect(db_name)
-    cursor = connection.cursor()
+# Create all databases
+for db in db_names:
+    create_database(db)
 
-    # Insert random customers into the database
-    for _ in range(num_customers):
-        customer_data = generate_customer_data()
-        try:
-            cursor.execute(
-                """
-                INSERT INTO Customer (AccountNumber, SortCode, CardNumber, CVV, ExpireDate, PIN, Balance)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                customer_data
-            )
-        except sqlite3.IntegrityError as e:
-            print(f"Error inserting data: {e}. Skipping this record.")
+# Connect to a source database and fetch the data
+source_db = "database.db"
+conn = sqlite3.connect(source_db)
+cursor = conn.cursor()
 
-    # Commit and close the connection
-    connection.commit()
-    connection.close()
+# Copy ConversionRate and Currencies to all databases
+conversion_rate_data = cursor.execute("SELECT * FROM ConversionRate").fetchall()
+currency_data = cursor.execute("SELECT * FROM Currencies").fetchall()
+customer_data = cursor.execute("SELECT * FROM Customer").fetchall()
 
-# Main script
-if __name__ == "__main__":
-    database_name = "database.db"
-    number_of_customers = 100  # Number of random customers to generate
+conn.close()
 
-    populate_database(database_name, number_of_customers)
-    print(f"Successfully populated {database_name} with {number_of_customers} random customers.")
+# Insert data into the three new databases
+def insert_data(db_name, conversion_rate_data, currency_data):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    
+    cursor.executemany("INSERT INTO ConversionRate VALUES (?, ?, ?, ?)", conversion_rate_data)
+    cursor.executemany("INSERT INTO Currencies VALUES (?, ?, ?)", currency_data)
+    
+    conn.commit()
+    conn.close()
+
+for db in db_names:
+    insert_data(db, conversion_rate_data, currency_data)
+
+# Distribute customers based on the first digit of their CardNumber
+def distribute_customers(customer_data):
+    db_connections = [sqlite3.connect(db) for db in db_names]
+    db_cursors = [conn.cursor() for conn in db_connections]
+    
+    for customer in customer_data:
+        card_number = customer[2]
+        first_digit = int(card_number[0])
+        
+        if 0 <= first_digit <= 3:
+            db_index = 0
+        elif 4 <= first_digit <= 6:
+            db_index = 1
+        else:
+            db_index = 2
+        
+        db_cursors[db_index].execute("INSERT INTO Customer (AccountNumber, SortCode, CardNumber, CVV, ExpireDate, PIN, Currency, Balance) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", customer[:8])
+    
+    for conn in db_connections:
+        conn.commit()
+        conn.close()
+
+# Insert customers into the respective databases
+distribute_customers(customer_data)
+

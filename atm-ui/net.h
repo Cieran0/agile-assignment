@@ -2,30 +2,22 @@
 
 #include <cstdint>
 #include <string>
+#include "transaction.h"
 
-#define TRANSACTION_SUCESS 0
-#define INSUFFICIENT_FUNDS 1
-#define DATABASE_ERROR 2
-#define INCORRECT_PIN 3
-#define NETWORK_ERROR 4
-
-struct Transaction {
-    char cardNumber[20];
-    char expiryDate[6];
-    uint64_t atmID;
-    uint64_t uniqueTransactionID;
-    char pinNo[5];
-    double withdrawalAmount;
+struct BalanceMoney {
+    Currency currency;
+    AtmCurrency balance;
+    DecimalPosition dotPosition;
 };
 
-struct Response {
-    int succeeded;
-    double new_balance;
-    Response() {}
-    Response(int code) : succeeded(code), new_balance(0) {}
-};
+std::string balanceAsString(BalanceMoney balance);
+
+extern BalanceMoney balance;
+
+#define NETWORK (Response){.succeeded = ResponseType::NETWORK_ERROR}
 
 extern const char* host;
 extern int port;
 
-Response forwardToSocket(std::string cardNumber, std::string expiryDate, uint64_t atmID, std::string pin, double withdrawalAmount);
+Response forwardToSocket(TransactionType type, AtmID atmID, Currency currency, AtmCurrency amount, const char cardNumber[20], const char expiryDate[6], const char pinNo[5]);
+uint64_t rand_uint64();

@@ -7,7 +7,6 @@
 
 using namespace std;
 
-string atmID;
 string transactionID;
 string pin;
 double withdrawalAmount;
@@ -33,9 +32,11 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    setCurrency(GBP);
     screenInit();
     while (!WindowShouldClose()) {
         BeginDrawing();
+        drawAtmCasing();
         screenManager();
         EndDrawing();
     }
